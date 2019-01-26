@@ -35,3 +35,11 @@ void Expression::setLabel(string label){
 string Expression::getLabel(){
     return label;
 }
+
+/**
+ * [Variable::setData sets the data that the variable holds]
+ * @param data [The new data]
+ */
+void Variable::setData(void* data){
+    this->data = data;
+}
