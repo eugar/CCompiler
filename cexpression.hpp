@@ -35,13 +35,36 @@ class Expression {
 private:
     string token;
     string label;
+    int scope;
 
 public:
     Expression() : token(""), label(""){};
+
+    // second constructor that we might need in the
+    // future when we add scope.
+    Expression(int scope) : token(""), label(""), scope(scope){};
 
     void setToken(string token);
     string getToken();
 
     void setLabel(string label);
     string getLabel();
+
+    int getScope(){return scope;}
+};
+
+class Variable {
+private:
+    string name;
+    int scope;
+    void *data;
+
+public:
+    Variable(string name, int scope, void* data) : name(name), scope(scope), data(data){};
+
+    string getName(){return name;}
+    int getScope(){return scope;}
+
+    void* getData(){return data;}
+    void setData(void *data);
 };
