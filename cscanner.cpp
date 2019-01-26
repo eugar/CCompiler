@@ -33,6 +33,11 @@ Scanner::Scanner(){
     cinstructions.insert(pair<string, int>("while", WHILE));
 }
 
+/**
+ * [Scanner::findToken searches for the given token in cinstructions map]
+ * @param  token [the token]
+ * @return       [the corresponding value in cinstructions map]
+ */
 int Scanner::findToken(string token){
     map<string, int>::const_iterator pos = cinstructions.find(token);
     int value = -1;
@@ -43,6 +48,8 @@ int Scanner::findToken(string token){
     }
     return value;
 }
+
+
 
 /**
  * [Scanner::parseLine parses each line into <token, label>]
@@ -132,7 +139,7 @@ Expression Scanner::parseLine(string line){
                     cout <<"<"<<token<<", while loop>\n"<<endl;
                     break;
                 default:
-                    cout <<"<"<<token<<", ehh?>\n"<<endl;
+                    cout <<"<"<<token<<", Not in the set of known instructions>\n"<<endl;
                     break;
             }
             token = "";
