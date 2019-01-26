@@ -24,6 +24,25 @@ vector<Expression> Compiler::getExpressions(){
 }
 
 /**
+ * [Variable::getVariables gets variables that have been declared]
+ * @return [the list of variables]
+ */
+vector<Variable> Compiler::getVariables(){
+    if (variables.size() == 0) {
+        cout << "No variables declared" << endl;
+    }
+    return variables;
+}
+
+/**
+ * [Compiler::addVariable adds a new variable that has been declared]
+ * @param var [the variable being declared]
+ */
+void Compiler::addVariable(Variable var){
+    variables.push_back(var);
+}
+
+/**
  * [Compiler::compile calls scanFile and generates a vector of
  * expresions that will then be interpreted]
  * @param filename [name of file]
