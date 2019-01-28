@@ -1,5 +1,6 @@
 #include "ccompiler.hpp"
 #include <iostream>
+#include <unistd.h>
 
 using namespace std;
 
@@ -8,6 +9,7 @@ using namespace std;
  */
 Compiler::Compiler(){
     scanner = Scanner();
+    expressions = vector<Expression>();
 }
 
 /**
@@ -15,7 +17,7 @@ Compiler::Compiler(){
  * by the scanner to eventually get interpreted]
  * @return [a vector of expressions]
  */
-vector<Expression> Compiler::getExpressions(){
+vector<Expression> &Compiler::getExpressions(){
     if (expressions.size() == 0) {
         cout << "No expressions. Please call compile first" << endl;
     }
@@ -27,7 +29,7 @@ vector<Expression> Compiler::getExpressions(){
  * [Variable::getVariables gets variables that have been declared]
  * @return [the list of variables]
  */
-vector<Variable> Compiler::getVariables(){
+vector<Variable> &Compiler::getVariables(){
     if (variables.size() == 0) {
         cout << "No variables declared" << endl;
     }
@@ -48,10 +50,14 @@ void Compiler::addVariable(Variable var){
  * @param filename [name of file]
  */
 void Compiler::compile(string filename){
-    expressions = scanner.scanFile(filename);
+
+    // populate tokenList
+    scanner.scanFile(filename, tokenList);
+    // parse tokens
+    // do more stuff
 }
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char * const argv[]) {
     Compiler compiler = Compiler();
     string filename = "test.c";
 

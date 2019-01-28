@@ -1,3 +1,5 @@
+#ifndef EXPRESSION_H
+#define EXPRESSION_H
 
 #include <string>
 
@@ -30,6 +32,25 @@ using namespace std;
 #define RET 25
 #define BRK 26
 #define WHILE 27
+#define OPAREN 28
+#define CPAREN 29
+#define OBRACE 30
+#define CBRACE 31
+#define OBRACK 32
+#define CBRACK 33
+#define SEMI 34
+#define NUMCONST 35
+#define LSTHN 36
+#define GRTHN 37
+#define LSTHEQ 38
+#define GRTHEQ 39
+#define EQUAL 40
+#define AND 41
+#define OR 42
+#define DQUOT 43
+#define SQUOT 44
+
+typedef pair<int,string> Token;
 
 class Expression {
 private:
@@ -68,3 +89,5 @@ public:
     void* getData(){return data;}
     void setData(void *data);
 };
+
+#endif // EXPRESSION_H
