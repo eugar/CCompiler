@@ -54,19 +54,19 @@ typedef pair<int,string> Token;
 
 class Expression {
 private:
-    string token;
+    Expression *exp;
     string label;
     int scope;
 
 public:
-    Expression() : token(""), label(""){};
+    Expression() : label(""){};
 
     // second constructor that we might need in the
     // future when we add scope.
-    Expression(int scope) : token(""), label(""), scope(scope){};
+    Expression(int scope) : label(""), scope(scope){};
 
-    void setToken(string token);
-    string getToken();
+    // constructor for imbeded expressions
+    Expression(int scope, Expression *exp);
 
     void setLabel(string label);
     string getLabel();
@@ -81,6 +81,10 @@ private:
     void *data;
 
 public:
+
+    // constructor for variables that don't have data yet
+    Variable(string name, int scope) : name(name), scope(scope){};
+
     Variable(string name, int scope, void* data) : name(name), scope(scope), data(data){};
 
     string getName(){return name;}
