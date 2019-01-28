@@ -1,5 +1,6 @@
 #include "ccompiler.hpp"
 #include <iostream>
+#include <fstream>
 #include <unistd.h>
 
 using namespace std;
@@ -58,8 +59,37 @@ void Compiler::compile(string filename){
 }
 
 int main(int argc, char * const argv[]) {
+    int c;
+    int totalChars;
+
     Compiler compiler = Compiler();
-    string filename = "test.c";
+
+    if (argc < 2) {
+HELP:
+        cout << "ccompiler - compile a C file\n"
+            << "Usage:\n"
+            << argv[0] << " [FILE]\n"
+            << "Optional arguments:\n"
+            << "-h displays this help menu\n"
+            << "-s displays list of tokens\n"
+            << "-p displays parse tree\n";
+        return 1;
+    }
+
+    while ((c = getopt(argc, argv, "?:hsp")) != -1) {
+        switch (c) {
+            case'h':
+                goto HELP;
+        }
+    }
+
+    if (optind != argc-1) {
+        cout << "Invalid number of arguments.\n";
+        return 1;
+    }
+
+    string filename = argv[optind];
+
 
     compiler.compile(filename);
 
