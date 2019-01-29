@@ -21,6 +21,8 @@ public:
 
     vector<Variable> &getVariables();
     void addVariable(Variable var);
+    
+    void printTokens();
 };
 
 #endif // CCOMPILER_H

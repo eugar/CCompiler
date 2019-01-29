@@ -291,9 +291,6 @@ void Scanner::parseFile(istream &input, vector<Token> &tokenList){
             }
         }
     }
-    for (auto it = tokenList.begin(); it != tokenList.end(); it++){
-        printTokens(it->first, it->second);
-    }
 }
 
 /**

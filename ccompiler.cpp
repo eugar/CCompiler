@@ -58,9 +58,16 @@ void Compiler::compile(string filename){
     // do more stuff
 }
 
+void Compiler::printTokens(){ 
+    for (auto it = tokenList.begin(); it != tokenList.end(); it++){
+        scanner.printTokens(it->first, it->second);
+    }
+}
+
 int main(int argc, char * const argv[]) {
     int c;
-    int totalChars;
+    int printTokens = 0;
+    int printTree = 0;
 
     Compiler compiler = Compiler();
 
@@ -78,7 +85,12 @@ HELP:
 
     while ((c = getopt(argc, argv, "?:hsp")) != -1) {
         switch (c) {
-            case'h':
+            case 's':
+                printTokens = 1;
+                break;
+            case 'p':
+                printTree = 1;
+            case 'h':
                 goto HELP;
         }
     }
@@ -92,6 +104,14 @@ HELP:
 
 
     compiler.compile(filename);
+
+    if (printTokens) {
+        compiler.printTokens();
+    }
+
+    if (printTree) {
+        //print tree
+    }
 
     return 0;
 }
