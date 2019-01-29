@@ -52,7 +52,8 @@ using namespace std;
 
 typedef pair<int,string> Token;
 
-class Expression {
+class Expression 
+{
 private:
     Expression *exp;
     string label;
@@ -74,7 +75,8 @@ public:
     int getScope(){return scope;}
 };
 
-class Variable {
+class Variable 
+{
 private:
     string name;
     int scope;

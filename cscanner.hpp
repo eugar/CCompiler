@@ -7,7 +7,8 @@
 
 using namespace std;
 
-class Scanner {
+class Scanner 
+{
 private:
     map<string, int> cinstructions;
     void parseFile(istream &input, vector<Token> &tokenList);

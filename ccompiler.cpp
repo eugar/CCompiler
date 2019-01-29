@@ -8,7 +8,8 @@ using namespace std;
 /**
  * [Compiler::Compiler Compiler contructor]
  */
-Compiler::Compiler(){
+Compiler::Compiler()
+{
     scanner = Scanner();
     expressions = vector<Expression>();
 }
@@ -18,8 +19,10 @@ Compiler::Compiler(){
  * by the scanner to eventually get interpreted]
  * @return [a vector of expressions]
  */
-vector<Expression> &Compiler::getExpressions(){
-    if (expressions.size() == 0) {
+vector<Expression> &Compiler::getExpressions()
+{
+    if (expressions.size() == 0) 
+    {
         cout << "No expressions. Please call compile first" << endl;
     }
 
@@ -30,8 +33,10 @@ vector<Expression> &Compiler::getExpressions(){
  * [Variable::getVariables gets variables that have been declared]
  * @return [the list of variables]
  */
-vector<Variable> &Compiler::getVariables(){
-    if (variables.size() == 0) {
+vector<Variable> &Compiler::getVariables()
+{
+    if (variables.size() == 0) 
+    {
         cout << "No variables declared" << endl;
     }
     return variables;
@@ -41,7 +46,8 @@ vector<Variable> &Compiler::getVariables(){
  * [Compiler::addVariable adds a new variable that has been declared]
  * @param var [the variable being declared]
  */
-void Compiler::addVariable(Variable var){
+void Compiler::addVariable(Variable var)
+{
     variables.push_back(var);
 }
 
@@ -50,7 +56,8 @@ void Compiler::addVariable(Variable var){
  * expresions that will then be interpreted]
  * @param filename [name of file]
  */
-void Compiler::compile(string filename){
+void Compiler::compile(string filename)
+{
 
     // populate tokenList
     scanner.scanFile(filename, tokenList);
@@ -58,20 +65,24 @@ void Compiler::compile(string filename){
     // do more stuff
 }
 
-void Compiler::printTokens(){ 
-    for (auto it = tokenList.begin(); it != tokenList.end(); it++){
+void Compiler::printTokens()
+{ 
+    for (auto it = tokenList.begin(); it != tokenList.end(); it++) 
+    {
         scanner.printTokens(it->first, it->second);
     }
 }
 
-int main(int argc, char * const argv[]) {
+int main(int argc, char * const argv[])
+{
     int c;
     int printTokens = 0;
     int printTree = 0;
 
     Compiler compiler = Compiler();
 
-    if (argc < 2) {
+    if (argc < 2) 
+    {
 HELP:
         cout << "ccompiler - compile a C file\n"
             << "Usage:\n"
@@ -83,8 +94,10 @@ HELP:
         return 1;
     }
 
-    while ((c = getopt(argc, argv, "?:hsp")) != -1) {
-        switch (c) {
+    while ((c = getopt(argc, argv, "?:hsp")) != -1) 
+    {
+        switch (c) 
+        {
             case 's':
                 printTokens = 1;
                 break;
@@ -95,7 +108,8 @@ HELP:
         }
     }
 
-    if (optind != argc-1) {
+    if (optind != argc-1) 
+    {
         cout << "Invalid number of arguments.\n";
         return 1;
     }
@@ -105,11 +119,13 @@ HELP:
 
     compiler.compile(filename);
 
-    if (printTokens) {
+    if (printTokens) 
+    {
         compiler.printTokens();
     }
 
-    if (printTree) {
+    if (printTree) 
+    {
         //print tree
     }
 

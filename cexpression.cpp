@@ -9,7 +9,8 @@ using namespace std;
  * @param scope [the scope]
  * @param exp   [the embeded expression]
  */
-Expression::Expression(int scope, Expression *exp){
+Expression::Expression(int scope, Expression *exp)
+{
     label = "";
     this->scope = scope;
     this->exp = exp;
@@ -19,7 +20,8 @@ Expression::Expression(int scope, Expression *exp){
  * [Expression::setLabel sets the label of the expression]
  * @param label [the label]
  */
-void Expression::setLabel(string label){
+void Expression::setLabel(string label)
+{
     label = label;
 }
 
@@ -27,7 +29,8 @@ void Expression::setLabel(string label){
  * [Expression::getLabel gets the label of the expression]
  * @return [the label]
  */
-string Expression::getLabel(){
+string Expression::getLabel()
+{
     return label;
 }
 
@@ -35,6 +38,7 @@ string Expression::getLabel(){
  * [Variable::setData sets the data that the variable holds]
  * @param data [The new data]
  */
-void Variable::setData(void* data){
+void Variable::setData(void* data)
+{
     this->data = data;
 }

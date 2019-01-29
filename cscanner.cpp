@@ -7,7 +7,8 @@ using namespace std;
  * [Scanner::Scanner scanner constructor]
  * [Sets all the instructions the will change the programs state]
  */
-Scanner::Scanner(){
+Scanner::Scanner()
+{
     cinstructions.insert(pair<string, int>("id", ID));
     cinstructions.insert(pair<string, int>("int", INT));
     cinstructions.insert(pair<string, int>("double", DUB));
@@ -57,19 +58,22 @@ Scanner::Scanner(){
  * @param  token [the token]
  * @return       [the corresponding value in cinstructions map]
  */
-int Scanner::findToken(string token){
+int Scanner::findToken(string token)
+{
     map<string, int>::const_iterator pos = cinstructions.find(token);
     int value = -1;
     if (pos == cinstructions.end()) {
         //cout<<"token: "<<token<<" not an instruction. Variable?"<<endl;
-    } else {
+    } 
+    else {
         value = pos->second;
     }
     return value;
 }
 
 // just prints the token
-int Scanner::printTokens(int mapValue, string token) {
+int Scanner::printTokens(int mapValue, string token)
+{
     switch (mapValue) {
         case INT:
             //expression.setLabel("");
@@ -210,32 +214,40 @@ int Scanner::printTokens(int mapValue, string token) {
  * @param  input [file stream of the program being compiled]
  * @param expressions [out] [vector to populate with expressions]
  */
-void Scanner::parseFile(istream &input, vector<Token> &tokenList){
+void Scanner::parseFile(istream &input, vector<Token> &tokenList)
+{
     tokenList.clear();
     string token;
     token.clear();
     int mapValue = -1;
 
-    while (true){
+    while (true)
+    {
         char c = input.get();
-        if (!input.good()){
+        if (!input.good())
+        {
             break;
         }
 
         // Fresh start: look for next token
-        if (token.empty()){
-            if (isspace(c)){
+        if (token.empty())
+        {
+            if (isspace(c))
+            {
                 continue;
             }
-            else{
-                if (isalnum(c) || c == '_'){
+            else
+            {
+                if (isalnum(c) || c == '_')
+                {
                     token.append(1, c);
                     continue;
                 }
                 // single characters that require no further checks
                 else if (c == '(' || c == ')' || c == '\'' || c == '\"' ||
                          c == ';' || c == '{' || c == '}' || c == '[' ||
-                         c == ']' || c == '#') {
+                         c == ']' || c == '#') 
+                {
                     token.append(1, c);
                     tokenList.push_back(Token(findToken(token), token));
 
@@ -249,10 +261,12 @@ void Scanner::parseFile(istream &input, vector<Token> &tokenList){
                 // ops that could be 1 or 2 chars long
                 else if (c == '+' || c == '-' || c == '*' || c == '/' ||
                          c == '=' || c == '&' || c == '|' || c == '!' ||
-                         c == '<' || c == '>'){
+                         c == '<' || c == '>')
+                {
                     token.append(1, c);
                     char next = input.peek();
-                    if ((next == '=') || (next == c && (c != '*' && c != '/' && c != '!'))){
+                    if ((next == '=') || (next == c && (c != '*' && c != '/' && c != '!')))
+                    {
                         token.append(1, input.get());
                     }
                         tokenList.push_back(Token(findToken(token), token));
@@ -263,22 +277,29 @@ void Scanner::parseFile(istream &input, vector<Token> &tokenList){
 
         }
         // have a piece of a keyword/id/digit, find the rest
-        else {
+        else
+        {
             if (c == '(' || c == ')' || c == '\'' || c == '\"' ||
                 c == ';' || c == '+' || c == '-' || c == '*' ||
                 c == '/' || c == '=' || c == '&' || c == '|' ||
-                c == '!' || c == '<' || c == '>' || isspace(c)) {
+                c == '!' || c == '<' || c == '>' || isspace(c))
+            {
 
-                if ((mapValue = findToken(token)) > 0) {
+                if ((mapValue = findToken(token)) > 0) 
+                {
                     // keyword
                     tokenList.push_back(Token(mapValue, token));
-                } else {
+                }
+                else 
+                {
                     // id or numconstant
-                    if (isdigit(token[0])){
+                    if (isdigit(token[0]))
+                    {
                         // define as num constant and check integrity later
                         tokenList.push_back(Token(NUMCONST, token));
                     }
-                    else {
+                    else 
+                    {
                         // define as identifier and check integrity later
                         tokenList.push_back(Token(ID, token));
                     }
@@ -286,7 +307,9 @@ void Scanner::parseFile(istream &input, vector<Token> &tokenList){
                 token.clear();
                 input.unget();
                 continue;
-            } else {
+            }
+            else 
+            {
                 token.append(1, c);
             }
         }
@@ -299,16 +322,20 @@ void Scanner::parseFile(istream &input, vector<Token> &tokenList){
  * @param  filename [name of the file]
  * @return          [returns a vector of expressions generated]
  */
-void Scanner::scanFile(string filename, vector<Token> &tokenList){
+void Scanner::scanFile(string filename, vector<Token> &tokenList)
+{
     fstream file;
     string line;
 
     file.open(filename);
 
-    if (file.is_open()) {
+    if (file.is_open()) 
+    {
         parseFile(file, tokenList);
         file.close();
-    } else {
+    } 
+    else 
+    {
         cout << "File " << filename << " could not be opened" << endl;
     }
 

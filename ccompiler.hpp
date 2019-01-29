@@ -7,7 +7,8 @@
 
 using namespace std;
 
-class Compiler {
+class Compiler
+{
 private:
     Scanner scanner;
     vector<Token> tokenList;
