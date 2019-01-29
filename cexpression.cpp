@@ -5,19 +5,14 @@ using namespace std;
 // Expression == <token, label>
 
 /**
- * [Expression::setToken sets the token of the expression]
- * @param token [the token]
+ * [Expression::Expression constructor for embeded Expression]
+ * @param scope [the scope]
+ * @param exp   [the embeded expression]
  */
-void Expression::setToken(string token){
-    token = token;
-}
-
-/**
- * [Expression::getToken gets the token of the expression]
- * @return [the token]
- */
-string Expression::getToken(){
-    return token;
+Expression::Expression(int scope, Expression *exp){
+    label = "";
+    this->scope = scope;
+    this->exp = exp;
 }
 
 /**
