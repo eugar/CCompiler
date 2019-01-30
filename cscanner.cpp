@@ -3,10 +3,7 @@
 
 using namespace std;
 
-/**
- * [Scanner::Scanner scanner constructor]
- * [Sets all the instructions the will change the programs state]
- */
+// Sets all the instructions the will change the programs state
 Scanner::Scanner()
 {
     cinstructions.insert(pair<string, int>("id", ID));
@@ -53,12 +50,11 @@ Scanner::Scanner()
     cinstructions.insert(pair<string, int>("\'", SQUOT));
 }
 
-/**
- * [Scanner::findToken searches for the given token in cinstructions map]
- * @param  token [the token]
- * @return       [the corresponding value in cinstructions map]
- */
-int Scanner::findToken(string token)
+
+
+ // Searches for the given token in cinstructions map]
+ // Returns the corresponding value in cinstructions map
+int Scanner::findToken(string token) // The token.
 {
     map<string, int>::const_iterator pos = cinstructions.find(token);
     int value = -1;
@@ -71,8 +67,9 @@ int Scanner::findToken(string token)
     return value;
 }
 
-// just prints the token
-int Scanner::printTokens(int mapValue, string token)
+// Prints the token, and passes mapValue back as the return.
+int Scanner::printTokens(int mapValue, // The value of the token in cinstructions map
+			 string token) // The token.
 {
     switch (mapValue) {
         case INT:
@@ -206,15 +203,9 @@ int Scanner::printTokens(int mapValue, string token)
     return mapValue;
 }
 
-
-/**
- * [Scanner::parseLine parses the tokens from the file <token, label>]
- * We should code this with more states if we try to do much more
- * than the basic stuff.
- * @param  input [file stream of the program being compiled]
- * @param expressions [out] [vector to populate with expressions]
- */
-void Scanner::parseFile(istream &input, vector<Token> &tokenList)
+// Tokenizes the input file stream.
+void Scanner::parseFile(istream &input, // [in] file stream to tokenize
+			vector<Token> &tokenList) // [out] List to populate with tokens. 
 {
     tokenList.clear();
     string token;
@@ -229,7 +220,7 @@ void Scanner::parseFile(istream &input, vector<Token> &tokenList)
             break;
         }
 
-        // Fresh start: look for next token
+        // Look for next token
         if (token.empty())
         {
             if (isspace(c))
@@ -316,13 +307,9 @@ void Scanner::parseFile(istream &input, vector<Token> &tokenList)
     }
 }
 
-/**
- * [Scanner::scanFile scans the file and seperates it into tokens]
- * calls parseLine()
- * @param  filename [name of the file]
- * @return          [returns a vector of expressions generated]
- */
-void Scanner::scanFile(string filename, vector<Token> &tokenList)
+// Reads in the file and calls parseFile to tokenize it.
+void Scanner::scanFile(string filename, // Path of file to program
+		       vector<Token> &tokenList) // List to populate with tokens.
 {
     fstream file;
     string line;
@@ -338,5 +325,4 @@ void Scanner::scanFile(string filename, vector<Token> &tokenList)
     {
         cout << "File " << filename << " could not be opened" << endl;
     }
-
 }

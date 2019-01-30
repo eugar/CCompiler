@@ -4,41 +4,31 @@ using namespace std;
 
 // Expression == <token, label>
 
-/**
- * [Expression::Expression constructor for embeded Expression]
- * @param scope [the scope]
- * @param exp   [the embeded expression]
- */
-Expression::Expression(int scope, Expression *exp)
+
+// constructor for embeded Expression
+Expression::Expression(int scope, // The scope of the expression
+		       Expression *exp) // The embedded expression
 {
-    label = "";
-    this->scope = scope;
-    this->exp = exp;
+    m_label = "";
+    m_scope = scope;
+    m_expression = exp;
 }
 
-/**
- * [Expression::setLabel sets the label of the expression]
- * @param label [the label]
- */
-void Expression::setLabel(string label)
-{
-    label = label;
-}
 
-/**
- * [Expression::getLabel gets the label of the expression]
- * @return [the label]
- */
-string Expression::getLabel()
-{
-    return label;
-}
 
-/**
- * [Variable::setData sets the data that the variable holds]
- * @param data [The new data]
- */
-void Variable::setData(void* data)
-{
-    this->data = data;
-}
+// constructor for variables that don't have data yet
+Variable::Variable(string name, // Variable identifier
+		   int scope) // Scope of variable
+  :
+  m_name(name),
+  m_scope(scope)
+{};
+
+Variable::Variable(string name, // Variable identifier
+		   int scope, // Scope of variable
+		   void* data) // Data attributed to variable
+  :
+  m_name(name),
+  m_scope(scope),
+  m_data(data)
+{};

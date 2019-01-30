@@ -9,11 +9,6 @@ using namespace std;
 
 class Compiler
 {
-private:
-    Scanner scanner;
-    vector<Token> tokenList;
-    vector<Expression> expressions;
-    vector<Variable> variables;
 
 public:
     Compiler();
@@ -24,6 +19,13 @@ public:
     void addVariable(Variable var);
     
     void printTokens();
+
+  private:
+    Scanner m_scanner;
+    vector<Token> m_tokenList;
+    vector<Expression> m_expressions;
+    vector<Variable> m_variables;
+
 };
 
 #endif // CCOMPILER_H
