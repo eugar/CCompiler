@@ -1,10 +1,11 @@
 CC=g++
 CFLAGS=-g -Wall
 
-targets=cexpression cscanner ccompiler
-objects= cexpression.o cscanner.o
+ccom=ccompiler
+targets=cexpression cscanner cparser
+objects= cexpression.o cscanner.o cparser.o
 
-all:$(targets)
+all:$(targets) $(ccom)
 
 cexpression: cexpression.cpp
 	$(CC) $(CFLAGS) -c $@.cpp
@@ -12,8 +13,11 @@ cexpression: cexpression.cpp
 cscanner: cscanner.cpp
 	$(CC) $(CFLAGS) -c $@.cpp
 
+cparser: cparser.cpp
+	$(CC) $(CFLAGS) -c $@.cpp
+
 ccompiler: ccompiler.cpp
 	$(CC) $(CFLAGS) $(objects) $@.cpp -o $@
 
 clean:
-	rm -rf $(targets) *.o
+	rm -rf $(targets) $(ccom) *.o

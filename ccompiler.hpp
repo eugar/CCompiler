@@ -2,6 +2,7 @@
 #define CCOMPILER_H
 
 #include "cscanner.hpp"
+#include "cparser.hpp"
 #include <vector>
 #include <fstream>
 
@@ -17,14 +18,15 @@ public:
 
     vector<Variable> &getVariables();
     void addVariable(Variable var);
-    
+
     void printTokens();
 
   private:
     Scanner m_scanner;
+    Parser m_parser;
     vector<Token> m_tokenList;
-    vector<Expression> m_expressions;
-    vector<Variable> m_variables;
+    vector<Expression> m_expressionList;
+    vector<Variable> m_variableList;
 
 };
 

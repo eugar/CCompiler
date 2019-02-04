@@ -5,14 +5,14 @@
 
 using namespace std;
 
-#define ID 1 //not in cinstructions
+#define ID 1
 #define INT 2
 #define DUB 3
 #define SHORT 4
 #define FLOAT 5
 #define CHAR 6
-#define FUNC 7 //not in cinstructions
-#define KEY 8 //not in cinstructions
+#define DQUOT 7
+#define SQUOT 8
 #define PLUS 9
 #define MINUS 10
 #define MUL 11
@@ -24,7 +24,7 @@ using namespace std;
 #define MULASGN 17
 #define DIVASGN 18
 #define ASGN 19
-#define BOOL 20 //not in cinstructions
+#define OR 20
 #define GOTO 21
 #define IF 22
 #define ELSE 23
@@ -46,13 +46,12 @@ using namespace std;
 #define GRTHEQ 39
 #define EQUAL 40
 #define AND 41
-#define OR 42
-#define DQUOT 43
-#define SQUOT 44
+
+
 
 typedef pair<int,string> Token;
 
-class Expression 
+class Expression
 {
 
 public:
@@ -64,7 +63,7 @@ public:
 
     // constructor for imbeded expressions
     Expression(int scope, Expression *exp);
-  
+
     void setLabel(string label){m_label = label;}
     string getLabel(){return m_label;}
     int getScope(){return m_scope;}
@@ -76,7 +75,7 @@ private:
 
 };
 
-class Variable 
+class Variable
 {
 
 public:
