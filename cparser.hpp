@@ -9,15 +9,16 @@ using namespace std;
 #define FUNC 50
 #define KEY 51
 #define BOOL 52
-#define TYPE 53
+#define DECL 53
 #define STMT 54
 #define PRM 55
+#define TYPE 56
 
 class Parser
 {
 public:
     Parser();
-    void parseTokens(vector<Token> &tokenList,vector<Expression> &expressionList);
+    void parseTokens(vector<Token> tokenList,vector<Expression> &expressionList);
     void printParseTree(vector<Expression> &expressionList);
 private:
     vector<int> m_stateList;

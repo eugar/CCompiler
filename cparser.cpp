@@ -5,7 +5,7 @@ using namespace std;
 
 Parser::Parser(){}
 
-void Parser::parseTokens(vector<Token> &tokenList, // list of known tokens
+void Parser::parseTokens(vector<Token> tokenList, // list of known tokens
                         vector<Expression> &expressionList) //(out) expressions generated
 {
     int i = 0;
@@ -86,11 +86,12 @@ void Parser::setState(int i, // the current token
         case WHILE:
             break;
         case OPAREN:
-            if (m_stateList[state] == ID) {
-                m_stateList.pop_back();         // pop id replace
-                m_stateList.push_back(FUNC);    // with state func
+            if (m_stateList[state] == DECL) {
+                m_stateList.pop_back();         // pop DECL and
+                m_stateList.pop_back();         // pop TYPE
+                m_stateList.push_back(FUNC);    // replace with state func
                 cout << "state: func" << endl;
-                m_stateList.push_back(PRM);
+                m_stateList.push_back(PRM);     // and params
                 cout << "state: param" << endl;
             }
             break;
@@ -113,11 +114,11 @@ void Parser::setState(int i, // the current token
         case CBRACK:
             break;
         case SEMI:
-            if (m_stateList[state] == ID) {
+            if (m_stateList[state] == DECL) {
                 m_stateList.pop_back();         // pop id
                 state -= 1;
                 // expression done
-                while (m_stateList[state] == ID || m_stateList[state] == TYPE) {
+                while (m_stateList[state] == DECL || m_stateList[state] == TYPE) {
                     m_stateList.pop_back();
                     state -= 1;
                     if (state == -1) {
@@ -130,8 +131,8 @@ void Parser::setState(int i, // the current token
             break;
         case ID:
             if (m_stateList[state] == TYPE) {
-                m_stateList.push_back(ID);
-                cout << "state: id -> "<< tokenList[i].second << endl;
+                m_stateList.push_back(DECL);    //DECL state
+                cout << "state: decleration -> "<< tokenList[i].second << endl;
             }
             break;
         case LSTHN:
