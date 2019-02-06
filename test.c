@@ -8,7 +8,8 @@ int main() {
         c++;
     }
     i += 1;
-    i / 2;
+    i = i / 2;
+
 
     printf("Hello World\n");
     return 0;
