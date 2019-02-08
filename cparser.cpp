@@ -158,12 +158,7 @@ void Parser::setState(int i, // the current token
             if (m_stateList[state] == TYPE) 
             {
                 m_stateList.push_back(DECL);    //DECL state
-<<<<<<< HEAD
-
                 cout << "Branch: decleration -> "<< tokenList[i].second << endl;
-=======
-                cout << "state: declaration -> "<< tokenList[i].second << endl;
->>>>>>> b0109d65f0cb4882b74edc6f79010a9ce52cd56c
             }
             break;
         case LSTHN:
