@@ -13,15 +13,18 @@ using namespace std;
 #define STMT 54
 #define PRM 55
 #define TYPE 56
+#define EXPN 57
+#define RTSTMT 58
 
 class Parser
 {
 public:
     Parser();
-    void parseTokens(vector<Token> tokenList,vector<Expression> &expressionList);
-    void printParseTree(vector<Expression> &expressionList);
+    void parseTokens(vector<Token> tokenList);
+    void printParseTree();
 private:
     vector<int> m_stateList;
+    vector< vector<string> > m_printState;
     void setState(int i, vector<Token> &tokenList);
     bool isFuncDecl();
 };

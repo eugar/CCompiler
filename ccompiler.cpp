@@ -56,7 +56,7 @@ void Compiler::compile(string filename) // Path of the file
     // populate tokenList
     m_scanner.scanFile(filename, m_tokenList);
     // parse tokens
-    m_parser.parseTokens(m_tokenList, m_expressionList);
+    m_parser.parseTokens(m_tokenList);
     // do more stuff
 }
 
