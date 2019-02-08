@@ -158,7 +158,6 @@ void Parser::setState(int i, // the current token
             if (m_stateList[state] == TYPE)
             {
                 m_stateList.push_back(DECL);    //DECL state
-
                 cout << "Branch: decleration -> "<< tokenList[i].second << endl;
             }
             break;
