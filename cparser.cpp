@@ -9,7 +9,8 @@ void Parser::parseTokens(vector<Token> tokenList)// list of known tokens
 {
     int i = 0;
 
-    while (!tokenList.empty()) {
+    while (!tokenList.empty()) 
+    {
         setState(i, tokenList);
         tokenList.pop_back();
         i++;
@@ -28,7 +29,8 @@ void Parser::setState(int i, // the current token
 
 
     // Check if the token is an initial state
-    switch (mapValue) {
+    switch (mapValue) 
+    {
         case INT:
 
         case DUB:
@@ -45,13 +47,20 @@ void Parser::setState(int i, // the current token
     }
 
     // Error check:
+<<<<<<< HEAD
     // if token is not a TYPE it cannot be an inital state
     if (state < 0) {
+=======
+    // if token is not a TYPE it cannot be an inital type
+    if (state < 0) 
+    {
+>>>>>>> b0109d65f0cb4882b74edc6f79010a9ce52cd56c
         return;
     }
 
     // States other than TYPES
-    switch (mapValue) {
+    switch (mapValue) 
+    {
         case PLUS:
             break;
         case MINUS:
@@ -95,7 +104,8 @@ void Parser::setState(int i, // the current token
         case WHILE:
             break;
         case OPAREN:
-            if (m_stateList[state] == DECL) {
+            if (m_stateList[state] == DECL) 
+            {
                 m_stateList.pop_back();         // pop DECL and
                 m_stateList.pop_back();         // pop TYPE
                 m_stateList.push_back(FUNC);    // replace with state func
@@ -106,12 +116,14 @@ void Parser::setState(int i, // the current token
             }
             break;
         case CPAREN:
-            if (m_stateList[state] == PRM) {
+            if (m_stateList[state] == PRM) 
+            {
                 m_stateList.pop_back();         // no longer in parameters
             }
             break;
         case OBRACE:
-            if (m_stateList[state] == FUNC) {
+            if (m_stateList[state] == FUNC) 
+            {
                 m_stateList.push_back(STMT);
 
                 cout << "Branch: stmt" << endl;
@@ -124,14 +136,17 @@ void Parser::setState(int i, // the current token
         case CBRACK:
             break;
         case SEMI:
-            if (m_stateList[state] == DECL) {
+            if (m_stateList[state] == DECL) 
+            {
                 m_stateList.pop_back();         // pop id
                 state -= 1;
                 // expression done
-                while (m_stateList[state] == DECL || m_stateList[state] == TYPE) {
+                while (m_stateList[state] == DECL || m_stateList[state] == TYPE) 
+                {
                     m_stateList.pop_back();
                     state -= 1;
-                    if (state == -1) {
+                    if (state == -1) 
+                    {
                         break;
                     }
                 }
@@ -145,10 +160,15 @@ void Parser::setState(int i, // the current token
             }
             break;
         case ID:
-            if (m_stateList[state] == TYPE) {
+            if (m_stateList[state] == TYPE) 
+            {
                 m_stateList.push_back(DECL);    //DECL state
+<<<<<<< HEAD
 
                 cout << "Branch: decleration -> "<< tokenList[i].second << endl;
+=======
+                cout << "state: declaration -> "<< tokenList[i].second << endl;
+>>>>>>> b0109d65f0cb4882b74edc6f79010a9ce52cd56c
             }
             break;
         case LSTHN:

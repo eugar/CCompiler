@@ -286,6 +286,11 @@ void Scanner::parseFile(istream &input, // [in] file stream to tokenize
                     // id or numconstant
                     if (isdigit(token[0]))
                     {
+                        if (token.find_first_not_of(".0123456789") != std::string::npos)
+                        {
+                            cout << "invalid number constant: " << token << endl;
+                            exit(EXIT_FAILURE);
+                        }
                         // define as num constant and check integrity later
                         tokenList.push_back(Token(NUMCONST, token));
                     }
