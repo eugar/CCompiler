@@ -47,14 +47,9 @@ void Parser::setState(int i, // the current token
     }
 
     // Error check:
-<<<<<<< HEAD
-    // if token is not a TYPE it cannot be an inital state
-    if (state < 0) {
-=======
     // if token is not a TYPE it cannot be an inital type
     if (state < 0) 
     {
->>>>>>> b0109d65f0cb4882b74edc6f79010a9ce52cd56c
         return;
     }
 
