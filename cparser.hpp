@@ -24,7 +24,7 @@ public:
     void printParseTree();
 private:
     vector<int> m_stateList;
-    vector< vector<string> > m_printState;
+    vector<string> m_printTree;
     void setState(int i, vector<Token> &tokenList);
     bool isFuncDecl();
 };

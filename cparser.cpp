@@ -9,13 +9,19 @@ void Parser::parseTokens(vector<Token> tokenList)// list of known tokens
 {
     int i = 0;
 
+    m_printTree.push_back("[");
+    m_printTree.push_back("Program");
+    m_printTree.push_back("[");
+    m_printTree.push_back("DecList");
+
     while (!tokenList.empty())
     {
         setState(i, tokenList);
         tokenList.pop_back();
         i++;
     }
-
+    m_printTree.push_back("]");
+    m_printTree.push_back("]");
     printParseTree();
 }
 
@@ -26,7 +32,6 @@ void Parser::setState(int i, // the current token
 {
     int state = m_stateList.size()-1;
     int mapValue = tokenList[i].first;
-
 
     // Check if the token is an initial state
     switch (mapValue)
@@ -41,8 +46,6 @@ void Parser::setState(int i, // the current token
 
         case CHAR:
             m_stateList.push_back(TYPE);
-
-            cout << "Leaf: type -> "<< tokenList[i].second << endl;
             return;
     }
 
@@ -89,9 +92,10 @@ void Parser::setState(int i, // the current token
         case RET:
             if (m_stateList[state == STMT]) {
                 m_stateList.push_back(RTSTMT);
-                cout << "Branch: returnStmt\n";
+                m_printTree.push_back("RtStmt");
+                m_printTree.push_back("[");
                 m_stateList.push_back(RET);
-                cout << "Leaf: return\n";
+                m_printTree.push_back("[return]");
             }
             break;
         case BRK:
@@ -104,15 +108,28 @@ void Parser::setState(int i, // the current token
                 m_stateList.pop_back();         // pop DECL and
                 m_stateList.pop_back();         // pop TYPE
                 m_stateList.push_back(FUNC);    // replace with state func
-
-                cout << "Branch: func" << endl;
+                m_printTree.push_back("FuncDecl");
+                m_printTree.push_back("[");
+                m_printTree.push_back("Type");
+                m_printTree.push_back("[");
+                m_printTree.push_back(tokenList[i-2].second);
+                m_printTree.push_back("]");
+                m_printTree.push_back("]");
+                m_printTree.push_back("[");
+                m_printTree.push_back("ID");
+                m_printTree.push_back("[");
+                m_printTree.push_back(tokenList[i-1].second);
+                m_printTree.push_back("]");
+                m_printTree.push_back("]");
                 m_stateList.push_back(PRM);     // and params
-                                cout << "Branch: param" << endl;
+                m_printTree.push_back("[");
+                m_printTree.push_back("Params");
             }
             break;
         case CPAREN:
             if (m_stateList[state] == PRM)
             {
+                m_printTree.push_back("]");
                 m_stateList.pop_back();         // no longer in parameters
             }
             break;
@@ -120,11 +137,13 @@ void Parser::setState(int i, // the current token
             if (m_stateList[state] == FUNC)
             {
                 m_stateList.push_back(STMT);
-
-                cout << "Branch: stmt" << endl;
+                m_printTree.push_back("[");
+                m_printTree.push_back("Stmt");
+                m_printTree.push_back("[");
             }
             break;
         case CBRACE:
+            m_printTree.push_back("]");
             break;
         case OBRACK:
             break;
@@ -133,11 +152,16 @@ void Parser::setState(int i, // the current token
         case SEMI:
             if (m_stateList[state] == DECL)
             {
+                m_printTree.push_back("[");
+                m_printTree.push_back(";");
+                m_printTree.push_back("]");
+                m_printTree.push_back("]");
                 m_stateList.pop_back();         // pop id
                 state -= 1;
                 // expression done
                 while (m_stateList[state] == DECL || m_stateList[state] == TYPE)
                 {
+                    m_printTree.push_back("]");
                     m_stateList.pop_back();
                     state -= 1;
                     if (state == -1)
@@ -151,14 +175,22 @@ void Parser::setState(int i, // the current token
             if (m_stateList[state] == RET) {
                 m_stateList.pop_back();
                 m_stateList.push_back(NUMCONST);
-                cout << "Leaf: NUMCONST -> "<< tokenList[i].second << endl;
+                m_printTree.push_back("[");
+                m_printTree.push_back("NumConst");
+                m_printTree.push_back("[");
+                m_printTree.push_back(tokenList[i].second);
+                m_printTree.push_back("]");
+                m_printTree.push_back("]");
+                m_printTree.push_back("]");
             }
             break;
         case ID:
             if (m_stateList[state] == TYPE)
             {
                 m_stateList.push_back(DECL);    //DECL state
-                cout << "Branch: decleration -> "<< tokenList[i].second << endl;
+                m_printTree.push_back("[");
+                m_printTree.push_back("Decleration");
+                m_printTree.push_back("[");
             }
             break;
         case LSTHN:
@@ -187,5 +219,9 @@ void Parser::setState(int i, // the current token
 
 void Parser::printParseTree()
 {
-
+    for(int i=0; i < m_printTree.size(); i++)
+    {
+        cout << m_printTree[i] << " ";
+    }
+    cout << endl;
 }
