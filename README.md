@@ -1,6 +1,13 @@
 # CCompiler Design Document
 ------------------------------------
 ## Usage:
+ccompiler - compile a C file
+Usage:
+./ccompiler [FILE]
+Optional arguments:
+-h displays this help menu
+-s displays list of tokens
+-p displays parse tree
 
 ## Keywords:
 * break
