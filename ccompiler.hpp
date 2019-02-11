@@ -20,6 +20,7 @@ public:
     void addVariable(Variable var);
 
     void printTokens();
+    void printTree();
 
   private:
     Scanner m_scanner;

@@ -22,7 +22,6 @@ void Parser::parseTokens(vector<Token> tokenList)// list of known tokens
     }
     m_printTree.push_back("]");
     m_printTree.push_back("]");
-    printParseTree();
 }
 
 // check and changes state
@@ -144,6 +143,11 @@ void Parser::setState(int i, // the current token
             break;
         case CBRACE:
             m_printTree.push_back("]");
+            //m_stateList.pop_back();
+            if (m_stateList[state] == STMT) {
+                m_stateList.pop_back();
+                m_printTree.push_back("]");
+            }
             break;
         case OBRACK:
             break;
@@ -170,11 +174,16 @@ void Parser::setState(int i, // the current token
                     }
                 }
             }
+            else if (m_stateList[state] == RTSTMT)
+            {
+                m_stateList.pop_back();
+                m_printTree.push_back("]");
+            }
             break;
         case NUMCONST:
             if (m_stateList[state] == RET) {
                 m_stateList.pop_back();
-                m_stateList.push_back(NUMCONST);
+                m_stateList.push_back(RTSTMT);
                 m_printTree.push_back("[");
                 m_printTree.push_back("NumConst");
                 m_printTree.push_back("[");

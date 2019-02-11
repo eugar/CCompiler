@@ -69,6 +69,11 @@ void Compiler::printTokens()
     }
 }
 
+void Compiler::printTree()
+{
+    m_parser.printParseTree();
+}
+
 int main(int argc, char * const argv[])
 {
     int c;
@@ -99,6 +104,7 @@ HELP:
                 break;
             case 'p':
                 printTree = 1;
+                break;
             case 'h':
                 goto HELP;
         }
@@ -122,7 +128,7 @@ HELP:
 
     if (printTree)
     {
-        //print tree
+        compiler.printTree();
     }
 
     return 0;

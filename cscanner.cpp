@@ -60,7 +60,7 @@ int Scanner::findToken(string token) // The token.
     int value = -1;
     if (pos == cinstructions.end()) {
         //cout<<"token: "<<token<<" not an instruction. Variable?"<<endl;
-    } 
+    }
     else {
         value = pos->second;
     }
@@ -205,7 +205,7 @@ int Scanner::printTokens(int mapValue, // The value of the token in cinstruction
 
 // Tokenizes the input file stream.
 void Scanner::parseFile(istream &input, // [in] file stream to tokenize
-			vector<Token> &tokenList) // [out] List to populate with tokens. 
+			vector<Token> &tokenList) // [out] List to populate with tokens.
 {
     tokenList.clear();
     string token;
@@ -237,7 +237,7 @@ void Scanner::parseFile(istream &input, // [in] file stream to tokenize
                 // single characters that require no further checks
                 else if (c == '(' || c == ')' || c == '\'' || c == '\"' ||
                          c == ';' || c == '{' || c == '}' || c == '[' ||
-                         c == ']' || c == '#') 
+                         c == ']' || c == '#')
                 {
                     token.append(1, c);
                     tokenList.push_back(Token(findToken(token), token));
@@ -276,12 +276,12 @@ void Scanner::parseFile(istream &input, // [in] file stream to tokenize
                 c == '!' || c == '<' || c == '>' || isspace(c))
             {
 
-                if ((mapValue = findToken(token)) > 0) 
+                if ((mapValue = findToken(token)) > 0)
                 {
                     // keyword
                     tokenList.push_back(Token(mapValue, token));
                 }
-                else 
+                else
                 {
                     // id or numconstant
                     if (isdigit(token[0]))
@@ -294,7 +294,7 @@ void Scanner::parseFile(istream &input, // [in] file stream to tokenize
                         // define as num constant and check integrity later
                         tokenList.push_back(Token(NUMCONST, token));
                     }
-                    else 
+                    else
                     {
                         // define as identifier and check integrity later
                         tokenList.push_back(Token(ID, token));
@@ -304,7 +304,7 @@ void Scanner::parseFile(istream &input, // [in] file stream to tokenize
                 input.unget();
                 continue;
             }
-            else 
+            else
             {
                 token.append(1, c);
             }
@@ -321,12 +321,12 @@ void Scanner::scanFile(string filename, // Path of file to program
 
     file.open(filename);
 
-    if (file.is_open()) 
+    if (file.is_open())
     {
         parseFile(file, tokenList);
         file.close();
-    } 
-    else 
+    }
+    else
     {
         cout << "File " << filename << " could not be opened" << endl;
     }
