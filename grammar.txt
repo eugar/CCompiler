@@ -1,0 +1,45 @@
+program ~ declList
+declList ~ declList decl | decl
+decl ~ funcDecl | varDecl
+#--------functions--------------------------------------------------------------
+funcDecl ~ typeSpec ID ( params ) stmt
+typeSpec ~ returnTypeSpec
+returnTypeSpec ~ INT | CHAR | BOOL
+params ~ paramList | EMPTY
+paramList ~ paramList , typeSpec ID | typeSpec ID
+#-------statements-------------------------------------------------------------
+stmt ~ exprStmt | compStmt | selStmt | iterStmt | retStmt | breakStmt
+compStmt ~ { stmtList }
+stmtList ~ stmtList stmt | EMPTY
+exprStmt ~ expr ; | ;
+selStmt ~ IF ( simpleExpr ) stmt | IF ( simpleExpr ) stmt ELSE stmt
+iterStmt ~ WHILE ( simpleExpr ) stmt
+retStmt ~ RETURN ; | RETURN expr ;
+breakStmt ~ BREAK ;
+#------expressions-------------------------------------------------------------
+expr ~ mutable mutBinOp expr | mutable mutUnaryOp | mutUnaryOp mutable | simpleExpr
+mutBinOp ~ = | += | -= | *= | /=
+mutUnaryOp ~ ++ | --
+simpleExpr ~ simpleExpr || andExpr | andExpr
+andExpr ~ andExpr && unaryRelExpr | unaryRelExpr
+unaryRelExpr ~ ! unaryRelExpr | relExpr
+relExpr ~ sumExpr relOp sumExpr | sumExpr
+relOp ~ <= | < | > | >= | == | !=
+sumExpr ~ sumExpr sumOp term | term
+sumOp ~ + | -
+term ~ term mulOp unaryExpr | unaryExpr
+mulOp ~ * | / | %
+unaryExpr ~ unaryOp unaryExpr | immutable | mutable
+unaryOp ~ - | *
+mutable ~ ID
+immutable ~ ( expr ) | call | constant
+call ~ ID ( args )
+args ~ argList | EMPTY
+argList ~ argList , expr | expr
+constant ~ NUMCONST | CHARCONST | TRUE | FALSE
+#-------variables---------------------------------------------------------------
+varDecl ~ typeSpec varDeclList
+varDeclList ~ varDeclList, varDeclInit | varDeclInit
+varDeclInit ~ ID | ID = simpleExpr
+typeSpec ~ returnTypeSpec
+returnTypeSpec ~ INT | BOOL | CHAR
