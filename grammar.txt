@@ -20,9 +20,9 @@ breakStmt ~ BREAK ;
 expr ~ mutable mutBinOp expr | mutable mutUnaryOp | mutUnaryOp mutable | simpleExpr
 mutBinOp ~ = | += | -= | *= | /=
 mutUnaryOp ~ ++ | --
-simpleExpr ~ simpleExpr || andExpr | andExpr
-andExpr ~ andExpr && unaryRelExpr | unaryRelExpr
-unaryRelExpr ~ ! unaryRelExpr | relExpr
+simpleExpr ~ simpleExpr OR andExpr | andExpr
+andExpr ~ andExpr AND unaryRelExpr | unaryRelExpr
+unaryRelExpr ~ NOT unaryRelExpr | relExpr
 relExpr ~ sumExpr relOp sumExpr | sumExpr
 relOp ~ <= | < | > | >= | == | !=
 sumExpr ~ sumExpr sumOp term | term
