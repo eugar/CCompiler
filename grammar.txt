@@ -1,45 +1,45 @@
-program ~ declList
-declList ~ declList decl | decl
-decl ~ funcDecl | varDecl
+program ~ declList |
+declList ~ declList decl | decl |
+decl ~ funcDecl | varDecl |
 #--------functions--------------------------------------------------------------
-funcDecl ~ typeSpec ID ( params ) stmt
-typeSpec ~ returnTypeSpec
-returnTypeSpec ~ INT | CHAR | BOOL
-params ~ paramList | EMPTY
-paramList ~ paramList , typeSpec ID | typeSpec ID
+funcDecl ~ typeSpec ID OPAREN params CPAREN stmt|
+typeSpec ~ returnTypeSpec |
+returnTypeSpec ~ INT | CHAR | BOOL |
+params ~ paramList | EMPTY |
+paramList ~ paramList COMMA typeSpec ID | typeSpec ID |
 #-------statements-------------------------------------------------------------
-stmt ~ exprStmt | compStmt | selStmt | iterStmt | retStmt | breakStmt
-compStmt ~ { stmtList }
-stmtList ~ stmtList stmt | EMPTY
-exprStmt ~ expr ; | ;
-selStmt ~ IF ( simpleExpr ) stmt | IF ( simpleExpr ) stmt ELSE stmt
-iterStmt ~ WHILE ( simpleExpr ) stmt
-retStmt ~ RETURN ; | RETURN expr ;
-breakStmt ~ BREAK ;
+stmt ~ exprStmt | compStmt | selStmt | iterStmt | retStmt | breakStmt |
+compStmt ~ OBRACE stmtList CBRACE |
+stmtList ~ stmtList stmt | EMPTY |
+exprStmt ~ expr SEMICOL | SEMICOL |
+selStmt ~ IF OPAREN simpleExpr CPAREN stmt | IF OPAREN simpleExpr CPAREN stmt ELSE stmt |
+iterStmt ~ WHILE OPAREN simpleExpr CPAREN stmt |
+retStmt ~ RETURN SEMICOL | RETURN expr SEMICOL |
+breakStmt ~ BREAK SEMICOL |
 #------expressions-------------------------------------------------------------
-expr ~ mutable mutBinOp expr | mutable mutUnaryOp | mutUnaryOp mutable | simpleExpr
-mutBinOp ~ = | += | -= | *= | /=
-mutUnaryOp ~ ++ | --
-simpleExpr ~ simpleExpr OR andExpr | andExpr
-andExpr ~ andExpr AND unaryRelExpr | unaryRelExpr
-unaryRelExpr ~ NOT unaryRelExpr | relExpr
-relExpr ~ sumExpr relOp sumExpr | sumExpr
-relOp ~ <= | < | > | >= | == | !=
-sumExpr ~ sumExpr sumOp term | term
-sumOp ~ + | -
-term ~ term mulOp unaryExpr | unaryExpr
-mulOp ~ * | / | %
-unaryExpr ~ unaryOp unaryExpr | immutable | mutable
-unaryOp ~ - | *
-mutable ~ ID
-immutable ~ ( expr ) | call | constant
-call ~ ID ( args )
-args ~ argList | EMPTY
-argList ~ argList , expr | expr
-constant ~ NUMCONST | CHARCONST | TRUE | FALSE
+expr ~ mutable mutBinOp expr | mutable mutUnaryOp | mutUnaryOp mutable | simpleExpr |
+mutBinOp ~ ASGN | PLUSASGN | SUBASGN | MULASGN | DIVASGN |
+mutUnaryOp ~ PLUSPLUS | SUBSUB |
+simpleExpr ~ simpleExpr OR andExpr | andExpr |
+andExpr ~ andExpr AND unaryRelExpr | unaryRelExpr |
+unaryRelExpr ~ NOT unaryRelExpr | relExpr |
+relExpr ~ sumExpr relOp sumExpr | sumExpr |
+relOp ~ LSTHNEQ | LSTHN | GRTHN | GRTHNEQ | EQUALS | NOTEQ |
+sumExpr ~ sumExpr sumOp term | term |
+sumOp ~ PLUS | SUB |
+term ~ term mulOp unaryExpr | unaryExpr |
+mulOp ~ MUL | DIV | MOD |
+unaryExpr ~ unaryOp unaryExpr | immutable | mutable |
+unaryOp ~ NEG | DEREF |
+mutable ~ ID |
+immutable ~ OPAREN expr CPAREN | call | constant |
+call ~ ID OPAREN args CPAREN |
+args ~ argList | EMPTY |
+argList ~ argList COMMA expr | expr |
+constant ~ NUMCONST | CHARCONST | TRUE | FALSE |
 #-------variables---------------------------------------------------------------
-varDecl ~ typeSpec varDeclList
-varDeclList ~ varDeclList, varDeclInit | varDeclInit
-varDeclInit ~ ID | ID = simpleExpr
-typeSpec ~ returnTypeSpec
-returnTypeSpec ~ INT | BOOL | CHAR
+varDecl ~ typeSpec varDeclList |
+varDeclList ~ varDeclList, varDeclInit | varDeclInit |
+varDeclInit ~ ID | ID ASGN simpleExpr |
+typeSpec ~ returnTypeSpec |
+returnTypeSpec ~ INT | BOOL | CHAR |

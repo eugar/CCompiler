@@ -1,7 +1,10 @@
 #ifndef PARSER_H
 #define PARSER_H
-
 #include "cscanner.hpp"
+
+#include <string>
+#include <vector>
+#include <map>
 
 using namespace std;
 
@@ -18,15 +21,26 @@ using namespace std;
 
 class Parser
 {
+    typedef map<string, vector<string>> ProductionRule;
+
 public:
     Parser();
     void parseTokens(vector<Token> tokenList);
     void printParseTree();
+
 private:
-    vector<int> m_stateList;
-    vector<string> m_printTree;
     void setState(int i, vector<Token> &tokenList);
     bool isFuncDecl();
+
+    vector<int> m_stateList;
+    vector<string> m_printTree;
+
+
+    void loadGrammar();
+    bool nextRule(string line, int &start, int &length);
+
+    ProductionRule m_pRule;
+    vector<string> m_prodRuleIndex;
 };
 
 #endif // PARSER_H

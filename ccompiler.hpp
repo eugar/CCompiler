@@ -7,28 +7,18 @@
 #include <fstream>
 
 using namespace std;
-
-class Compiler
+namespace compiler
 {
-
-public:
-    Compiler();
     void compile(string filename);
+
     vector<Expression> &getExpressions();
 
     vector<Variable> &getVariables();
+
     void addVariable(Variable var);
 
-    void printTokens();
-    void printTree();
+    void printTokens(vector<Token> &tokenList, Scanner &scanner);
 
-  private:
-    Scanner m_scanner;
-    Parser m_parser;
-    vector<Token> m_tokenList;
-    vector<Expression> m_expressionList;
-    vector<Variable> m_variableList;
-
-};
-
+    void printTree(Parser &parser);
+}
 #endif // CCOMPILER_H
