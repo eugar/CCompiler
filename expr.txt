@@ -1,0 +1,3 @@
+goal ~ list |
+list ~ list pair | pair |
+pair ~ OPAREN pair CPAREN | OPAREN CPAREN |

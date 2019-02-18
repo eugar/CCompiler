@@ -1,6 +1,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 #include "cscanner.hpp"
+#include "grammartree.h"
 
 #include <string>
 #include <vector>
@@ -21,7 +22,7 @@ using namespace std;
 
 class Parser
 {
-    typedef map<string, vector<string>> ProductionRule;
+    // grammar building typedefs
 
 public:
     Parser();
@@ -35,12 +36,23 @@ private:
     vector<int> m_stateList;
     vector<string> m_printTree;
 
-
-    void loadGrammar();
-    bool nextRule(string line, int &start, int &length);
+    // grammar building functions
+    void mapLookAhead();
+    void initClosure();
+    void closure();
+    void constructTables();
 
     ProductionRule m_pRule;
-    vector<string> m_prodRuleIndex;
+    vector<string> m_pRuleIndex;
+
+    // this should be sorted for faster access, so build with a set and
+    // convert to a vector.
+    vector<string> m_terminals;
+    map<string, vector<pair<size_t, string>>> m_validTerminals;
+    ProductionRulePtr m_CC;
+
+    GrammarTree *m_gTree;
+
 };
 
 #endif // PARSER_H

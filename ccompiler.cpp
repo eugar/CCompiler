@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <unistd.h>
+#include "grammartree.h"
 
 using namespace std;
 
@@ -13,6 +14,8 @@ using namespace compiler;
 int main(int argc, char * const argv[])
 {
     Scanner m_scanner;
+    // eventually I will move grammar building to another class
+    // for now it builds in the constructor of Parser
     Parser m_parser;
     vector<Token> m_tokenList;
     vector<Expression> m_expressionList;
@@ -57,11 +60,9 @@ HELP:
     }
 
     string filename = argv[optind];
-
-
-    //compiler.compile(filename);
     
     m_scanner.scanFile(filename, m_tokenList);
+
 
     if (pTokens)
     {
@@ -72,6 +73,7 @@ HELP:
     {
         printTree(m_parser);
     }
+
 
     return 0;
 }

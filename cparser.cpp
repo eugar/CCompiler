@@ -1,15 +1,21 @@
 #include "cparser.hpp"
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 
 #define DEBUG 1
+#define NON_TERM -1
 
 using namespace std;
 
 Parser::Parser()
 {
-    loadGrammar();
-    //buildTables();
+
+    m_gTree = new GrammarTree();
+    //mapLookAhead();
+    //initClosure();
+    //closure();
+    //constructTables();
 }
 
 void Parser::parseTokens(vector<Token> tokenList)// list of known tokens
@@ -241,83 +247,38 @@ void Parser::printParseTree()
     }
     cout << endl;
 }
-void Parser::loadGrammar()
+
+void Parser::mapLookAhead()
 {
-    ifstream fs("grammar.txt");
-    if (!fs.is_open())
-        throw "unable to open file";
-    string line;
-    while(getline(fs, line))
-    {
-        if (line[0] == '#')
-        {
-            continue;
-        }
-        string LHS;
-        int start = 0;
-        int length = 0;
-        while (!isspace(line[start + length]) && line[start + length] != '~')
-        {
-            length++;
-        }
-        LHS = line.substr(start, length);
-        m_prodRuleIndex.push_back(LHS);
-
-        if (!nextRule(line, start, length))
-        {
-            throw "Grammar is missing the right hand side";
-        }
-
-        vector<string> RHS;
-        while (!isspace(line[start + length]))
-        {
-            while (line[start + length] != '|')
-            {
-                length++;
-            }
-            string rule(line.substr(start, length));
-
-            RHS.push_back(rule);
-
-            if (!nextRule(line, start, length))
-            {
-                break;
-            }
-        }
-        m_pRule[LHS] = RHS;
-
-    }
-
-#ifdef DEBUG
-    for (auto lhs : m_prodRuleIndex)
-    {
-        string RHS;
-        auto  RHSvec = m_pRule[lhs];
-        int i = 1;
-        int j = 0;
-        for (auto rhs : RHSvec)
-        {
-            string rulenum = to_string(i) + string(". ");
-            RHS += rulenum + rhs;
-            i++;
-        }
-        cout << "LHS : " << m_prodRuleIndex[j] << "  --->  RHS : " << RHS << endl ;
-        j++;
-    }
-#endif
 }
-bool Parser::nextRule(string line, int &start, int &length)
-{
-    start = start + length;
-    length = 0;
-    auto it = line.begin() + start;
-    while (!isalpha(line[start]))
-    {
-        it++;
-        if ( it == line.end())
-            return false;
-        start++;
 
+void Parser::initClosure()
+{
+    // place initial LR1
+    std::string initial = m_pRule[m_pRuleIndex[0]].back() + std::string(" EOF");
+    size_t i = 0;
+    if ((i = initial.find(' ', i)) == string::npos)
+    {
+        throw "Invalid starting state";
     }
-    return true;
+    // @ is placeholder symbol
+    initial[i] = '@';
+    m_CC[m_pRuleIndex[0]]->back()[i] = '@';
+    m_CC[m_pRuleIndex[0]]->back() += string(" EOF");
+}
+void Parser::closure()
+{
+    bool addedSets;
+    do
+    {
+        addedSets = false;
+
+
+        //addedSets = true;
+    } while (addedSets);
+}
+
+void Parser::constructTables()
+{
+
 }

@@ -2,7 +2,7 @@ program ~ declList |
 declList ~ declList decl | decl |
 decl ~ funcDecl | varDecl |
 #--------functions--------------------------------------------------------------
-funcDecl ~ typeSpec ID OPAREN params CPAREN stmt|
+funcDecl ~ typeSpec ID OPAREN params CPAREN stmt |
 typeSpec ~ returnTypeSpec |
 returnTypeSpec ~ INT | CHAR | BOOL |
 params ~ paramList | EMPTY |
@@ -39,7 +39,5 @@ argList ~ argList COMMA expr | expr |
 constant ~ NUMCONST | CHARCONST | TRUE | FALSE |
 #-------variables---------------------------------------------------------------
 varDecl ~ typeSpec varDeclList |
-varDeclList ~ varDeclList, varDeclInit | varDeclInit |
+varDeclList ~ varDeclList COMMA varDeclInit | varDeclInit |
 varDeclInit ~ ID | ID ASGN simpleExpr |
-typeSpec ~ returnTypeSpec |
-returnTypeSpec ~ INT | BOOL | CHAR |
