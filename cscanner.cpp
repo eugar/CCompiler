@@ -205,7 +205,7 @@ int Scanner::printTokens(int mapValue, // The value of the token in cinstruction
 
 // Tokenizes the input file stream.
 void Scanner::parseFile(istream &input, // [in] file stream to tokenize
-			vector<Token> &tokenList) // [out] List to populate with tokens.
+			vector<Tok> &tokenList) // [out] List to populate with tokens.
 {
     tokenList.clear();
     string token;
@@ -240,7 +240,7 @@ void Scanner::parseFile(istream &input, // [in] file stream to tokenize
                          c == ']' || c == '#')
                 {
                     token.append(1, c);
-                    tokenList.push_back(Token(findToken(token), token));
+                    tokenList.push_back(Tok(findToken(token), token));
 
                     token.clear();
 
@@ -260,7 +260,7 @@ void Scanner::parseFile(istream &input, // [in] file stream to tokenize
                     {
                         token.append(1, input.get());
                     }
-                        tokenList.push_back(Token(findToken(token), token));
+                        tokenList.push_back(Tok(findToken(token), token));
                         token.clear();
 
                 }
@@ -279,7 +279,7 @@ void Scanner::parseFile(istream &input, // [in] file stream to tokenize
                 if ((mapValue = findToken(token)) > 0)
                 {
                     // keyword
-                    tokenList.push_back(Token(mapValue, token));
+                    tokenList.push_back(Tok(mapValue, token));
                 }
                 else
                 {
@@ -292,12 +292,12 @@ void Scanner::parseFile(istream &input, // [in] file stream to tokenize
                             exit(EXIT_FAILURE);
                         }
                         // define as num constant and check integrity later
-                        tokenList.push_back(Token(NUMCONST, token));
+                        tokenList.push_back(Tok(NUMCONST, token));
                     }
                     else
                     {
                         // define as identifier and check integrity later
-                        tokenList.push_back(Token(ID, token));
+                        tokenList.push_back(Tok(ID, token));
                     }
                 }
                 token.clear();
@@ -314,7 +314,7 @@ void Scanner::parseFile(istream &input, // [in] file stream to tokenize
 
 // Reads in the file and calls parseFile to tokenize it.
 void Scanner::scanFile(string filename, // Path of file to program
-		       vector<Token> &tokenList) // List to populate with tokens.
+		       vector<Tok> &tokenList) // List to populate with tokens.
 {
     fstream file;
     string line;

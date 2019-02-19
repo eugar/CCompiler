@@ -1,8 +1,8 @@
-program ~ declList |
-declList ~ declList decl | decl |
-decl ~ funcDecl | varDecl |
+program ~ declList | EOF |
+declList ~ declList decl | decl | EOF |
+decl ~ funcDecl | varDecl | EOF |
 #--------functions--------------------------------------------------------------
-funcDecl ~ typeSpec ID OPAREN params CPAREN stmt |
+funcDecl ~ typeSpec ID OPAREN params CPAREN stmt | EOF |
 typeSpec ~ returnTypeSpec |
 returnTypeSpec ~ INT | CHAR | BOOL |
 params ~ paramList | EMPTY |
@@ -38,6 +38,6 @@ args ~ argList | EMPTY |
 argList ~ argList COMMA expr | expr |
 constant ~ NUMCONST | CHARCONST | TRUE | FALSE |
 #-------variables---------------------------------------------------------------
-varDecl ~ typeSpec varDeclList |
-varDeclList ~ varDeclList COMMA varDeclInit | varDeclInit |
-varDeclInit ~ ID | ID ASGN simpleExpr |
+varDecl ~ typeSpec varDeclList | EOF |
+varDeclList ~ varDeclList COMMA varDeclInit | varDeclInit | EOF |
+varDeclInit ~ ID | ID ASGN simpleExpr | EOF |

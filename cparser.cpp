@@ -18,7 +18,7 @@ Parser::Parser()
     //constructTables();
 }
 
-void Parser::parseTokens(vector<Token> tokenList)// list of known tokens
+void Parser::parseTokens(vector<Tok> tokenList)// list of known tokens
 {
     int i = 0;
 
@@ -40,7 +40,7 @@ void Parser::parseTokens(vector<Token> tokenList)// list of known tokens
 // check and changes state
 // determined by the list of tokens
 void Parser::setState(int i, // the current token
-                    vector<Token> &tokenList) // the token list
+                    vector<Tok> &tokenList) // the token list
 {
     int state = m_stateList.size()-1;
     int mapValue = tokenList[i].first;

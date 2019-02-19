@@ -17,7 +17,7 @@ namespace compiler
 
     void addVariable(Variable var);
 
-    void printTokens(vector<Token> &tokenList, Scanner &scanner);
+    void printTokens(vector<Tok> &tokenList, Scanner &scanner);
 
     void printTree(Parser &parser);
 }

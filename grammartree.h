@@ -4,6 +4,7 @@
 #define CCOMPILER_GRAMMARTREE_H
 
 #include <vector>
+#include <list>
 #include <string>
 #include <set>
 #include "definitions.h"
@@ -46,20 +47,46 @@ public:
     GrammarTree();
 
     node* buildTree(ProductionRule& pRule);
-    bool contains(const string token);
+    bool contains(set<const string*> list, const string *token);
     set<string>& tokens(){return m_tokens;}
     node* root(){return &m_root;}
     size_t size(){return m_size;}
     node* addChild(node* parentNode, vector<string> rhs, const string *parentToken);
+    void validTerminals(const string* terminal);
 
+    void clearTokenSets(){m_nonterminals.clear(); m_terminals.clear();}
 
+    set<string> &closure(set<string> &LR1Item, int phPosition = 0);
+    void constructSets();
 
 private:
+    void convertRuleToLR1Item(vector<const string*> vecS, string terminal, int phPosition, set<string> &LR1Item);
+    void createNewLR1Items(string token, string rule, node* gtNode, int phPosition, set<string> &LR1Item);
+
+    // Loops in grammar can cause infinite recursion.
+    // These two sets help to prevent recursing on the
+    // same terminal or non-terminal in an endless loop.
+    // Must be cleared each time validTerminals is called
+    // or validTerminals' behavior is undefined.
+    // Also used in the closure algorithm.
+    set<const string*> m_terminals;
+    set<const string*> m_nonterminals;
+
+    // Holds the canonical collection of LR1 Items
+    vector<set<string>> m_CC;
+
     node* buildTree(ProductionRule& pRule, node* parent, const std::vector<node*> &children);
     node* buildTree(ProductionRule& pRule, node* parent, GrammarTree::node * child, const std::vector<const string*> &children);
+    // Root node of the GrammarTree
     node m_root;
+
+    // Unique set of tokens
     set<string> m_tokens;
+
+    // Map of lhs to its production rules (child node)
     map<string, node*> m_lhsMap;
+
+    // Total nodes in the GrammarTree
     size_t m_size;
 
     string m_prevRule;

@@ -49,7 +49,7 @@ using namespace std;
 
 
 
-typedef pair<int,string> Token;
+typedef pair<int,string> Tok;
 
 class Expression
 {

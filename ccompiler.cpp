@@ -17,7 +17,7 @@ int main(int argc, char * const argv[])
     // eventually I will move grammar building to another class
     // for now it builds in the constructor of Parser
     Parser m_parser;
-    vector<Token> m_tokenList;
+    vector<Tok> m_tokenList;
     vector<Expression> m_expressionList;
     vector<Variable> m_variableList;
 
@@ -80,7 +80,7 @@ HELP:
 
 
 // Prints the list of tokens.
-void compiler::printTokens(vector<Token> &tokenList, Scanner &scanner)
+void compiler::printTokens(vector<Tok> &tokenList, Scanner &scanner)
 {
     for (auto it = tokenList.begin(); it != tokenList.end(); it++)
     {
