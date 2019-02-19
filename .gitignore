@@ -33,3 +33,4 @@
 
 # Xcode
 *.dSYM
+*.DS_Store
