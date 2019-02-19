@@ -41,5 +41,3 @@ constant ~ NUMCONST | CHARCONST | TRUE | FALSE
 varDecl ~ typeSpec varDeclList
 varDeclList ~ varDeclList, varDeclInit | varDeclInit
 varDeclInit ~ ID | ID = simpleExpr
-typeSpec ~ returnTypeSpec
-returnTypeSpec ~ INT | BOOL | CHAR
