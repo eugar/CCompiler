@@ -223,7 +223,7 @@ void GrammarTree::convertRuleToLR1Item(vector<const string *> vecS, // productio
             }
             production += terminal;
 
-            if (phIndex = production.find(0, c_phStr)) == string::npos)
+            if ((phIndex = production.find(c_phStr, 0)) == string::npos)
             {
                 production.insert(0, c_phStr);
             }
