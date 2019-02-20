@@ -74,6 +74,7 @@ private:
 
     // Holds the canonical collection of LR1 Items
     vector<set<string>> m_CC;
+    set<string> m_CCi;
 
     node* buildTree(ProductionRule& pRule, node* parent, const std::vector<node*> &children);
     node* buildTree(ProductionRule& pRule, node* parent, GrammarTree::node * child, const std::vector<const string*> &children);

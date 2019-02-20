@@ -15,7 +15,7 @@ GrammarTree::GrammarTree()
     ProductionRule pRule;
     vector<string> pRuleIndex;
 
-    grammar::reader(pRuleIndex, pRule);
+    grammar::reader(pRuleIndex, pRule, "expr.txt");
 
     auto rule = m_tokens.emplace(pRuleIndex[0]);
     m_root.addRule(const_cast<string*>(&(*rule.first)));
@@ -40,35 +40,30 @@ void GrammarTree::constructSets()
     do
     {
         // If there is more than 1 set
-        set<string> *LR1Items;
-        if (m_CC.size() > 1)
+        set<string> LR1Items;
+        if (setCount > 0)
         {
-            set<string> set1(m_CC.back());
-            //LR1Items = &items;
             vector<string> temp;
-            size_t len = 0;
+            list<string> allCC;
             for (auto CC : m_CC)
             {
-                len += CC.size();
+                auto iter = allCC.end();
+                iter--;
+                allCC.splice(iter, list<string>(CC.begin(), CC.end()));
             }
-            temp.reserve(len);
-            for (auto CC = m_CC.begin(); CC != m_CC.end() - 1; CC++)
+            set_difference(m_CCi.begin(), m_CCi.end(), allCC.begin(), allCC.end(), inserter(temp, temp.begin()));
+            if (temp.size() <= 0)
             {
-                set_difference(m_CC.back().begin(), m_CC.back().end(), CC->begin(), CC->end(), inserter(temp, temp.begin()));
+                break;
             }
-            temp.shrink_to_fit();
-            set<string> *items = new set<string>(std::begin(temp), std::end(temp));
-            LR1Items = items;
+            m_CC.emplace_back(set<string>(std::begin(temp), std::end(temp)));
         }
-        else
-        {
-            setCount = 1;
-            set<string> *items = new set<string>(m_CC.back());
-            LR1Items = items;
-        }
+
+        LR1Items = set<string>(m_CC.back());
+
         size_t phPos;
         size_t sPos;
-        for (auto &item : *LR1Items)
+        for (auto &item : LR1Items)
         {
             phPos = item.find(c_phStr);
             if ((sPos = item.find(' ', phPos)) == string::npos)
@@ -89,10 +84,21 @@ void GrammarTree::constructSets()
             {
                 s->replace(phPos, 1, " ");
             }
+
         }
-        m_CC.emplace_back(closure(*LR1Items, setCount));
+
+        for (auto &item : LR1Items)
+        {
+            if ((sPos = item.find('|', phPos)) != string::npos)
+            {
+                auto *s = const_cast<string *>(&item);
+                s->erase(sPos + 1);
+            }
+        }
         setCount++;
-    } while(m_CC.back().size() > 0);
+        m_CCi.clear();
+        m_CCi = set<string>(closure(LR1Items, setCount));
+    } while(true);
     // wrap it all in the loop.
 
 }
@@ -145,7 +151,8 @@ set<string> &GrammarTree::closure(set<string> &LR1Items, int phPosition)
             createNewLR1Items(*token, *rule, m_lhsMap.at(*token), phPosition, LR1Items);
         }
 
-    } while(prevLR1ItemsSize < LR1Items.size());
+        cout << "LR1Items size : " << LR1Items.size() << endl;
+    } while (LR1Items.size() > prevLR1ItemsSize);
 
     return LR1Items;
 }
@@ -163,11 +170,14 @@ void GrammarTree::createNewLR1Items(string token, string rule, node* gtNode, int
 
 void GrammarTree::convertRuleToLR1Item(vector<const string *> vecS, // production rule list
                                                 string terminal, // the terminal that should be marked as acceptable
-                                                int phPosition,
-                                                set<string> &LR1Items) // The position of the placeholder; The number of tokens that come before it.
+                                                int phPosition, // The position of the placeholder; The number of tokens that come before it.
+                                                set<string> &LR1Items)
 {
     string production;
     size_t phIndex = 0;
+    bool findPos = true;
+    bool setInitialPh = true;
+    size_t newPhPos = 0;
     for (auto s : vecS)
     {
         if (*s == "EOF" || s->empty())
@@ -175,51 +185,105 @@ void GrammarTree::convertRuleToLR1Item(vector<const string *> vecS, // productio
             production.clear();
             continue;
         }
+        auto it = vecS.begin();
+        int p = phPosition;
+        if (p > 0 && findPos) {
+            while (it != vecS.end() && ((*it)->compare("|")))
+            {
+                newPhPos += (*it)->size() + 1;
+                p--;
+                if (p == 0)
+                {
+                    findPos = false;
+                    break;
+                }
+            }
+
+        }
+        else if (phPosition == 0 && setInitialPh)
+        {
+            setInitialPh = false;
+            production.insert(0, c_phStr);
+        }
         if (*s == "|")
         {
+            findPos = true;
+            setInitialPh = true;
+            newPhPos = 0;
             if (production.empty())
+                continue;
+            if (production.size() == 1 && production[0] == c_phCh)
                 continue;
 
             // add the acceptable terminal
             production[production.size() - 1] = '|';
+            if (newPhPos > 0 && phPosition > 0)
+            {
+                production.replace(newPhPos, 1, c_phStr);
+            }
             production += terminal;
-            phIndex = 0;
-            // no placeholder inserted yet
-            if ((phIndex = production.find(c_phCh)) == string::npos)
+
+            if (phIndex = production.find(0, c_phStr)) == string::npos)
             {
                 production.insert(0, c_phStr);
             }
-
-            // This statement makes it so the grammar cannot have 3 terminal symbols consecutively
-            // but is also needed to prevent extraneous tokens from being added to the action table.
-            if (production[0] == c_phCh && isupper(production[1]) &&
-                isupper(production.substr(production.find('|') + 1)[0]))
-                continue;
-
             // place production item in set
             auto it = LR1Items.emplace(production);
             production.clear();
         }
         else
         {
-            if (phPosition == 1)
-            {
-                production += *s + c_phStr;
-                phPosition--;
-            }
-            else
-            {
-                if (phPosition > 1)
-                {
-                    phIndex += (*s).size();
-                    phPosition--;
-                }
-                production += *s + " ";
-            }
+            production += *s + " ";
         }
     }
 }
+/*
+    string production;
+    size_t phIndex = 0;
+    auto items = set<string>(LR1Items);
+    LR1Items.clear();
+    bool findPos = true;
+    for (auto s : vecS)
+    {
+        auto it = vecS.begin();
+        int p = phPosition;
+        size_t newPhPos = 0;
+        if (p > 0 && findPos) {
+            while (it != vecS.end() && ((*it)->compare("|")))
+            {
+                newPhPos += (*it)->size() + 1;
+                p--;
+                if (p == 0)
+                {
+                    findPos = false;
+                    break;
+                }
+            }
 
+        }
+        else if (findPos && it != vecS.end())
+        {
+            production.insert(0, c_phStr);
+        }
+        if (*s == "EOF" || s->empty())
+        {
+            production.clear();
+            continue;
+        }
+        if (*s == "|")
+        {
+            findPos = true;
+            if (production.empty())
+                continue;
+
+            // add the acceptable terminal
+            production[production.size() - 1] = '|';
+            if (!findPos && phPosition > 0)
+            {
+                production.replace(newPhPos, 1, c_phStr);
+            }
+            production += terminal;
+ */
 GrammarTree::node *GrammarTree::addChild(GrammarTree::node *parentNode,
                                                 vector<string> rhs,
                                                 const string *parentToken) // lhs
@@ -322,19 +386,24 @@ void GrammarTree::validTerminals(const string* state)
     auto par = parent->rules();
     for (auto rule = par.begin(); rule != par.end(); rule++)
     {
+
+        if ((*rule)->compare("|") == 0)
+            continue;
         cout << **rule << endl;
 
         if (*(*rule) == *state)
         {
             while ((*rule)->compare("|"))
                 rule++;
-            rule++;
+            //rule--;
         }
 
         else if (isupper((*rule)->at(0)))
         {
             if (!contains(m_terminals, *rule))
                 m_terminals.emplace(*rule);
+            while ((*rule)->compare("|"))
+                rule++;
         }
         else
         {
@@ -348,14 +417,12 @@ void GrammarTree::validTerminals(const string* state)
             }
 
             // just for prints
-            cout << **rule;
+            cout << **rule << endl;
             if ((*rule)->compare("|") == 0)
                 continue;
-            auto nonterminal = m_lhsMap.at(**rule)->rules();
-            while ((*rule)->compare("|"))
-                rule++;
-            rule--;
             // recurse on next node(s)
+            validTerminals(*rule);
+            /*
             for (auto nonterm = nonterminal.begin(); nonterm != nonterminal.end(); nonterm++)
             {
 
@@ -384,9 +451,9 @@ void GrammarTree::validTerminals(const string* state)
                         nonterm++;
                     }
                 }
-            }
+            }*/
         }
-        rule++;
+
     }
 }
 
