@@ -6,6 +6,7 @@
 
 #include <map>
 #include <vector>
+#include <string>
 
 typedef std::map<std::string, std::vector<std::string>> ProductionRule;
 typedef std::map<std::string, std::vector<std::string>*> ProductionRulePtr;
