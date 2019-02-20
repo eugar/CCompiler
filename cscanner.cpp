@@ -229,7 +229,52 @@ void Scanner::parseFile(istream &input, // [in] file stream to tokenize
             }
             else
             {
-                if (isalnum(c) || c == '_')
+
+                if (c == '/' && ((char)input.peek() == '*' || (char)input.peek() == '/'))
+                {
+                    c = input.get();
+
+                    if (!input.good())
+                    {
+                        break;
+                    }
+
+                    if (c == '*')
+                    {
+                        int bComm = 1;
+                        c = input.get();
+                        //cout << "found a block comment" << endl;
+                        while (bComm)
+                        {
+                            c = input.get();
+                            if (!input.good())
+                            {
+                                break;
+                            }
+
+                            if (c == '*' && (char)input.peek() == '/')
+                            {
+                                bComm = 0;
+                                c = input.get();
+                            }
+                        }
+                    }
+
+                    else if (c == '/')
+                    {
+                        //cout << "found a single (line) comment" << endl;
+                        while (c != '\n')
+                        {
+                            c = input.get();
+                            if (!input.good())
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                else if (isalnum(c) || c == '_')
                 {
                     token.append(1, c);
                     continue;
