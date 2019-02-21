@@ -60,7 +60,7 @@ public:
     void constructSets();
 
 private:
-    void convertRuleToLR1Item(vector<const string*> vecS, string terminal, int phPosition, set<string> &LR1Item);
+    void convertRuleToLR1Item(/*vector<const string *> vecS*/ node *gtNode, string terminal, int phPosition, set<string> &LR1Item, string item);
     void createNewLR1Items(string token, string rule, node* gtNode, int phPosition, set<string> &LR1Item);
 
     // Loops in grammar can cause infinite recursion.

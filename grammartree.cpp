@@ -149,30 +149,50 @@ set<string> &GrammarTree::closure(set<string> &LR1Items, int phPosition)
             }
 
             createNewLR1Items(*token, *rule, m_lhsMap.at(*token), phPosition, LR1Items);
+
         }
 
-        cout << "LR1Items size : " << LR1Items.size() << endl;
+        cout << "LR1Items size before terminate check : " << LR1Items.size() << endl;
     } while (LR1Items.size() > prevLR1ItemsSize);
 
     return LR1Items;
 }
 
-void GrammarTree::createNewLR1Items(string token, string rule, node* gtNode, int phPosition, set<string> &LR1Item)
+void GrammarTree::createNewLR1Items(string token, string item, node* gtNode, int phPosition, set<string> &LR1Item)
 {
     // process all terminals first
     for (auto terminal : m_terminals)
     {
         // build LR1
-        convertRuleToLR1Item(gtNode->rules(), *terminal, phPosition, LR1Item);
+       // if ((item.find(c_phStr)) != 0)
+        //{
+        //    convertRuleToLR1Item(gtNode->, *terminal, phPosition, LR1Item, item);
+       // } else {
+            convertRuleToLR1Item(gtNode, *terminal, phPosition, LR1Item, item);
+       // }
         cout << "Rule : " << token << " -- " << *terminal << endl;
     }
 }
 
-void GrammarTree::convertRuleToLR1Item(vector<const string *> vecS, // production rule list
+void GrammarTree::convertRuleToLR1Item(/*vector<const string *> vecS*/ node *gtNode, // production rule list
                                                 string terminal, // the terminal that should be marked as acceptable
                                                 int phPosition, // The position of the placeholder; The number of tokens that come before it.
-                                                set<string> &LR1Items)
+                                                set<string> &LR1Items,
+                                                string item)
 {
+    vector<const string*> vecS;
+    if (phPosition > 0 && (item.find(c_phStr) != 0))
+    {
+        vecS.clear();
+        const string Tok = gtNode->parentToken();
+        string *pTok = const_cast<string*>(&Tok);
+        vecS.push_back(&Tok);
+    }
+    else
+    {
+        vecS.clear();
+        copy((gtNode->rules()).begin(), (gtNode->rules()).end(), inserter(vecS, vecS.begin()));
+    }
     string production;
     size_t phIndex = 0;
     bool findPos = true;
@@ -223,10 +243,6 @@ void GrammarTree::convertRuleToLR1Item(vector<const string *> vecS, // productio
             }
             production += terminal;
 
-            if ((phIndex = production.find(c_phStr, 0)) == string::npos)
-            {
-                production.insert(0, c_phStr);
-            }
             // place production item in set
             auto it = LR1Items.emplace(production);
             production.clear();
