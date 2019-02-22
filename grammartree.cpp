@@ -36,6 +36,7 @@ GrammarTree::GrammarTree()
 void GrammarTree::constructSets()
 {
 
+    //set<string> preppedRules;
     int setCount = 0;
     //while still adding items
     do
@@ -52,6 +53,13 @@ void GrammarTree::constructSets()
                 {
                     allCC.emplace(C);
                 }
+                /*
+                for (auto p : preppedRules)
+                {
+                    allCC.emplace(p);
+                }
+                 */
+
             }
             set_difference(m_CCi.begin(), m_CCi.end(), allCC.begin(), allCC.end(), inserter(temp, temp.begin()));
             if (temp.size() <= 0)
@@ -97,6 +105,17 @@ void GrammarTree::constructSets()
                 s->erase(sPos + 1);
             }
         }
+        /*
+        preppedRules.clear();
+        for (auto lr1 : LR1Items)
+        {
+            size_t pipePos = 0;
+            if ((pipePos = lr1.rfind('|')) != string::npos && (pipePos + 1 >= lr1.size()))
+            {
+                preppedRules.emplace(lr1);
+            }
+        }
+         */
         setCount++;
         m_CCi.clear();
         m_CCi = set<string>(closure(LR1Items, setCount));
@@ -143,6 +162,7 @@ set<string> &GrammarTree::closure(set<string> &LR1Items, int phPosition)
                 size_t n;
                 if ((n = rule->find('|')) != string::npos && rule->size() <= (n + 1))
                 {
+                    size_t n = rule->find_first_of(" \n");
                     cout << "Rule to concat with term : " << *rule + rule->substr(sPos, n - sPos) << endl;
                     LR1Items.emplace(*rule + rule->substr(sPos, n - sPos));
                     LR1Items.erase(rule);
@@ -244,7 +264,7 @@ void GrammarTree::convertRuleToLR1Item(string token,
     for (auto s : vecS)
     {
         cout << "Current vector string : " << s << endl;
-        if (s == "EOF" || s.empty())
+        if (s.empty())
         {
             production.clear();
             continue;
@@ -280,26 +300,8 @@ void GrammarTree::convertRuleToLR1Item(string token,
             }
             for (auto terminal : m_terminals)
             {
-                // this is no longer needed.
-                /*
-                if (terminal->empty())
-                {
-                    size_t i;
-                    if ((i = item.find(' ', phIndex)) != string::npos || (i = item.find('|', phIndex)) != string::npos)
-                    {
-                        if (isupper(item[phIndex + 1]))
-                        {
-                            //terminal = item.substr(phIndex + 1, i - (phIndex + 1));
-                        }
-                    }
-                }
-                 */
                 // add the acceptable terminal to the set
                 LR1Items.emplace(production + *terminal);
-                if (item[item.size() - 1] == '|')
-                {
-                    LR1Items.erase(item);
-                }
             }
             production.clear();
         }
@@ -309,90 +311,12 @@ void GrammarTree::convertRuleToLR1Item(string token,
         }
 
     }
+    //if (item[item.size() - 1] == '|')
+    //{
+     //   LR1Items.erase(item);
+//    }
 }
-/*
-void GrammarTree::convertRuleToLR1Item(GrammarTree::node *gtNode, // production rule
-                                                string terminal, // the terminal that should be marked as acceptable
-                                                int phPosition, // The position of the placeholder; The number of tokens that come before it.
-                                                set<string> &LR1Items,
-                                                string item)
-{
-    vector<const string*> *vecS;
-    size_t phIndex = 0;
 
-    if ((phIndex = item.find(c_phStr)) != 0 && phIndex != string::npos)
-    {
-        const string Tok = gtNode->parentToken();
-        string *pTok = const_cast<string*>(&Tok);
-        vecS = new vector<const string*>({&Tok});
-    }
-    else
-    {
-        vecS = new vector<const string*>(gtNode->rules());
-    }
-
-    string production;
-    //bool findPos = true;
-    //bool setInitialPh = true;
-    size_t newPhPos = 0;
-    for (auto s : *vecS)
-    {
-        if (*s == "EOF" || s->empty())
-        {
-            production.clear();
-            continue;
-        }
-        // After this statement, phIndex is either the maximum unsigned value
-        // or the index where the ph should be placed.
-        phIndex = item.find(c_phStr);
-
-        if (*s == "|")
-        {
-           // findPos = true;
-           // setInitialPh = true;
-           // newPhPos = 0;
-            if (production.empty())
-                continue;
-            if (production.size() == 1 && production[0] == c_phCh)
-                continue;
-
-            production[production.size() - 1] = '|';
-            if (phIndex == string::npos || phIndex == 0)
-            {
-                phIndex = 0;
-                production.insert(phIndex, c_phStr);
-            }
-            else
-            {
-                production.replace(phIndex, 1, c_phStr);
-            }
-
-            // Verify the terminal is acceptable
-            if (terminal.empty())
-            {
-                size_t i;
-                if ((i = item.find(' ', phIndex)) != string::npos || (i = item.find('|', phIndex)) != string::npos)
-                {
-                    if (isupper(item[phIndex+1]))
-                    {
-                        terminal = item.substr(phIndex + 1, i - (phIndex + 1));
-                    }
-                }
-            }
-            // add the acceptable terminal
-            production += terminal;
-
-            // place production item in set
-            auto it = LR1Items.emplace(production);
-            production.clear();
-        }
-        else
-        {
-            production += *s + " ";
-        }
-    }
-}
-*/
 GrammarTree::node *GrammarTree::addChild(GrammarTree::node *parentNode,
                                                 vector<string> rhs,
                                                 const string *parentToken) // lhs
@@ -531,6 +455,16 @@ void GrammarTree::validTerminals(const string* state)
                 continue;
             // recurse on next node(s)
             validTerminals(*rule);
+            while ((*rule)->compare("|") != 0 && rule != par.end())
+                rule++;
+        }
+    }
+    return;
+}
+
+
+
+
             /*
             for (auto nonterm = nonterminal.begin(); nonterm != nonterminal.end(); nonterm++)
             {
@@ -561,10 +495,7 @@ void GrammarTree::validTerminals(const string* state)
                     }
                 }
             }*/
-        }
 
-    }
-}
 
 const vector<const string*> GrammarTree::node::rightChildrensRules()
 {
