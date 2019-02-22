@@ -60,7 +60,9 @@ public:
     void constructSets();
 
 private:
-    void convertRuleToLR1Item(/*vector<const string *> vecS*/ node *gtNode, string terminal, int phPosition, set<string> &LR1Item, string item);
+    void convertRuleToLR1Item(string token, string item, node* gtNode, int phPosition, set<string> &LR1Item);
+    //void convertRuleToLR1Item(/*vector<const string *> vecS*/ node *gtNode, string terminal, int phPosition,
+    // set<string> &LR1Item, string item);
     void createNewLR1Items(string token, string rule, node* gtNode, int phPosition, set<string> &LR1Item);
 
     // Loops in grammar can cause infinite recursion.
@@ -71,6 +73,7 @@ private:
     // Also used in the closure algorithm.
     set<const string*> m_terminals;
     set<const string*> m_nonterminals;
+    bool terminals(const string *rule, string *token);
 
     // Holds the canonical collection of LR1 Items
     vector<set<string>> m_CC;

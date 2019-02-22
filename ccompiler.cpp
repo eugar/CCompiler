@@ -6,9 +6,10 @@
 
 using namespace std;
 
-// This does not need to be a class. Change this to be the
-// main logic. This file should include all the others, but
-// the others should not include each other or this file.
+// This does not need to be a class. Changed this to be the
+// main logic. This file should include others, but the
+// the others should not include each other (where it can be
+// avoided) or this file.
 using namespace compiler;
 
 int main(int argc, char * const argv[])
