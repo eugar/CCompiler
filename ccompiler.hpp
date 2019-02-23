@@ -3,6 +3,7 @@
 
 #include "cscanner.hpp"
 #include "cparser.hpp"
+#include "symboltable.hpp"
 #include <vector>
 #include <fstream>
 
