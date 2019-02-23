@@ -46,16 +46,19 @@ public:
 
     GrammarTree();
 
-    node* buildTree(ProductionRule& pRule);
-    bool contains(set<const string*> list, const string *token);
     set<string>& tokens(){return m_tokens;}
     node* root(){return &m_root;}
     size_t size(){return m_size;}
+    node* &rule(const string& token){return m_lhsMap.at(token);}
+    vector<string> &pRule(const string& token){return m_pRule.at(token);}
+    vector<string> &ruleIndex(){return m_pRuleIndex;}
+
+    node* buildTree(ProductionRule& pRule);
+    bool contains(set<const string*> list, const string *token);
     node* addChild(node* parentNode, vector<string> rhs, const string *parentToken);
     void validTerminals(const string* terminal);
 
     void clearTokenSets(){m_nonterminals.clear(); m_terminals.clear();}
-
     set<string> &closure(set<string> &LR1Item, int phPosition = 0);
     void constructSets();
 
@@ -73,6 +76,8 @@ private:
     // Also used in the closure algorithm.
     set<const string*> m_terminals;
     set<const string*> m_nonterminals;
+    set<string> m_processingList;
+    bool m_processing = false;
     bool terminals(const string *rule, string *token);
 
     // Holds the canonical collection of LR1 Items
@@ -86,6 +91,10 @@ private:
 
     // Unique set of tokens
     set<string> m_tokens;
+    // Map of LHS to RHS
+    ProductionRule m_pRule;
+    // Linear index of m_pRule
+    vector<string> m_pRuleIndex;
 
     // Map of lhs to its production rules (child node)
     map<string, node*> m_lhsMap;

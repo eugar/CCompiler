@@ -2,7 +2,8 @@
 #include <iostream>
 #include <fstream>
 #include <unistd.h>
-#include "grammartree.h"
+#include "statetablegenerator.h"
+
 
 using namespace std;
 
@@ -21,6 +22,8 @@ int main(int argc, char * const argv[])
     vector<Tok> m_tokenList;
     vector<Expression> m_expressionList;
     vector<Variable> m_variableList;
+
+    StateTableGenerator stateTableGenerator;
 
     int c;
     int pTokens = 0;

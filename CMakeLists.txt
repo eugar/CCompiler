@@ -12,4 +12,4 @@ add_executable(CCompiler
         cexpression.cpp
         cexpression.hpp
         cscanner.cpp
-        cscanner.hpp grammartree.cpp grammartree.h definitions.h grammar.h grammar.cpp)
+        cscanner.hpp grammartree.cpp grammartree.h definitions.h grammar.h grammar.cpp statetablegenerator.cpp statetablegenerator.h)

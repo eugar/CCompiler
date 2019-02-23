@@ -51,7 +51,7 @@ private:
     map<string, vector<pair<size_t, string>>> m_validTerminals;
     ProductionRulePtr m_CC;
 
-    GrammarTree *m_gTree;
+    //GrammarTree *m_gTree;
 
 };
 

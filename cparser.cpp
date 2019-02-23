@@ -11,7 +11,7 @@ using namespace std;
 Parser::Parser()
 {
 
-    m_gTree = new GrammarTree();
+//    m_gTree = new GrammarTree();
     //mapLookAhead();
     //initClosure();
     //closure();

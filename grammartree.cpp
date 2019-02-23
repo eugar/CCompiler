@@ -12,33 +12,32 @@ GrammarTree::GrammarTree()
     m_size(0)
 {
     m_tokens.emplace("|");
-    ProductionRule pRule;
-    vector<string> pRuleIndex;
 
-    grammar::reader(pRuleIndex, pRule);
+    grammar::reader(m_pRuleIndex, m_pRule);
 
-    auto rule = m_tokens.emplace(pRuleIndex[0]);
+    auto rule = m_tokens.emplace(m_pRuleIndex[0]);
     m_root.addRule(const_cast<string*>(&(*rule.first)));
     m_root.addParentNode();
     m_root.setParentToken();
 
-    buildTree(pRule);
+    buildTree(m_pRule);
 
-    cout << endl << "The grammar tree contains " << m_size << " nodes with a root of " << pRuleIndex[0] << endl;
-
+    cout << endl << "The grammar tree contains " << m_size << " nodes with a root of " << m_pRuleIndex[0] << endl;
+/*
     set<string> LR1Items;
     m_CC.emplace_back(closure(LR1Items));
 
     constructSets();
     int w = 9;
-
+*/
 }
 void GrammarTree::constructSets()
 {
 
     //set<string> preppedRules;
     int setCount = 0;
-    //while still adding items
+    //while still adding items            sPos++;
+
     do
     {
         // If there is more than 1 set
@@ -184,11 +183,27 @@ set<string> &GrammarTree::closure(set<string> &LR1Items, int phPosition)
 }
 bool GrammarTree::terminals(const string *rule, string *token)
 {
+    clearTokenSets();
     // This is a terminal with no rule, Skip.
-    if (isupper((*rule)[1]));
+    if (isupper((*rule)[1]))
+    {
+        size_t sPos = 0;
+        if ((sPos = (*rule).find('|')) != string::npos)
+        {
+            // the only valid terminal for a terminal is THAT terminal!
+            string *s = new string((*rule).substr(sPos + 1, (*rule).find_first_of("| @\n", sPos + 1)));
+            m_terminals.emplace(s);
+        }
+        else
+        {
+            return false;
+        }
+
+    }
 
     size_t sPos = rule->find(c_phStr);
     size_t ePos;
+    cout << "Rule in terminals : " << *rule << endl;
     if ((ePos = rule->find(' ', sPos)) == string::npos)
         if ((ePos = rule->find('|', sPos)) == string::npos)
             return false;
@@ -202,7 +217,6 @@ bool GrammarTree::terminals(const string *rule, string *token)
     }
     else
     {
-        clearTokenSets();
         cout << "Token sent to validTerminals : " << *token << endl;
         validTerminals(&(*token));
     }
@@ -233,7 +247,11 @@ void GrammarTree::convertRuleToLR1Item(string token,
 
     vector<string> vecS;
     size_t phIndex = 0;
-    if ((phIndex = item.find(c_phStr)) != 0 && phIndex != string::npos)
+
+    bool isNew = m_processingList.emplace(token).second;
+
+
+    if ((phIndex = item.find(c_phStr)) != 0 && phIndex != string::npos && phPosition > 0)
     {
         size_t ePos = 0;
         size_t sPos = 0;
@@ -251,10 +269,13 @@ void GrammarTree::convertRuleToLR1Item(string token,
     }
     else
     {
+        if (item == "process")
+        {
+            gtNode = m_lhsMap.at(token);
+        }
         for (auto rule : gtNode->rules())
         {
             vecS.push_back(*const_cast<string *>(&(*rule)));
-
         }
     }
     string production;
@@ -264,7 +285,7 @@ void GrammarTree::convertRuleToLR1Item(string token,
     for (auto s : vecS)
     {
         cout << "Current vector string : " << s << endl;
-        if (s.empty())
+        if (s.empty() || s == "EOF")
         {
             production.clear();
             continue;
@@ -293,7 +314,10 @@ void GrammarTree::convertRuleToLR1Item(string token,
             {
                 production.replace(phIndex, 1, c_phStr);
             }
-
+            if (item == "process")
+            {
+                item = production;
+            }
             if (phPosition != -1)
             {
                 terminals(&item, &token);
@@ -304,6 +328,19 @@ void GrammarTree::convertRuleToLR1Item(string token,
                 LR1Items.emplace(production + *terminal);
             }
             production.clear();
+            for (auto nonterminal : m_nonterminals)
+            {
+                if ((m_processing = m_processingList.emplace(*nonterminal).second))
+                {
+                    convertRuleToLR1Item(*nonterminal, "process", m_lhsMap.at(*nonterminal), 0, LR1Items);
+                    m_processing = false;
+                    // m_nonterminals was cleared due to a failure in terminals.
+                    if (m_nonterminals.empty())
+                    {
+                        break;
+                    }
+                }
+            }
         }
         else
         {

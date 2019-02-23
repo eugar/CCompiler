@@ -8,7 +8,9 @@
 
 namespace grammar
 {
-void reader(std::vector<std::string> &pRuleIndex, ProductionRule &pRule, const std::string& filename = "grammar.txt");
+void reader(std::vector<std::string> &pRuleIndex,
+        ProductionRule &pRule,
+        const std::string& filename = "grammar.txt");
 
 bool nextRule(std::string line, int &start, int &length);
 }
