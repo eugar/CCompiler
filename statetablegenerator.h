@@ -20,7 +20,6 @@ public:
 
     StateTableGenerator();
 
-
 private:
 
     GrammarTree m_grammar;
@@ -31,27 +30,15 @@ private:
 
     void first();
     void follow2();
-    void findFollowLHS(string lhs, set<string> &follow);
-    void findFollowRHS(string lhs, multimap<string, string> &rhsFollow);
+    void findFollowRHS(string lhs, set<string> &rhsFollow);
     void buildFollow(string lhs, set<string> &follow);
     void closure(string symbol);
     void buildLRSet();
     void findLR0Keys(string token);
     void buildLR0Set();
-/*
-    void follow();
-    void lookAhead(string state, string terminal, vector<string> &follow);
-    void lookAhead(string state, vector<string> &firstTerminals);
-    void backtrack(string lhs, string terminal);
-    void findFollow(string lhs, string handle);
-*/
+
     set<const string*> m_terminals;
     set<const string*> m_nonterminals;
-    list<string> m_prevLHS;
-    vector<string*> m_nonTerminalStack;
-    vector<string> m_terminalStack;
-    vector<string> m_branchNonTerminals;
-    set<string> m_branched;
     string m_lhs;
     multimap<string, string> m_allLRItems;
     multimap<string, string> m_lr0Items;

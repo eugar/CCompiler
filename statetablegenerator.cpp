@@ -7,6 +7,7 @@
 
 using namespace std;
 
+// StateTableGenerator constructor
 StateTableGenerator::StateTableGenerator()
 {
     first();
@@ -15,7 +16,6 @@ StateTableGenerator::StateTableGenerator()
     findLR0Keys((m_grammar.ruleIndex())[0]);
     buildLR0Set();
 
-    int w;
 }
 // Given a string, it returns a list of all valid terminals that can be seen
 // Loops over 'first()' for every LHS rule.
@@ -32,21 +32,23 @@ void StateTableGenerator::first()
     }
 }
 
+// Creates a follow set for every
+// LHS element in the grammar
 void StateTableGenerator::follow2()
 {
     // loop over all left hand side handles.
     for (auto lhs = m_grammar.ruleIndex().begin(); lhs != m_grammar.ruleIndex().end(); lhs++)
     {
-
-        multimap<string, string> rhsFollow;
         set<string> follow;
-        findFollowLHS(*lhs, follow);
-        findFollowRHS(*lhs, rhsFollow);
+        findFollowRHS(*lhs, follow);
         buildFollow(*lhs, follow);
     }
 }
+
+// Calls closure on every follow of every LHS element
 void StateTableGenerator::buildFollow(string lhs, set<string> &follow)
 {
+    cout << lhs << ": ";
     for (auto token : follow)
     {
         if (isupper(token[0]))
@@ -58,35 +60,17 @@ void StateTableGenerator::buildFollow(string lhs, set<string> &follow)
             closure(token);
             for (auto terminal : m_terminals)
             {
+                cout << *terminal << " ";
                 m_follow[lhs].emplace(*terminal);
             }
             clearTokenSets();
         }
     }
+    cout << endl;
 }
-void StateTableGenerator::findFollowLHS(string lhs, set<string> &follow)
-{
-    vector<string> rules;
-    vecCnstStrPtrToVecStr(m_grammar.rule(lhs)->rules(), rules);
-    for (auto rule = rules.begin(); rule != rules.end(); rule++)
-    {
-        if (*rule == lhs)
-        {
-            rule++;
-            if (endOfRule(rule))
-            {
-                continue;
-            }
-            else
-            {
-                follow.emplace(*rule);
-                gotoNextRule(rule);
-            }
-        }
-    }
-}
+
 // loops over all LHSs and searches the RHSs for instances of each rule.
-void StateTableGenerator::findFollowRHS(string nonterminal, multimap<string, string> &rhsFollow)
+void StateTableGenerator::findFollowRHS(string nonterminal, set<string> &rhsFollow)
 {
     for (auto& lhs : m_grammar.ruleIndex())
     {
@@ -104,8 +88,9 @@ void StateTableGenerator::findFollowRHS(string nonterminal, multimap<string, str
             }
             if (!endOfRule(rule))
             {
-                cout << "Trying to add : " << nonterminal << " with "<< **rule << endl;
-                rhsFollow.emplace(make_pair(nonterminal, **rule));
+                //cout <<"RHS function: "<< nonterminal << " -> "<< **rule << endl;
+                rhsFollow.insert(**rule);
+                //rhsFollow.emplace(make_pair(nonterminal, **rule));
             }
 
         }
@@ -121,7 +106,7 @@ void StateTableGenerator::buildLRSet()
         string rule;
         for (auto pRule = rules.begin(); pRule != rules.end(); pRule++)
         {
-            cout << "pRule : " << **pRule << endl;
+            //cout << "pRule : " << **pRule << endl;
             while (!endOfRule(pRule) && (*pRule)->compare("EOF") != 0)
             {
                 rule += **pRule + " ";
@@ -182,6 +167,7 @@ void StateTableGenerator::buildLR0Set()
     }
 }
 
+// finds every terminal of state
 void StateTableGenerator::closure(string state)
 {
     GrammarTree::node* parent = m_grammar.rule(state);
@@ -227,268 +213,7 @@ void StateTableGenerator::closure(string state)
         }
     }
 }
-/*
-void StateTableGenerator::lookAhead(string state, string terminal, vector<string> &follow)
-{
-    vector<string> rules;
-    // make a copy so we don't have to deal with iterators to pointers.
-    vecCnstStrPtrToVecStr(m_grammar.rule(state)->rules(), rules);
-    for (auto rule = rules.begin(); rule != rules.end(); rule++)
-    {
-        // we are looking for the specific terminal first.
-        // then we want to backtrack to all places where there is a follow rule
-        if (*rule == state)
-        {
-            // check to see if a terminal follows the rule
-            rule++;
-            if (isupper((*rule)[0]))
-            {
-                // this is a follow symbol. Let findFollow deal with it.
-                //m_prevLHS.push_front(terminal);
-                gotoNextRule(rule);
-            }
-            else
-            {
-                m_prevLHS.push_front(*rule);
-                lookAhead(*rule, terminal, follow);
-            }
-        }
-        if (endOfRule(rule))
-        {
-            continue;
-        }
-        cout << " State : " << state << " | | | ";
-        cout << "Rule : " << *rule << endl;
 
-        if (isupper((*rule)[0]))
-        {
-            if (*rule == terminal)
-            {
-                // found the terminal
-                m_prevLHS.push_front(terminal);
-            }
-            else
-            {
-                continue;
-            }
-        }
-        else
-        {
-            // add to the stack
-            cout << "Added  |> '" << *rule << "' <| to the stack" << endl;
-            m_prevLHS.push_front(*rule);
-            lookAhead(*rule, terminal, follow);
-        }
-        gotoNextRule(rule);
-    }
-}
-*/
-/*
-void StateTableGenerator::backtrack(string lhs, string terminal)
-{
-    for (auto rule : m_prevLHS)
-    {
-        if (isupper(rule[0]))
-        {
-            // this is the first terminal.
-            continue;
-        }
-        else
-        {
-            findFollow(rule, m_lhs);
-        }
-
-    }
-    m_prevLHS.clear();
-}
-*/
-/*
-void StateTableGenerator::findFollow(string lhs, string handle)
-{
-   // cout << "lhs : " << lhs << endl;
-    auto rules = m_grammar.rule(lhs)->rules();
-    for (auto rule = rules.begin(); rule != rules.end(); rule++)
-    {
-        cout << "findFollow => Rule : " << **rule << endl;
-        // if the current rule is the lhs it is self referential
-        if (lhs == **rule)
-        {
-            if (isupper((**rule)[0]))
-            {
-                m_follow[handle].emplace(**rule);
-                gotoNextRule(rule);
-                continue;
-            }
-            else
-            {
-                closure(**rule);
-                for (auto terminal : m_terminals)
-                {
-                    m_follow[handle].emplace(*terminal);
-                }
-                clearTokenSets();
-            }
-        }
-        // if the current handle is the lhs and is not self referential.
-        else if (handle == lhs)
-        {
-            gotoNextRule(rule);
-            continue;
-        }
-        rule++;
-        if (endOfRule(rule))
-        {
-            continue;
-        }
-        if (isupper((**rule)[0]))
-        {
-            m_follow[handle].emplace(**rule);
-        }
-        else
-        {
-            closure(**rule);
-            for (auto terminal : m_terminals)
-            {
-                m_follow[handle].emplace(*terminal);
-            }
-            clearTokenSets();
-        }
-        gotoNextRule(rule);
-
-    }
-}
-*/
-
-/*
-void StateTableGenerator::follow()
-{
-    // get first terminals
-    for (auto &lhs : m_grammar.ruleIndex())
-    {
-        // copy first terminal set into firstTerminals vector
-        vector<string> firstTerminals;
-        setStrToVecStr(m_first[lhs], firstTerminals);
-
-        lookAhead(lhs, firstTerminals);
-        while (!firstTerminals.empty())
-        {
-            bool isDone = false;
-            GrammarTree::node *fol = m_grammar.rule(m_prevLHS.back());
-            vector<string> rules;
-            // copy into the rules vector
-            vecCnstStrPtrToVecStr(fol->rules(), rules);
-            cout << "Previous Token : " << m_prevLHS.back() << endl;
-            for (auto rule = rules.begin(); rule != rules.end(); rule++)
-            {
-                cout << "Rule : " << (*rule) << endl;
-                rule++;
-                if (endOfRule(rule))
-                {
-                    continue;
-                }
-                cout << lhs << "[0] : " << *rule << endl;
-                if (isupper((*rule)[0]))
-                {
-                    m_follow[lhs].emplace(*rule);
-                    //isDone = true;
-                    cout << "Follow placed : " << *rule << " ";
-                }
-
-                cout << endl << endl;
-                gotoNextRule(rule);
-            }
-            m_prevLHS.pop_back();
-            if (m_prevLHS.empty() || isDone)
-            {
-                break;
-            }
-        }
-    }
-}
-*/
-/*
-void StateTableGenerator::lookAhead(const string state, vector<string> &firstTerminals)
-{
-    string currentState = "";
-    GrammarTree::node* parent = m_grammar.rule(state);
-    auto par = parent->rules();
-    for (auto rule = par.begin(); rule != par.end(); rule++)
-    {
-        if (std::find(m_branchNonTerminals.begin(), m_branchNonTerminals.end(), state) != m_branchNonTerminals.end()
-            && !contains(m_branched, state))
-        {
-            m_branching = true;
-            m_branched.emplace(state);
-        }
-
-
-        if (endOfRule(rule))
-            continue;
-        cout << "The current state is : " << state << " and the rule is : " << **rule << endl;
-
-        if (*(*rule) == state)
-        {
-            gotoNextRule(rule);
-        }
-        else if (isupper((*rule)->at(0)))
-        {
-            if (firstTerminals.empty())
-            {
-                m_branching = false;
-                setStrToVecStr(m_first[state], firstTerminals);
-
-            }
-            // add to terminal stack and save the current previous LHS term
-            m_terminalStack.push_back(**rule);
-            m_nonTerminalStack.push_back(&(m_prevLHS.back()));
-            firstTerminals.erase(find(firstTerminals.begin(), firstTerminals.end(), **rule));
-
-            gotoNextRule(rule);
-
-            if (firstTerminals.empty())
-            {
-                return;
-            }
-        }
-        else
-        {
-            // just for prints
-            cout << **rule << endl;
-            if (endOfRule(rule))
-                continue;
-            // recurse on next node(s)
-            // we have a branching non-terminal
-            if (!currentState.empty())
-            {
-                m_branchNonTerminals.push_back(*const_cast<string*>(*rule));
-                cout << "Branch Terminal : " << **rule << endl;
-                //m_branched.emplace(m_prevLHS.at(m_prevLHS.size() - 2));
-
-            }
-            else
-            {
-                currentState = state;
-            }
-            // don't add a non-terminal to the stack twice.
-            if (find(m_prevLHS.begin(), m_prevLHS.end(), **rule) == m_prevLHS.end())
-            {
-                m_prevLHS.push_back(state);
-            }
-
-            lookAhead(**rule, firstTerminals);
-
-            while (!endOfRule(rule))
-            {
-                rule++;
-            }
-            if (rule == par.end())
-            {
-                currentState.clear();
-            }
-        }
-    }
-}
-*/
 /****************************************************************/
 /*******************INLINE HELPER FUNCTIONS *********************/
 /****************************************************************/
