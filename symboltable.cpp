@@ -9,10 +9,10 @@ SymbolTable::SymbolTable()
 }
 
 //given id info, this will insert the record into the symbol table
-void SymbolTable::insertRecord(string id, string type, string scope)
+void SymbolTable::insert(string id, string type, string scope)
 {
     int i;
-    if ((i = lookupRecord(id)) == -1)
+    if ((i = lookup(id)) == -1)
     {
         symbolData data;
         data.type = type;
@@ -25,14 +25,14 @@ void SymbolTable::insertRecord(string id, string type, string scope)
     }
 }
 
-int SymbolTable::modifyRecord(string id, string type, string scope)
+int SymbolTable::modify(string id, string type, string scope)
 {
 
     return 1;
 
 }
 
-void SymbolTable::deleteRecord(string id)
+void SymbolTable::remove(string id)
 {
    if (m_symbolTable.erase(id) != 1)
    {
@@ -40,7 +40,7 @@ void SymbolTable::deleteRecord(string id)
    }
 }
 
-int SymbolTable::lookupRecord(string id)
+int SymbolTable::lookup(string id)
 {
     auto it = m_symbolTable.find(id);
     if (it == m_symbolTable.end())
@@ -50,17 +50,10 @@ int SymbolTable::lookupRecord(string id)
     return 1;
 }
 
-symbolData SymbolTable::getRecord(string id)
+void SymbolTable::printRecords()
 {
-    symbolData data;
-    auto pos = m_symbolTable.find(id);
-    if (pos != m_symbolTable.end()) // the id was found, return the pos
+    for (auto i = m_symbolTable.begin(); i != m_symbolTable.end(); i++)
     {
-       return pos->second;
-    }
-    else
-    {
-        cout << "id not found." << endl;
-        return data;
+        cout << i->first << " " << i->second.type << " " << i->second.scope << endl;
     }
 }

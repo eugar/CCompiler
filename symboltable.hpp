@@ -19,11 +19,11 @@ class SymbolTable
 public:
 
     SymbolTable();
-    void insertRecord(string id, string type, string scope);
-    int modifyRecord(string id, string type, string scope);
-    void deleteRecord(string id);
-    int lookupRecord(string id);
-    symbolData getRecord(string id);
+    void insert(string id, string type, string scope);
+    int modify(string id, string type, string scope);
+    void remove(string id);
+    int lookup(string id);
+    void printRecords();
 
 private:
     unordered_map<string, symbolData> m_symbolTable;

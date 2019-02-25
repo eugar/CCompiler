@@ -204,7 +204,7 @@ int Scanner::printTokens(int mapValue, // The value of the token in cinstruction
 }
 
 // Tokenizes the input file stream.
-void Scanner::parseFile(istream &input, // [in] file stream to tokenize
+void Scanner::scanFile(istream &input, // [in] file stream to tokenize
 			vector<Tok> &tokenList) // [out] List to populate with tokens.
 {
     tokenList.clear();
@@ -358,7 +358,7 @@ void Scanner::parseFile(istream &input, // [in] file stream to tokenize
 }
 
 // Reads in the file and calls parseFile to tokenize it.
-void Scanner::scanFile(string filename, // Path of file to program
+void Scanner::openFile(string filename, // Path of file to program
 		       vector<Tok> &tokenList) // List to populate with tokens.
 {
     fstream file;
@@ -368,7 +368,7 @@ void Scanner::scanFile(string filename, // Path of file to program
 
     if (file.is_open())
     {
-        parseFile(file, tokenList);
+        scanFile(file, tokenList);
         file.close();
     }
     else
