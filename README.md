@@ -42,7 +42,7 @@ class Compiler
 {
 private:
     Scanner m_scanner;
-    vector<Token> m_tokenList;
+    vector<Tok> m_tokenList;
 ```
 ...
 etc.

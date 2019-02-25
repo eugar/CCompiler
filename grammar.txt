@@ -29,7 +29,7 @@ sumExpr ~ sumExpr sumOp term | term |
 sumOp ~ PLUS | SUB |
 term ~ term mulOp unaryExpr | unaryExpr |
 mulOp ~ MUL | DIV | MOD |
-unaryExpr ~ unaryOp unaryExpr | immutable | mutable |
+unaryExpr ~ unaryOp mutable | immutable | mutable |
 unaryOp ~ NEG | DEREF |
 mutable ~ ID |
 immutable ~ OPAREN expr CPAREN | call | constant |
