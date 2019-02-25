@@ -23,6 +23,7 @@ int main(int argc, char * const argv[])
     vector<Expression> m_expressionList;
     vector<Variable> m_variableList;
 
+    SymbolTable m_symbolTable;
     StateTableGenerator stateTableGenerator;
 
     int c;
