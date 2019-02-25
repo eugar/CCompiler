@@ -12,12 +12,12 @@ class Scanner
 
 public:
     Scanner();
-    void scanFile(string filename, vector<Tok> &tokenList);
+    void openFile(string filename, vector<Tok> &tokenList);
     int printTokens(int mapValue, string token);
 
 private:
     map<string, int> cinstructions;
-    void parseFile(istream &input, vector<Tok> &tokenList);
+    void scanFile(istream &input, vector<Tok> &tokenList);
     int findToken(string token);
 
 };

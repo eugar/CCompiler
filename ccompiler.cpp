@@ -26,6 +26,7 @@ int main(int argc, char * const argv[])
     SymbolTable m_symbolTable;
     StateTableGenerator stateTableGenerator;
 
+
     int c;
     int pTokens = 0;
     int pTree = 0;
@@ -66,7 +67,7 @@ HELP:
 
     string filename = argv[optind];
     
-    m_scanner.scanFile(filename, m_tokenList);
+    m_scanner.openFile(filename, m_tokenList);
 
 
     if (pTokens)
