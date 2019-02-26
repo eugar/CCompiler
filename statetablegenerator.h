@@ -36,13 +36,16 @@ private:
     void buildLRSet();
     void findLR0Keys(string token);
     void buildLR0Set();
+    void buildInitLR1Set();
+    void buildLR1Sets();
+
 
     set<const string*> m_terminals;
     set<const string*> m_nonterminals;
     string m_lhs;
-    multimap<string, string> m_allLRItems;
-    multimap<string, string> m_lr0Items;
-    multimap<string, LR1RHS> m_lr1Items;
+    map<string, set<string>> m_allLRItems;
+    map<string, set<string>> m_lr0Items;
+    map<string, set<LR1RHS, RHSCompare>> m_lr1Items;
     set<string> m_lr0Stack;
 
     bool m_branching = false;
@@ -60,6 +63,8 @@ private:
     void inline gotoNextRule(vector<const string*>::iterator &it);
     bool inline endOfRule(vector<string>::iterator &it);
     bool inline endOfRule(vector<const string*>::iterator &it);
+    string inline findNextHandle(string rhs);
+    bool inline advancePH(string &rhs);
 };
 
 #endif //CCOMPILER_STATETABLE_GENERATOR_H

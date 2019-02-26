@@ -15,6 +15,9 @@ StateTableGenerator::StateTableGenerator()
     buildLRSet();
     findLR0Keys((m_grammar.ruleIndex())[0]);
     buildLR0Set();
+    buildInitLR1Set();
+
+    int w;
 
 }
 // Given a string, it returns a list of all valid terminals that can be seen
@@ -113,7 +116,7 @@ void StateTableGenerator::buildLRSet()
                 //insert PH at start
                 rule.insert(0, 1, c_phCh);
                 // add to lr0 items
-                m_allLRItems.emplace(std::make_pair(lhs, rule));
+                m_allLRItems[lhs].emplace(rule);
                 rule.clear();
             }
             gotoNextRule(pRule);
@@ -152,14 +155,37 @@ void StateTableGenerator::buildLR0Set()
 {
     for (auto& lhs : m_lr0Stack)
     {
-        cout << "lr0-> " << lhs << " : ";
-        auto rules = m_allLRItems.equal_range(lhs);
-        for (auto rule = rules.first; rule != rules.second; rule++)
+        for(auto rule : m_allLRItems[lhs])
         {
-            m_lr0Items.emplace(make_pair(lhs, rule->second));
-            cout << rule->second << " ";
+            m_lr0Items[lhs].emplace(rule);
         }
         cout << endl;
+    }
+}
+
+// Builds the inital LR1 sets
+void StateTableGenerator::buildInitLR1Set()
+{
+    string handle;
+    for(auto lr0Pair : m_lr0Items)
+    {
+        for(auto item : lr0Pair.second)
+        {
+            handle = findNextHandle(item);
+            for (auto fol : m_follow[handle])
+            {
+                m_lr1Items[lr0Pair.first].emplace(LR1RHS(item, fol));
+            }
+        }
+    }
+}
+
+// Builds the rest of the LR1 sets after buildInit
+void StateTableGenerator::buildLR1Sets()
+{
+    while(true)
+    {
+
     }
 }
 
@@ -265,4 +291,24 @@ bool StateTableGenerator::endOfRule(vector<string>::iterator &it)
 bool StateTableGenerator::endOfRule(vector<const string*>::iterator &it)
 {
     return ((*it)->compare("|") == 0);
+}
+string StateTableGenerator::findNextHandle(string rhs)
+{
+    size_t start = rhs.find(c_phCh);
+    start++;
+    size_t end = rhs.find(' ', start);
+    return rhs.substr(start, end-start);
+}
+bool StateTableGenerator::advancePH(string &rhs)
+{
+    size_t start = rhs.find(c_phCh);
+    size_t end;
+
+    if(end = (rhs.find(' ', start) != string::npos))
+    {
+        rhs.erase(start,1);
+        rhs.replace(end, 1, c_phStr);
+        return false;
+    }
+    return false;
 }
