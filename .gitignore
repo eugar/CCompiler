@@ -34,3 +34,6 @@
 # Xcode
 *.dSYM
 *.DS_Store
+
+# CMake
+*.cmake
