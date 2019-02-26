@@ -48,7 +48,6 @@ void StateTableGenerator::follow2()
 // Calls closure on every follow of every LHS element
 void StateTableGenerator::buildFollow(string lhs, set<string> &follow)
 {
-    cout << lhs << ": ";
     for (auto token : follow)
     {
         if (isupper(token[0]))
@@ -60,13 +59,11 @@ void StateTableGenerator::buildFollow(string lhs, set<string> &follow)
             closure(token);
             for (auto terminal : m_terminals)
             {
-                cout << *terminal << " ";
                 m_follow[lhs].emplace(*terminal);
             }
             clearTokenSets();
         }
     }
-    cout << endl;
 }
 
 // loops over all LHSs and searches the RHSs for instances of each rule.
@@ -77,7 +74,6 @@ void StateTableGenerator::findFollowRHS(string nonterminal, set<string> &rhsFoll
         vector<const string*> rules = m_grammar.rule(lhs)->rules();
         for (auto rule = rules.begin(); rule != rules.end(); rule++)
         {
-            //cout << "Rule : " << **rule << endl;
             if (nonterminal == **rule)
             {
                 rule++;
@@ -88,9 +84,7 @@ void StateTableGenerator::findFollowRHS(string nonterminal, set<string> &rhsFoll
             }
             if (!endOfRule(rule))
             {
-                //cout <<"RHS function: "<< nonterminal << " -> "<< **rule << endl;
                 rhsFollow.insert(**rule);
-                //rhsFollow.emplace(make_pair(nonterminal, **rule));
             }
 
         }
@@ -98,6 +92,7 @@ void StateTableGenerator::findFollowRHS(string nonterminal, set<string> &rhsFoll
     return;
 }
 
+// builds strings with the place holder at the beginning
 void StateTableGenerator::buildLRSet()
 {
     for (auto& lhs : m_grammar.ruleIndex())
@@ -106,7 +101,6 @@ void StateTableGenerator::buildLRSet()
         string rule;
         for (auto pRule = rules.begin(); pRule != rules.end(); pRule++)
         {
-            //cout << "pRule : " << **pRule << endl;
             while (!endOfRule(pRule) && (*pRule)->compare("EOF") != 0)
             {
                 rule += **pRule + " ";
@@ -158,16 +152,18 @@ void StateTableGenerator::buildLR0Set()
 {
     for (auto& lhs : m_lr0Stack)
     {
+        cout << "lr0-> " << lhs << " : ";
         auto rules = m_allLRItems.equal_range(lhs);
         for (auto rule = rules.first; rule != rules.second; rule++)
         {
             m_lr0Items.emplace(make_pair(lhs, rule->second));
+            cout << rule->second << " ";
         }
-
+        cout << endl;
     }
 }
 
-// finds every terminal of state
+// finds every first terminal of state
 void StateTableGenerator::closure(string state)
 {
     GrammarTree::node* parent = m_grammar.rule(state);

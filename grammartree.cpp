@@ -23,13 +23,7 @@ GrammarTree::GrammarTree()
     buildTree(m_pRule);
 
     cout << endl << "The grammar tree contains " << m_size << " nodes with a root of " << m_pRuleIndex[0] << endl;
-/*
-    set<string> LR1Items;
-    m_CC.emplace_back(closure(LR1Items));
 
-    constructSets();
-    int w = 9;
-*/
 }
 void GrammarTree::constructSets()
 {
@@ -397,58 +391,7 @@ GrammarTree::node *GrammarTree::addChild(GrammarTree::node *parentNode,
 
     return child;
 }
-/*
-// This finds all accepting states if given the root node
-void GrammarTree::acceptStates(const string* state)
-{
-    node* parent = m_lhsMap.at(*state);
-    auto par = parent->rules();
-    for (auto rule = par.begin(); rule != par.end(); rule++)
-    {
-        while ((*rule)->compare("|"))
-            rule++;
-        rule--;
-        //cout << **rule << endl;
-        if (*(*rule) == *state)
-        {
-            // do nothing
-        }
 
-        else if (isupper((*rule)->at(0)))
-        {
-            if (!contains(m_terminals, *rule))
-                m_terminals.emplace(*rule);
-        }
-        else
-        {
-            if (contains(m_nonterminals, *rule))
-                return;
-            else
-                m_nonterminals.emplace(*rule);
-
-            // recurse on next node(s)
-            for (auto nonterm : (m_lhsMap.at(*(*rule)))->rules())
-            {
-                if (isupper(nonterm->at(0)))
-                {
-                    m_terminals.emplace(nonterm);
-                    continue;
-                }
-                if (contains(m_nonterminals, nonterm))
-                    return;
-                //cout << "rule : " << *(*rule) << endl;
-                //cout << "nonterm : " << *nonterm << endl;
-                if (nonterm->compare(*(*rule)) != 0 &&
-                    nonterm->compare("|") != 0)
-                {
-                    validTerminals(nonterm);
-                }
-            }
-        }
-        rule++;
-    }
-}
-*/
 // given a string, it returns a list of all valid terminals that can be seen
 void GrammarTree::validTerminals(const string* state)
 {
@@ -498,41 +441,6 @@ void GrammarTree::validTerminals(const string* state)
     }
     return;
 }
-
-
-
-
-            /*
-            for (auto nonterm = nonterminal.begin(); nonterm != nonterminal.end(); nonterm++)
-            {
-
-                if (isupper((*nonterm)->at(0)))
-                {
-                    m_terminals.emplace(*nonterm);
-                    // move to next rule
-                    while ((*nonterm)->compare("|"))
-                        nonterm++;
-                    continue;
-                }
-                else if ((*nonterm)->compare(*(*rule)) != 0 &&
-                        (*nonterm)->compare("|") != 0)
-                {
-
-                    validTerminals(*nonterm);
-                    while ((*nonterm)->compare("|"))
-                        nonterm++;
-                    continue;
-                }
-                else
-                {
-
-                    while ((*nonterm)->compare("|"))
-                    {
-                        nonterm++;
-                    }
-                }
-            }*/
-
 
 const vector<const string*> GrammarTree::node::rightChildrensRules()
 {
