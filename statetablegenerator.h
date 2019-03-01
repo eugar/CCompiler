@@ -25,6 +25,7 @@ private:
     GrammarTree m_grammar;
     map<string, set<string>> m_first;
     map<string, set<string>> m_follow;
+    vector<vector<int>> m_setTable;
 
     void clearTokenSets(){m_nonterminals.clear(); m_terminals.clear();}
 
@@ -39,6 +40,9 @@ private:
     void buildInitLR1Set();
     void buildLR1Sets();
 
+    void createTable();
+    void createSets();
+    void createSets(set<string> &terminal, string &handle, string &lhs);
 
     set<const string*> m_terminals;
     set<const string*> m_nonterminals;
@@ -65,6 +69,7 @@ private:
     bool inline endOfRule(vector<const string*>::iterator &it);
     string inline findNextHandle(string rhs);
     bool inline advancePH(string &rhs);
+    bool inline advancePHSets(string &rhs);
 };
 
 #endif //CCOMPILER_STATETABLE_GENERATOR_H

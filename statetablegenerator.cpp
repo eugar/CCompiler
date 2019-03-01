@@ -20,6 +20,59 @@ StateTableGenerator::StateTableGenerator()
     int w;
 
 }
+
+void StateTableGenerator::createTable()
+{
+    size_t prevSize = 0;
+    do
+    {
+        prevSize = m_lr1Items.size();
+        createSets();
+
+    } while(m_lr1Items.size() > prevSize);
+}
+void StateTableGenerator::createSets()
+{
+    for (auto lr1Map : m_lr1Items)
+    {
+        for (auto rhs : lr1Map.second)
+        {
+            advancePHSets(rhs.RHS);
+            string s = findNextHandle(rhs.RHS);
+            auto terminals = m_first.find(s);
+            // If s is not a terminal.
+            string lhs = *(const_cast<string*>(&lr1Map.first));
+            if (terminals != m_first.end())
+            {
+                createSets(terminals->second, s, lhs);
+            }
+        }
+    }
+}
+void StateTableGenerator::createSets(set<string> &terminals, string &handle, string &lhs)
+{
+    for (auto t : terminals)
+    {
+        auto follows = m_follow.find(handle);
+        if (follows != m_follow.end())
+        {
+            for (auto f : follows->second)
+            {
+                auto lr1Rhs = m_lr1Items.at(lhs);
+                auto lr1 = *(lr1Rhs.begin());
+                // we want to replace the string after the placeholder
+                // with the terminals that come next.
+                m_lr1Items[lhs].emplace(LR1RHS(lr1.RHS, f));
+            }
+        }
+    }
+}
+
+// Builds the rest of the LR1 sets after buildInit
+void StateTableGenerator::buildLR1Sets()
+{
+
+}
 // Given a string, it returns a list of all valid terminals that can be seen
 // Loops over 'first()' for every LHS rule.
 void StateTableGenerator::first()
@@ -163,7 +216,7 @@ void StateTableGenerator::buildLR0Set()
     }
 }
 
-// Builds the inital LR1 sets
+// Builds the initial LR1 sets
 void StateTableGenerator::buildInitLR1Set()
 {
     string handle;
@@ -177,15 +230,6 @@ void StateTableGenerator::buildInitLR1Set()
                 m_lr1Items[lr0Pair.first].emplace(LR1RHS(item, fol));
             }
         }
-    }
-}
-
-// Builds the rest of the LR1 sets after buildInit
-void StateTableGenerator::buildLR1Sets()
-{
-    while(true)
-    {
-
     }
 }
 
@@ -308,7 +352,22 @@ bool StateTableGenerator::advancePH(string &rhs)
     {
         rhs.erase(start,1);
         rhs.replace(end, 1, c_phStr);
-        return false;
+        return true;
+    }
+    return false;
+}
+
+bool StateTableGenerator::advancePHSets(string &rhs)
+{
+    size_t start = rhs.find(c_phCh);
+    size_t end;
+
+    end = rhs.find(' ', start);
+    if (start == (rhs.size() - 1))
+    {
+        rhs.erase(start,1);
+        rhs.replace(end, 1, c_phStr);
+        return true;
     }
     return false;
 }
