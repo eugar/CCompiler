@@ -19,9 +19,7 @@ int main(int argc, char * const argv[])
     // eventually I will move grammar building to another class
     // for now it builds in the constructor of Parser
     Parser m_parser;
-    vector<Tok> m_tokenList;
-    vector<Expression> m_expressionList;
-    vector<Variable> m_variableList;
+    vector<Token> m_tokenList;
 
     SymbolTable m_symbolTable;
     StateTableGenerator stateTableGenerator;
@@ -72,7 +70,7 @@ HELP:
 
     if (pTokens)
     {
-        printTokens(m_tokenList, m_scanner);
+        Token::printTokens(m_tokenList);
     }
 
     if (pTree)
@@ -82,16 +80,6 @@ HELP:
 
 
     return 0;
-}
-
-
-// Prints the list of tokens.
-void compiler::printTokens(vector<Tok> &tokenList, Scanner &scanner)
-{
-    for (auto it = tokenList.begin(); it != tokenList.end(); it++)
-    {
-        scanner.printTokens(it->first, it->second);
-    }
 }
 
 void compiler::printTree(Parser &parser)

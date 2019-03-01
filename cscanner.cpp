@@ -1,4 +1,5 @@
 #include "ccompiler.hpp"
+#include "cscanner.hpp"
 #include <iostream>
 
 using namespace std;
@@ -6,211 +7,61 @@ using namespace std;
 // Sets all the instructions the will change the programs state
 Scanner::Scanner()
 {
-    cinstructions.insert(pair<string, int>("id", ID));
-    cinstructions.insert(pair<string, int>("int", INT));
-    cinstructions.insert(pair<string, int>("double", DUB));
-    cinstructions.insert(pair<string, int>("short", SHORT));
-    cinstructions.insert(pair<string, int>("float", FLOAT));
-    cinstructions.insert(pair<string, int>("char", CHAR));
-    cinstructions.insert(pair<string, int>("+", PLUS));
-    cinstructions.insert(pair<string, int>("-", MINUS));
-    cinstructions.insert(pair<string, int>("*", MUL));
-    cinstructions.insert(pair<string, int>("/", DIV));
-    cinstructions.insert(pair<string, int>("++", PP));
-    cinstructions.insert(pair<string, int>("--", MM));
-    cinstructions.insert(pair<string, int>("+=", PLUSASGN));
-    cinstructions.insert(pair<string, int>("-=", MINASGN));
-    cinstructions.insert(pair<string, int>("*=", MULASGN));
-    cinstructions.insert(pair<string, int>("/=", DIVASGN));
-    cinstructions.insert(pair<string, int>("=", ASGN));
-    cinstructions.insert(pair<string, int>("goto", GOTO));
-    cinstructions.insert(pair<string, int>("if", IF));
-    cinstructions.insert(pair<string, int>("else", ELSE));
-    cinstructions.insert(pair<string, int>("!", NOT));
-    cinstructions.insert(pair<string, int>("return", RET));
-    cinstructions.insert(pair<string, int>("break", BRK));
-    cinstructions.insert(pair<string, int>("while", WHILE));
-    cinstructions.insert(pair<string, int>("(", OPAREN));
-    cinstructions.insert(pair<string, int>(")", CPAREN));
-    cinstructions.insert(pair<string, int>("{", OBRACE));
-    cinstructions.insert(pair<string, int>("}", CBRACE));
-    cinstructions.insert(pair<string, int>("[", OBRACK));
-    cinstructions.insert(pair<string, int>("]", CBRACK));
-    cinstructions.insert(pair<string, int>(";", SEMI));
-    cinstructions.insert(pair<string, int>("num", NUMCONST));
-    cinstructions.insert(pair<string, int>("!", NOT));
-    cinstructions.insert(pair<string, int>("&&", AND));
-    cinstructions.insert(pair<string, int>("||", OR));
-    cinstructions.insert(pair<string, int>("<", LSTHN));
-    cinstructions.insert(pair<string, int>(">", GRTHN));
-    cinstructions.insert(pair<string, int>("<=", LSTHEQ));
-    cinstructions.insert(pair<string, int>(">=", GRTHEQ));
-    cinstructions.insert(pair<string, int>("==", EQUAL));
-    cinstructions.insert(pair<string, int>("\"", DQUOT));
-    cinstructions.insert(pair<string, int>("\'", SQUOT));
+    cinstructions.insert(pair<string, tokType>("id", ID));
+    cinstructions.insert(pair<string, tokType>("int", INT));
+    cinstructions.insert(pair<string, tokType>("double", DUB));
+    cinstructions.insert(pair<string, tokType>("short", SHORT));
+    cinstructions.insert(pair<string, tokType>("float", FLOAT));
+    cinstructions.insert(pair<string, tokType>("char", CHAR));
+    cinstructions.insert(pair<string, tokType>("+", PLUS));
+    cinstructions.insert(pair<string, tokType>("-", MINUS));
+    cinstructions.insert(pair<string, tokType>("*", MUL));
+    cinstructions.insert(pair<string, tokType>("/", DIV));
+    cinstructions.insert(pair<string, tokType>("++", PP));
+    cinstructions.insert(pair<string, tokType>("--", MM));
+    cinstructions.insert(pair<string, tokType>("+=", PLUSASGN));
+    cinstructions.insert(pair<string, tokType>("-=", MINASGN));
+    cinstructions.insert(pair<string, tokType>("*=", MULASGN));
+    cinstructions.insert(pair<string, tokType>("/=", DIVASGN));
+    cinstructions.insert(pair<string, tokType>("=", ASGN));
+    cinstructions.insert(pair<string, tokType>("goto", GOTO));
+    cinstructions.insert(pair<string, tokType>("if", IF));
+    cinstructions.insert(pair<string, tokType>("else", ELSE));
+    cinstructions.insert(pair<string, tokType>("!", NOT));
+    cinstructions.insert(pair<string, tokType>("return", RET));
+    cinstructions.insert(pair<string, tokType>("break", BRK));
+    cinstructions.insert(pair<string, tokType>("while", WHILE));
+    cinstructions.insert(pair<string, tokType>("(", OPAREN));
+    cinstructions.insert(pair<string, tokType>(")", CPAREN));
+    cinstructions.insert(pair<string, tokType>("{", OBRACE));
+    cinstructions.insert(pair<string, tokType>("}", CBRACE));
+    cinstructions.insert(pair<string, tokType>("[", OBRACK));
+    cinstructions.insert(pair<string, tokType>("]", CBRACK));
+    cinstructions.insert(pair<string, tokType>(";", SEMI));
+    cinstructions.insert(pair<string, tokType>("num", NUMCONST));
+    cinstructions.insert(pair<string, tokType>("!", NOT));
+    cinstructions.insert(pair<string, tokType>("&&", AND));
+    cinstructions.insert(pair<string, tokType>("||", OR));
+    cinstructions.insert(pair<string, tokType>("<", LSTHN));
+    cinstructions.insert(pair<string, tokType>(">", GRTHN));
+    cinstructions.insert(pair<string, tokType>("<=", LSTHEQ));
+    cinstructions.insert(pair<string, tokType>(">=", GRTHEQ));
+    cinstructions.insert(pair<string, tokType>("==", EQUAL));
+    cinstructions.insert(pair<string, tokType>("!=", NOTEQ));
+    cinstructions.insert(pair<string, tokType>("\"", DQUOT));
+    cinstructions.insert(pair<string, tokType>("\'", SQUOT));
 }
 
-
-
- // Searches for the given token in cinstructions map]
- // Returns the corresponding value in cinstructions map
-int Scanner::findToken(string token) // The token.
-{
-    map<string, int>::const_iterator pos = cinstructions.find(token);
-    int value = -1;
-    if (pos == cinstructions.end()) {
-        //cout<<"token: "<<token<<" not an instruction. Variable?"<<endl;
-    }
-    else {
-        value = pos->second;
-    }
-    return value;
-}
-
-// Prints the token, and passes mapValue back as the return.
-int Scanner::printTokens(int mapValue, // The value of the token in cinstructions map
-			 string token) // The token.
-{
-    switch (mapValue) {
-        case INT:
-            //expression.setLabel("");
-            cout << "<" << token << ", integer declaration>\n" << endl;
-            break;
-        case DUB:
-            cout << "<" << token << ", double declaration>\n" << endl;
-            break;
-        case SHORT:
-            cout << "<" << token << ", short declaration>\n" << endl;
-            break;
-        case FLOAT:
-            cout << "<" << token << ", float declaration>\n" << endl;
-            break;
-        case CHAR:
-            cout << "<" << token << ", character declaration>\n" << endl;
-            break;
-        case PLUS:
-            cout << "<" << token << ", plus symbol>\n" << endl;
-            break;
-        case MINUS:
-            cout << "<" << token << ", minus symbol>\n" << endl;
-            break;
-        case MUL:
-            cout << "<" << token << ", multiplication>\n" << endl;
-            break;
-        case DIV:
-            cout << "<" << token << ", division>\n" << endl;
-            break;
-        case PP:
-            cout << "<" << token << ", plus plus>\n" << endl;
-            break;
-        case MM:
-            cout << "<" << token << ", minus minus>\n" << endl;
-            break;
-        case PLUSASGN:
-            cout << "<" << token << ", plus assignment>\n" << endl;
-            break;
-        case MINASGN:
-            cout << "<" << token << ", minus assignment>\n" << endl;
-            break;
-        case MULASGN:
-            cout << "<" << token << ", multiply assignemnt>\n" << endl;
-            break;
-        case DIVASGN:
-            cout << "<" << token << ", division assignment>\n" << endl;
-            break;
-        case ASGN:
-            cout << "<" << token << ", assignment>\n" << endl;
-            break;
-        case GOTO:
-            cout << "<" << token << ", terrible programming>\n" << endl;
-            break;
-        case IF:
-            cout << "<" << token << ", if statement>\n" << endl;
-            break;
-        case ELSE:
-            cout << "<" << token << ", else statement>\n" << endl;
-            break;
-        case NOT:
-            cout << "<" << token << ", negation>\n" << endl;
-            break;
-        case RET:
-            cout << "<" << token << ", return statement>\n" << endl;
-            break;
-        case BRK:
-            cout << "<" << token << ", break statement>\n" << endl;
-            break;
-        case WHILE:
-            cout << "<" << token << ", while loop>\n" << endl;
-            break;
-        case OPAREN:
-            cout << "<" << token << ", opening parenthesis>\n" << endl;
-            break;
-        case CPAREN:
-            cout << "<" << token << ", closing parenthesis>\n" << endl;
-            break;
-        case OBRACE:
-            cout << "<" << token << ", opening brace>\n" << endl;
-            break;
-        case CBRACE:
-            cout << "<" << token << ", closing brace>\n" << endl;
-            break;
-        case OBRACK:
-            cout << "<" << token << ", opening bracket>\n" << endl;
-            break;
-        case CBRACK:
-            cout << "<" << token << ", closing bracket>\n" << endl;
-            break;
-        case SEMI:
-            cout << "<" << token << ", semicolon>\n" << endl;
-            break;
-        case NUMCONST:
-            cout << "<" << token << ", number constant>\n" << endl;
-            break;
-        case ID:
-            cout << "<" << token << ", identifier>\n" << endl;
-            break;
-        case LSTHN:
-            cout << "<" << token << ", less than>\n" << endl;
-            break;
-        case GRTHN:
-            cout << "<" << token << ", greather than>\n" << endl;
-            break;
-        case GRTHEQ:
-            cout << "<" << token << ", greather than or equal to>\n" << endl;
-            break;
-        case LSTHEQ:
-            cout << "<" << token << ", less than or equal to>\n" << endl;
-            break;
-        case EQUAL:
-            cout << "<" << token << ", equals>\n" << endl;
-            break;
-        case AND:
-            cout << "<" << token << ", and>\n" << endl;
-            break;
-        case OR:
-            cout << "<" << token << ", or>\n" << endl;
-            break;
-        case DQUOT:
-            cout << "<" << token << ", double quote>\n" << endl;
-            break;
-        case SQUOT:
-            cout << "<" << token << ", single quote>\n" << endl;
-            break;
-        default:
-            cout << "<" << token << ", Not in the set of known instructions>\n" << endl;
-            break;
-    }
-    return mapValue;
-}
 
 // Tokenizes the input file stream.
 void Scanner::scanFile(istream &input, // [in] file stream to tokenize
-			vector<Tok> &tokenList) // [out] List to populate with tokens.
+			vector<Token> &tokenList) // [out] List to populate with tokens.
 {
     tokenList.clear();
     string token;
     token.clear();
     int mapValue = -1;
+    int lineNo = 1;
 
     while (true)
     {
@@ -220,6 +71,11 @@ void Scanner::scanFile(istream &input, // [in] file stream to tokenize
             break;
         }
 
+        if (c == '\n')
+        {
+            lineNo++;
+            continue;
+        }
         // Look for next token
         if (token.empty())
         {
@@ -244,12 +100,18 @@ void Scanner::scanFile(istream &input, // [in] file stream to tokenize
                         int bComm = 1;
                         c = input.get();
                         //cout << "found a block comment" << endl;
+                        tokenList.push_back(Token("/*", BCOMM, lineNo));
                         while (bComm)
                         {
                             c = input.get();
                             if (!input.good())
                             {
                                 break;
+                            }
+
+                            if (c == '\n')
+                            {
+                                lineNo++;
                             }
 
                             if (c == '*' && (char)input.peek() == '/')
@@ -263,6 +125,7 @@ void Scanner::scanFile(istream &input, // [in] file stream to tokenize
                     else if (c == '/')
                     {
                         //cout << "found a single (line) comment" << endl;
+                        tokenList.push_back(Token("//", SCOMM, lineNo));
                         while (c != '\n')
                         {
                             c = input.get();
@@ -271,6 +134,7 @@ void Scanner::scanFile(istream &input, // [in] file stream to tokenize
                                 break;
                             }
                         }
+                        lineNo++;
                     }
                 }
                 
@@ -285,7 +149,7 @@ void Scanner::scanFile(istream &input, // [in] file stream to tokenize
                          c == ']' || c == '#')
                 {
                     token.append(1, c);
-                    tokenList.push_back(Tok(findToken(token), token));
+                    tokenList.push_back(Token(token, findToken(token), lineNo));
 
                     token.clear();
 
@@ -305,7 +169,7 @@ void Scanner::scanFile(istream &input, // [in] file stream to tokenize
                     {
                         token.append(1, input.get());
                     }
-                        tokenList.push_back(Tok(findToken(token), token));
+                        tokenList.push_back(Token(token, findToken(token), lineNo));
                         token.clear();
 
                 }
@@ -321,10 +185,10 @@ void Scanner::scanFile(istream &input, // [in] file stream to tokenize
                 c == '!' || c == '<' || c == '>' || isspace(c))
             {
 
-                if ((mapValue = findToken(token)) > 0)
+                if ((findToken(token)) != ERR)
                 {
                     // keyword
-                    tokenList.push_back(Tok(mapValue, token));
+                    tokenList.push_back(Token(token, findToken(token), lineNo));
                 }
                 else
                 {
@@ -337,12 +201,12 @@ void Scanner::scanFile(istream &input, // [in] file stream to tokenize
                             exit(EXIT_FAILURE);
                         }
                         // define as num constant and check integrity later
-                        tokenList.push_back(Tok(NUMCONST, token));
+                        tokenList.push_back(Token(token, NUMCONST, lineNo));
                     }
                     else
                     {
                         // define as identifier and check integrity later
-                        tokenList.push_back(Tok(ID, token));
+                        tokenList.push_back(Token(token, ID, lineNo));
                     }
                 }
                 token.clear();
@@ -359,7 +223,7 @@ void Scanner::scanFile(istream &input, // [in] file stream to tokenize
 
 // Reads in the file and calls parseFile to tokenize it.
 void Scanner::openFile(string filename, // Path of file to program
-		       vector<Tok> &tokenList) // List to populate with tokens.
+		       vector<Token> &tokenList) // List to populate with tokens.
 {
     fstream file;
     string line;
@@ -375,4 +239,18 @@ void Scanner::openFile(string filename, // Path of file to program
     {
         cout << "File " << filename << " could not be opened" << endl;
     }
+}
+
+tokType Scanner::findToken(string token)
+{
+map<string, tokType>::const_iterator pos = Scanner::cinstructions.find(token);
+tokType value = ERR;
+if (pos == Scanner::cinstructions.end()) {
+//cout<<"token: "<<token<<" not an instruction. Variable?"<<endl;
+}
+else {
+value = pos->second;
+}
+return value;
+
 }

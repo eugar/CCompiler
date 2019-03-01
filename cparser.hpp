@@ -26,11 +26,11 @@ class Parser
 
 public:
     Parser();
-    void parseTokens(vector<Tok> tokenList);
+    void parseTokens(vector<Token> tokenList);
     void printParseTree();
 
 private:
-    void setState(int i, vector<Tok> &tokenList);
+    void setState(int i, vector<Token> &tokenList);
     bool isFuncDecl();
 
     vector<int> m_stateList;

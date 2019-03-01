@@ -14,6 +14,8 @@ int main() {
     i += 1;
     i = i / 2;
 
+    i != 2;
+
 
     printf("Hello World\n");
     return 0;
