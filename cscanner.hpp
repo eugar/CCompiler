@@ -1,7 +1,7 @@
 #ifndef SCANNER_H
 #define SCANNER_H
 
-#include "cexpression.hpp"
+#include "token.h"
 #include <map>
 #include <vector>
 
@@ -12,14 +12,12 @@ class Scanner
 
 public:
     Scanner();
-    void openFile(string filename, vector<Tok> &tokenList);
-    int printTokens(int mapValue, string token);
+    void openFile(string filename, vector<Token> &tokenList);
 
 private:
-    map<string, int> cinstructions;
-    void scanFile(istream &input, vector<Tok> &tokenList);
-    int findToken(string token);
-
+    void scanFile(istream &input, vector<Token> &tokenList);
+    tokType findToken(string token);
+    map<string, tokType> cinstructions;
 };
 
 #endif // SCANNER_H
