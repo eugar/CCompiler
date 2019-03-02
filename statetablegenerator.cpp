@@ -16,6 +16,7 @@ StateTableGenerator::StateTableGenerator()
     findLR0Keys((m_grammar.ruleIndex())[0]);
     buildLR0Set();
     buildInitLR1Set();
+    createTable();
 
     int w;
 
@@ -37,19 +38,20 @@ void StateTableGenerator::createSets()
     {
         for (auto rhs : lr1Map.second)
         {
-            advancePHSets(rhs.RHS);
+            size_t phPos = advancePHSets(rhs.RHS);
             string s = findNextHandle(rhs.RHS);
             auto terminals = m_first.find(s);
             // If s is not a terminal.
+            // lr1map.first is the left hand side rule.
             string lhs = *(const_cast<string*>(&lr1Map.first));
             if (terminals != m_first.end())
             {
-                createSets(terminals->second, s, lhs);
+                createSets(terminals->second, s, lhs, phPos);
             }
         }
     }
 }
-void StateTableGenerator::createSets(set<string> &terminals, string &handle, string &lhs)
+void StateTableGenerator::createSets(set<string> &terminals, string &handle, string &lhs, size_t phPos)
 {
     for (auto t : terminals)
     {
@@ -58,11 +60,37 @@ void StateTableGenerator::createSets(set<string> &terminals, string &handle, str
         {
             for (auto f : follows->second)
             {
-                auto lr1Rhs = m_lr1Items.at(lhs);
-                auto lr1 = *(lr1Rhs.begin());
-                // we want to replace the string after the placeholder
-                // with the terminals that come next.
-                m_lr1Items[lhs].emplace(LR1RHS(lr1.RHS, f));
+                //auto lr1Rhs = m_lr1Items.at(lhs);
+                //auto lr1 = *(lr1Rhs.begin());
+                set<string> rhsRules = m_allLRItems.at(lhs);
+                for (auto rhs : rhsRules)
+                {
+                    if (phPos > 0 && rhs.find(' ', phPos) != string::npos)
+                    {
+                        rhs.erase(0, 1);
+                        rhs.replace(phPos, 1, c_phStr);
+                    }
+                    // Add terminal token in place of the nonterminal
+                    // token following the placeholder.
+                    closeNext(rhs, phPos, t);
+                    // Add new LR1 item to lr1 item set.
+                    m_lr1Items[lhs].emplace(LR1RHS(rhs, f));
+                }
+            }
+            if (follows->second.empty())
+            {
+                set<string> rhsRules = m_allLRItems.at(lhs);
+                for (auto rhs : rhsRules)
+                {
+                    if (phPos > 0 && rhs.find(' ', phPos) != string::npos)
+                    {
+                        rhs.erase(0, 1);
+                        rhs.replace(phPos, 1, c_phStr);
+                    }
+                    closeNext(rhs, phPos, t);
+                    m_lr1Items[lhs].emplace(LR1RHS(rhs, ""));
+                }
+
             }
         }
     }
@@ -357,17 +385,52 @@ bool StateTableGenerator::advancePH(string &rhs)
     return false;
 }
 
-bool StateTableGenerator::advancePHSets(string &rhs)
+// returns the position of the placeholder in the string
+size_t StateTableGenerator::advancePHSets(string &rhs)
 {
     size_t start = rhs.find(c_phCh);
     size_t end;
 
     end = rhs.find(' ', start);
-    if (start == (rhs.size() - 1))
+    if (start != (rhs.size() - 1) && end != string::npos)
     {
-        rhs.erase(start,1);
-        rhs.replace(end, 1, c_phStr);
-        return true;
+        if (start == 0)
+        {
+            rhs.replace(end, 1, c_phStr);
+            rhs.erase(start, 1);
+        }
+        else
+        {
+            rhs.replace(start, 1, " ");
+            rhs.replace(end, 1, c_phStr);
+        }
+        return end; // ph position in string
     }
-    return false;
+    return 0;
 }
+
+// replaces the nonterminal after the placeholder with a terminal
+bool inline StateTableGenerator::closeNext(string &rhs, size_t phPos, string terminal)
+{
+    size_t end = string::npos;
+    phPos = rhs.find(c_phCh, 0);
+    if ((end = rhs.find(' ', phPos)) == string::npos && (rhs.size() - phPos) <= 1)
+    {
+        return false;
+    }
+    else
+    {
+        if (end == string::npos)
+        {
+            end = rhs.size() - 1;
+        }
+        else
+        {
+            end--;
+        }
+        rhs.replace(phPos + 1, end - phPos, terminal);
+    }
+
+    return true;
+}
+

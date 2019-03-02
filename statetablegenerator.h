@@ -42,7 +42,7 @@ private:
 
     void createTable();
     void createSets();
-    void createSets(set<string> &terminal, string &handle, string &lhs);
+    void createSets(set<string> &terminal, string &handle, string &lhs, size_t phPos);
 
     set<const string*> m_terminals;
     set<const string*> m_nonterminals;
@@ -69,7 +69,8 @@ private:
     bool inline endOfRule(vector<const string*>::iterator &it);
     string inline findNextHandle(string rhs);
     bool inline advancePH(string &rhs);
-    bool inline advancePHSets(string &rhs);
+    size_t inline advancePHSets(string &rhs);
+    bool inline closeNext(string &rhs, size_t phPos, string terminal);
 };
 
 #endif //CCOMPILER_STATETABLE_GENERATOR_H
