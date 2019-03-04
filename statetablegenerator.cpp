@@ -7,30 +7,172 @@
 
 using namespace std;
 
+size_t Lr1Item::states = 0;
+
 // StateTableGenerator constructor
 StateTableGenerator::StateTableGenerator()
 {
     first();
     follow2();
     buildLRSet();
-    findLR0Keys((m_grammar.ruleIndex())[0]);
-    buildLR0Set();
-    buildInitLR1Set();
+    buildLr1Sets();
     createTable();
 
-    int w;
+    //findLR0Keys((m_grammar.ruleIndex())[0]);
+    //buildLR0Set();
+    //buildInitLR1Set();
+    //createTable();
 
+    int w;
 }
 
-void StateTableGenerator::createTable()
+void StateTableGenerator::buildLr1Sets()
+{
+    // Place goal rule
+    m_lr1ItemSet.emplace(m_grammar.ruleIndex()[0], m_grammar.ruleIndex()[1], "EOF");
+    for (auto& item : m_lr1ItemSet)
+    {
+        m_lr1ItemIndex[m_grammar.ruleIndex()[0]].emplace(const_cast<Lr1Item*>(&item));
+    }
+
+    auto& rules = m_grammar.ruleIndex();
+    for (auto lhs = (rules.begin() + 1); lhs != rules.end(); lhs++)
+    {
+        bool noFollow = true;
+        vector<string> rhsRules = rhsToLr1ItemFormat(*lhs);
+        for (auto &rhs : rhsRules)
+        {
+            for (auto &follow : m_follow[findNextHandle(rhs)])
+            {
+                noFollow = false;
+                m_lr1ItemSet.emplace(*lhs, rhs, follow);
+            }
+
+            if (noFollow)
+            {
+                m_lr1ItemSet.emplace(*lhs, rhs);
+            }
+        }
+        for (auto& lr1Item : m_lr1ItemSet)
+        {
+            Lr1Item *lr1 = const_cast<Lr1Item*>(&lr1Item)->getByLhs(*lhs);
+
+            if (lr1 != nullptr)
+            {
+                m_lr1ItemIndex[*lhs].emplace(lr1);
+            }
+        }
+    }
+
+    return;
+}
+
+void StateTableGenerator::initialLr1Set()
+{
+    if (m_lr1CC.empty())
+    {
+        auto rootItem = m_lr1ItemIndex[m_grammar.ruleIndex()[0]].begin();
+        m_lr1CC.emplace(**rootItem);
+    }
+}
+
+void StateTableGenerator::generateLr1SetClosures()
 {
     size_t prevSize = 0;
     do
     {
-        prevSize = m_lr1Items.size();
-        createSets();
+        prevSize = m_lr1CC.size();
+        for (auto lr1Item = m_lr1CC.begin(); lr1Item != m_lr1CC.end(); lr1Item++)
+        {
+            string handle = findNextHandle(lr1Item->rhs, lr1Item->phPos);
 
-    } while(m_lr1Items.size() > prevSize);
+            // If the token following the placeholder is the same as the lhs
+            if (handle == lr1Item->lhs)
+            {
+                // add new follow set:
+                string token = lr1Item->handleFollow();
+                // This would only occur if the grammar is incorrect, but checking anyway.
+                if (token.empty())
+                {
+                    continue;
+                }
+                // If a terminal follows the current handle set that terminal as a follow for all rules of the current handle.
+                if (isupper(token[0]))
+                {
+                    for (auto item : m_lr1ItemIndex[lr1Item->lhs])
+                    {
+                        m_lr1CC.emplace(Lr1Item(item, token));
+                    }
+                }
+                // If a non-terminal follows the current handle, get the FIRST set for that nonterminal and place each
+                // terminal as a follow on the current handle's rules.
+                else
+                {
+                    for (auto item : m_lr1ItemIndex[lr1Item->lhs])
+                    {
+                        for (auto& terminal : m_first[token])
+                        {
+                            m_lr1CC.emplace(Lr1Item(item, terminal));
+                        }
+                    }
+                }
+            }
+            // If the token is a terminal, or if the ph is at the end of the rhs string then we are done with this item.
+            // Otherwise, we need to find the closure and create new items until we reach a terminal.
+            else if (!isupper(handle[0]) && !lr1Item->phAtEnd())
+            {
+                closure(handle);
+                for (auto rhs : rhsToLr1ItemFormat(handle))
+                {
+                    m_lr1CC.emplace(handle, rhs, lr1Item->lookAhead, lr1Item->state);
+                }
+                for (auto& nt : m_nonterminals)
+                {
+                    for (auto& rhs : rhsToLr1ItemFormat(*nt))
+                    {
+                        m_lr1CC.emplace(*nt, rhs, lr1Item->lookAhead, lr1Item->state);
+                    }
+                }
+            }
+        }
+    }
+    while(m_lr1CC.size() > prevSize);
+}
+void StateTableGenerator::createTable()
+{
+    set<Lr1Item, Lr1Compare> CCi;
+
+    initialLr1Set();
+
+    size_t prevSize;
+    do
+    {
+        prevSize = m_lr1CC.size();
+        generateLr1SetClosures();
+        CCi.clear();
+        map<pair<string, size_t>, size_t> stateMap;
+        for (auto item : m_lr1CC)
+        {
+            Lr1Item newLr1Item;
+            if (!item.phAtEnd() && !(newLr1Item = item.advancePh(stateMap)).empty() )
+            {
+                auto result = CCi.emplace(newLr1Item);
+            }
+        }
+        m_lr1CC.insert(CCi.begin(), CCi.end());
+    } while(m_lr1CC.size() > prevSize);
+    // state test print
+    set<size_t> states;
+    for (auto item : m_lr1CC)
+    {
+        states.emplace(item.state);
+    }
+    cout << "There are " << states.size() << " unique states. They are numbered as follows:" << endl << "States : ";
+    for (auto state : states)
+    {
+        cout << state << " ";
+    }
+    cout << endl;
 }
 void StateTableGenerator::createSets()
 {
@@ -38,8 +180,8 @@ void StateTableGenerator::createSets()
     {
         for (auto rhs : lr1Map.second)
         {
-            size_t phPos = advancePHSets(rhs.RHS);
-            string s = findNextHandle(rhs.RHS);
+            size_t phPos = advancePHSets(rhs.rhs);
+            string s = findNextHandle(rhs.rhs);
             auto terminals = m_first.find(s);
             // If s is not a terminal.
             // lr1map.first is the left hand side rule.
@@ -74,7 +216,7 @@ void StateTableGenerator::createSets(set<string> &terminals, string &handle, str
                     // token following the placeholder.
                     closeNext(rhs, phPos, t);
                     // Add new LR1 item to lr1 item set.
-                    m_lr1Items[lhs].emplace(LR1RHS(rhs, f));
+                    m_lr1Items[lhs].emplace(Lr1Item(lhs, rhs, f));
                 }
             }
             if (follows->second.empty())
@@ -88,7 +230,7 @@ void StateTableGenerator::createSets(set<string> &terminals, string &handle, str
                         rhs.replace(phPos, 1, c_phStr);
                     }
                     closeNext(rhs, phPos, t);
-                    m_lr1Items[lhs].emplace(LR1RHS(rhs, ""));
+                    m_lr1Items[lhs].emplace(Lr1Item(lhs, rhs, ""));
                 }
 
             }
@@ -120,12 +262,40 @@ void StateTableGenerator::first()
 // LHS element in the grammar
 void StateTableGenerator::follow2()
 {
+    set<string> nonterms;
     // loop over all left hand side handles.
     for (auto lhs = m_grammar.ruleIndex().begin(); lhs != m_grammar.ruleIndex().end(); lhs++)
     {
         set<string> follow;
         findFollowRHS(*lhs, follow);
+        nonterms.clear();
+       // findFollowRecurse(*lhs, follow, nonterms);
         buildFollow(*lhs, follow);
+    }
+}
+
+void StateTableGenerator::findFollowRecurse(string lhs, set<string> &recurseFollow, set<string> &nonterms)
+{
+    vector<string> rules;
+    vecCnstStrPtrToVecStr(m_grammar.rule(lhs)->rules(), rules);
+    for (auto rule = rules.begin(); rule != rules.end(); rule++)
+    {
+        string s = getLastTokenOfRule(rule);
+        if (nonterms.find(s) != nonterms.end())
+        {
+            // it has already been recursed on.
+            ;
+        }
+        else if (!isupper(s[0]))
+        {
+            nonterms.emplace(s);
+            findFollowRecurse(s, recurseFollow, nonterms);
+        }
+        else
+        {
+            recurseFollow.emplace(s);
+        }
+        gotoNextRule(rule);
     }
 }
 
@@ -210,10 +380,18 @@ void StateTableGenerator::findLR0Keys(string token)
     if (token == m_grammar.ruleIndex()[0])
     {
         m_lr0Stack.emplace(token);
+        token = m_grammar.ruleIndex()[1]; // get first real rule.
     }
     auto rules = m_grammar.rule(token)->rules();
+    cout << "Ruleset :";
+    for (auto rule : rules)
+    {
+        cout << " " << *rule;
+    }
+    cout << endl;
     for (auto rule = rules.begin(); rule != rules.end(); rule++)
     {
+        cout << "Current Rule : " << **rule << endl;
         if (**rule == token)
         {
             gotoNextRule(rule);
@@ -240,7 +418,6 @@ void StateTableGenerator::buildLR0Set()
         {
             m_lr0Items[lhs].emplace(rule);
         }
-        cout << endl;
     }
 }
 
@@ -255,7 +432,7 @@ void StateTableGenerator::buildInitLR1Set()
             handle = findNextHandle(item);
             for (auto fol : m_follow[handle])
             {
-                m_lr1Items[lr0Pair.first].emplace(LR1RHS(item, fol));
+                m_lr1Items[lr0Pair.first].emplace(Lr1Item(lr0Pair.first, item, fol));
             }
         }
     }
@@ -356,6 +533,19 @@ void StateTableGenerator::gotoNextRule(vector<const string*>::iterator &it)
     while ((*it)->compare("|") != 0)
         it++;
 }
+
+string StateTableGenerator::getLastTokenOfRule(vector<const string*>::iterator &it)
+{
+    gotoNextRule(it);
+    return **(it - 1);
+
+}
+string StateTableGenerator::getLastTokenOfRule(vector<string>::iterator &it)
+{
+    gotoNextRule(it);
+    return *(it - 1);
+}
+
 bool StateTableGenerator::endOfRule(vector<string>::iterator &it)
 {
     return ((*it).compare("|") == 0);
@@ -371,6 +561,18 @@ string StateTableGenerator::findNextHandle(string rhs)
     size_t end = rhs.find(' ', start);
     return rhs.substr(start, end-start);
 }
+
+string StateTableGenerator::findNextHandle(string rhs, size_t phPos)
+{
+    size_t start = phPos;
+    if (phPos > 0)
+    {
+        start++;
+    }
+    size_t end = rhs.find(' ', start );
+    return rhs.substr(start, end-start);
+}
+
 bool StateTableGenerator::advancePH(string &rhs)
 {
     size_t start = rhs.find(c_phCh);
@@ -432,5 +634,32 @@ bool inline StateTableGenerator::closeNext(string &rhs, size_t phPos, string ter
     }
 
     return true;
+}
+
+vector<string> StateTableGenerator::rhsToLr1ItemFormat(string lhsRule)
+{
+    vector<string> rules;
+    vecCnstStrPtrToVecStr(m_grammar.rule(lhsRule)->rules(), rules);
+    string rhs;
+    vector<string> rhsRules;
+    for (auto& rule : rules)
+    {
+        if (rule == "|")
+        {
+            if (!rhs.empty())
+            {
+                // delete last space
+                rhs.erase(rhs.size() - 1, 1);
+                rhsRules.push_back(rhs);
+            }
+            rhs.clear();
+            continue;
+        }
+        else
+        {
+            rhs += rule + " ";
+        }
+    }
+    return rhsRules;
 }
 

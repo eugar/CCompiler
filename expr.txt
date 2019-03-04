@@ -1,5 +1,5 @@
 # test grammar
 #-----------------
 goal ~ list | EOF |
-list ~ list pair | pair | EOF |
+list ~ list pair | pair |
 pair ~ OPAREN pair CPAREN | OPAREN CPAREN |

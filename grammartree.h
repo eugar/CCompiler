@@ -93,7 +93,7 @@ private:
     set<string> m_tokens;
     // Map of LHS to RHS
     ProductionRule m_pRule;
-    // Linear index of m_pRule
+    // Linear index of m_pRule, contains all lhs strings
     vector<string> m_pRuleIndex;
 
     // Map of lhs to its production rules (child node)
