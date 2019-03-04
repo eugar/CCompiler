@@ -51,7 +51,7 @@ typedef struct Lr1Item
             {
                 end = rhs.size();
             }
-            return rhs.substr(afterHandlePos + 1, end);
+            return rhs.substr(afterHandlePos + 1, end - (afterHandlePos + 1));
         }
     }
 
