@@ -16,16 +16,26 @@ StateTableGenerator::StateTableGenerator()
     follow2();
     buildLRSet();
     buildLr1Sets();
-    createTable();
+    createStates();
+    createTables();
+    writeTables();
 
     //findLR0Keys((m_grammar.ruleIndex())[0]);
     //buildLR0Set();
     //buildInitLR1Set();
-    //createTable();
+    //createStates();
 
     int w;
 }
+void StateTableGenerator::createTables()
+{
+    ParseTables tables;
+    tables.generateTables(m_lr1CC, m_action, m_goto);
+}
+void writeTables()
+{
 
+}
 void StateTableGenerator::buildLr1Sets()
 {
     // Place goal rule
@@ -138,7 +148,7 @@ void StateTableGenerator::generateLr1SetClosures()
     }
     while(m_lr1CC.size() > prevSize);
 }
-void StateTableGenerator::createTable()
+void StateTableGenerator::createStates()
 {
     set<Lr1Item, Lr1Compare> CCi;
 
@@ -159,7 +169,15 @@ void StateTableGenerator::createTable()
                 auto result = CCi.emplace(newLr1Item);
             }
         }
-        m_lr1CC.insert(CCi.begin(), CCi.end());
+        for (auto& item : CCi)
+        {
+            auto result = m_lr1CC.insert(item);
+            if (result.second)
+            {
+                m_ccCurSets[result.first->state].emplace(*(result.first));
+                m_ccPrevSets[result.first->fromState].emplace(*(result.first));
+            }
+        }
     } while(m_lr1CC.size() > prevSize);
     // state test print
     set<size_t> states;

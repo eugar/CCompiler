@@ -10,6 +10,7 @@
 #include <map>
 #include "grammartree.h"
 #include "definitions.h"
+#include "parsetables.h"
 
 using namespace std;
 
@@ -31,13 +32,17 @@ private:
 
     void first();
     void follow2();
+    void buildLRSet();
+    void buildLr1Sets();
+    void createStates();
+    void createTables();
+    void writeTables();
+
     void findFollowRHS(string lhs, set<string> &rhsFollow);
     void findFollowRecurse(string lhs, set<string> &recurseFollow, set<string> &nonterms);
     void buildFollow(string lhs, set<string> &follow);
     void closure(string symbol);
-    void buildLRSet();
     void findLR0Keys(string token);
-    void buildLr1Sets();
     void generateLr1SetClosures();
     void initialLr1Set();
 
@@ -45,7 +50,6 @@ private:
     void buildInitLR1Set();
     void buildLR1Sets();
 
-    void createTable();
     void createSets();
     void createSets(set<string> &terminal, string &handle, string &lhs, size_t phPos);
 
@@ -59,6 +63,11 @@ private:
     set<Lr1Item, Lr1Compare> m_lr1ItemSet;
     set<Lr1Item, Lr1Compare> m_lr1CC;
     set<string> m_lr0Stack;
+
+    ParseTables::Action m_action;
+    ParseTables::Goto m_goto;
+    map<size_t, set<Lr1Item, Lr1Compare>> m_ccCurSets;
+    map<size_t, set<Lr1Item, Lr1Compare>> m_ccPrevSets;
 
     bool m_branching = false;
 
