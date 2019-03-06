@@ -5,19 +5,20 @@ using namespace std;
 
 SymbolTable::SymbolTable()
 {
-
+    // root is global scope
+    m_parent = NULL;
 }
 
 //given id info, this will insert the record into the symbol table
-void SymbolTable::insert(string id, string type, string scope)
+void SymbolTable::insert(string id, string type, void* data)
 {
-    int i;
-    if ((i = lookup(id)) == -1)
+    // will insert symbol if it doesn't exist in current scope
+    if (!isTaken(id))
     {
-        symbolData data;
-        data.type = type;
-        data.scope = scope;
-        m_symbolTable.insert(pair<string, symbolData>(id, data));
+        symbol *sym;
+        sym->type = type;
+        sym->data = data;
+        m_symbolTable.insert(pair<string, symbol*>(id, sym));
     }
     else
     {
@@ -25,11 +26,18 @@ void SymbolTable::insert(string id, string type, string scope)
     }
 }
 
-int SymbolTable::modify(string id, string type, string scope)
+// modifies the data in a variable
+int SymbolTable::modify(string id, void* data)
 {
-
-    return 1;
-
+    symbol *sym = lookup(id);
+    if (sym == NULL) {
+        return 0;         // return 0 if id does not exist
+    }
+    else
+    {
+        sym->data = data;
+        return 1;        // return 1 if id is successfully mod
+    }
 }
 
 void SymbolTable::remove(string id)
@@ -40,20 +48,57 @@ void SymbolTable::remove(string id)
    }
 }
 
-int SymbolTable::lookup(string id)
+// Looks for id in current scope
+// Goes to parent scope if not found
+symbol* SymbolTable::lookup(string id)
 {
-    auto it = m_symbolTable.find(id);
-    if (it == m_symbolTable.end())
+    auto sym = m_symbolTable.find(id);
+    if (sym != m_symbolTable.end())
     {
-        return -1;
+        return sym->second;
     }
-    return 1;
+    else if(sym == m_symbolTable.end() && m_parent != NULL)
+    {
+        return m_parent->lookup(id);
+    }
+    else
+    {
+        // returns null if id is not found
+        return NULL;
+    }
 }
 
 void SymbolTable::printRecords()
 {
-    for (auto i = m_symbolTable.begin(); i != m_symbolTable.end(); i++)
+    for (auto sym = m_symbolTable.begin(); sym != m_symbolTable.end(); sym++)
     {
-        cout << i->first << " " << i->second.type << " " << i->second.scope << endl;
+        cout << sym->first << " " << sym->second->type << endl;
     }
+}
+
+// Creates a new scope as a child of the current scope
+SymbolTable* SymbolTable::addChild(string tableId, SymbolTable *child)
+{
+    this->m_childTable.insert(pair<string, SymbolTable*>(tableId, child));
+
+    child->addParent(this);
+    return child;
+}
+
+/**********************Private Functions**********************/
+void SymbolTable::addParent(SymbolTable *parent)
+{
+    m_parent = parent;
+}
+
+// Returns true if taken, false if not
+bool SymbolTable::isTaken(string id)
+{
+    auto sym = m_symbolTable.find(id);
+
+    if (sym == m_symbolTable.end()) {
+        return false;
+    }
+
+    return true;
 }
