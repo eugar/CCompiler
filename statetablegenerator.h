@@ -35,8 +35,8 @@ private:
     void first();
     // Calculates the FOLLOW set
     void follow();
-    // Builds a basic set of LR1 Items. This is in use, but should be phased
-    // out as the only value it provides is the generation of the root item.
+    // Builds a basic set of LR1 Items. These are used for ease of
+    // constructing LR1 Items during the canonical set creation.
     void buildLr1Sets();
     // This runs the Canonical Collection building algorithm. It directly calls
     // initialLr1Set() and generateLr1Closures().

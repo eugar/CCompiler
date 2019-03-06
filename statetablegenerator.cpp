@@ -184,16 +184,16 @@ void StateTableGenerator::createStates()
             if (!item.phAtEnd() &&
             !(newLr1Item = (const_cast<Lr1Item*>(&item))->advancePh(stateMap)).empty() )
             {
-                // Add the item to state maps for later use in constructing
-                // the tables.
-                m_ccCurSets[item.nextState].emplace(item);
-                m_ccPrevSets[item.fromState].emplace(item);
                 auto result = CCi.emplace(newLr1Item);
             }
         }
         for (auto& item : CCi)
         {
             auto result = m_lr1CC.insert(item);
+            // Add the item to state maps for later use in constructing
+            // the tables.
+            m_ccCurSets[item.nextState].emplace(item);
+            m_ccPrevSets[item.fromState].emplace(item);
         }
     // Has the number of LR1 Items increased? If yes, go around again.
     } while(m_lr1CC.size() > prevSize);

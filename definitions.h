@@ -68,15 +68,50 @@ typedef struct Lr1Item
     {
         return phPos >= (rhs.size() - 1);
     }
+    // returns the token directly following the ph.
     std::string tokenAfterPh() const
     {
         if (!phAtEnd())
         {
-            size_t start = phPos + 1;
+            size_t start = phPos;
+            if (phPos > 0)
+            {
+                start++;
+            }
             size_t end = start;
             if ((end = rhs.find(' ', start)) == std::string::npos)
             {
                 end = rhs.size();
+            }
+            return rhs.substr(start, end - start);
+        }
+        return "";
+    }
+    // This overload adds the functionality of populating status booleans.
+    // if atStart is set to true, the ph was at the start of the string
+    // when the method was CALLED. If atEnd is set to true, the ph is at
+    // the end when the method is FINISHED, so the returned token is the last
+    // token in the item.
+    std::string tokenAfterPh(bool &atEnd, bool &atStart ) const
+    {
+        atEnd = false;
+        atStart = false;
+        if (!phAtEnd())
+        {
+            size_t start = phPos;
+            if (phPos > 0)
+            {
+                start++;
+            }
+            else
+            {
+                atStart = true;
+            }
+            size_t end = start;
+            if ((end = rhs.find(' ', start)) == std::string::npos)
+            {
+                end = rhs.size();
+                atEnd = true;
             }
             return rhs.substr(start, end - start);
         }

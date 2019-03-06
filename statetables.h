@@ -48,8 +48,8 @@ public:
     ~StateTables() = default;
 
 private:
-
-    Lr1Item gotoItem(Lr1Item &item, bool atEnd);
+    Lr1Item gotoItem(Lr1Item item,
+                     std::map<size_t, std::set<Lr1Item, Lr1Compare>> &ccPrevStates);
 };
 
 #endif //CCOMPILER_PARSETABLES_H
