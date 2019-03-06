@@ -10,7 +10,7 @@ namespace grammar
 {
 void reader(std::vector<std::string> &pRuleIndex,
         ProductionRule &pRule,
-        const std::string& filename = "grammar.txt");
+        const std::string& filename = "expr.txt");
 
 bool nextRule(std::string line, int &start, int &length);
 }

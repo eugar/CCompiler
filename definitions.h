@@ -10,7 +10,7 @@
 typedef struct Lr1Item
 {
     Lr1Item() = default;
-    Lr1Item(std::string lhs, std::string rhs, std::string lookAhead = "", size_t state = states, size_t phPos = 0, size_t fromState = 0, std::string gotoToken = "")
+    Lr1Item(std::string lhs, std::string rhs, std::string lookAhead = "", size_t state = states, size_t phPos = 0, size_t fromState = 0, std::string gotoToken = "", size_t nextState = 0)
     {
         this->lhs = lhs;
         this->rhs = rhs;
@@ -18,16 +18,18 @@ typedef struct Lr1Item
         this->phPos = phPos;
         this->state = state;
         this->fromState = fromState;
+        this->nextState = nextState;
         this->gotoToken = gotoToken;
     }
     // new follow constructor
-    Lr1Item(Lr1Item *item, std::string lookAhead)
+    Lr1Item(Lr1Item *item, std::string lookAhead, size_t nextState = 0)
     {
         lhs = item->lhs;
         rhs = item->rhs;
         phPos = item->phPos;
         state = item->state;
         fromState = item->fromState;
+        this->nextState = nextState;
         gotoToken = item->gotoToken;
         this->lookAhead = lookAhead;
     }
@@ -66,7 +68,44 @@ typedef struct Lr1Item
     {
         return phPos >= (rhs.size() - 1);
     }
+    std::string tokenAfterPh() const
+    {
+        if (!phAtEnd())
+        {
+            size_t start = phPos + 1;
+            size_t end = start;
+            if ((end = rhs.find(' ', start)) == std::string::npos)
+            {
+                end = rhs.size();
+            }
+            return rhs.substr(start, end - start);
+        }
+        return "";
+    }
 
+    std::string tokenBeforePh() const
+    {
+        size_t end;
+        if (phPos == 0)
+        {
+            return "";
+        }
+        if (phAtEnd())
+        {
+            end = phPos;
+        }
+        else
+        {
+            end = phPos - 1;
+        }
+
+        size_t start = rhs.rfind(' ', end);
+        if (start == std::string::npos)
+        {
+            start = 0;
+        }
+        return rhs.substr(start, end - start);
+    }
     // Returns a new Lr1Item with the ph advanced to the next position
     // if possible, returns an empty Lr1Item otherwise
     Lr1Item advancePh(std::map<std::pair<std::string, size_t >, size_t> &stateMap)
@@ -98,14 +137,15 @@ typedef struct Lr1Item
 
 
         std::string token = rhs.substr(afterPh, newPh - afterPh);
-        size_t nState;
-        auto st = stateMap.find(make_pair(token, state));
+        std::pair<std::string, size_t> key = std::make_pair(token, state);
+        auto st = stateMap.find(key);
         if (st == stateMap.end())
         {
-            stateMap[make_pair(token, state)] = ++states;
+            stateMap[key] = ++states;
 
         }
-         return Lr1Item(lhs, rhs, lookAhead, stateMap[make_pair(token, state)], newPhPos, state, token);
+        nextState = stateMap[key];
+        return Lr1Item(lhs, rhs, lookAhead, nextState, newPhPos, state, token);
     }
 
     std::string lhs;
@@ -113,6 +153,7 @@ typedef struct Lr1Item
     std::string lookAhead;
     size_t phPos;
     size_t fromState;
+    size_t nextState;
     size_t state;
     std::string gotoToken;
     static size_t states;

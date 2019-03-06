@@ -10,7 +10,7 @@
 #include <map>
 #include "grammartree.h"
 #include "definitions.h"
-#include "parsetables.h"
+#include "statetables.h"
 
 using namespace std;
 
@@ -23,74 +23,88 @@ public:
 
 private:
 
-    GrammarTree m_grammar;
-    map<string, set<string>> m_first;
-    map<string, set<string>> m_follow;
-    vector<vector<int>> m_setTable;
+    /************************************************************************/
+    /****************************** METHODS *********************************/
+    /************************************************************************/
 
+    // Clears the sets used by closure. These should be cleared before
+    // every closure call.
     void clearTokenSets(){m_nonterminals.clear(); m_terminals.clear();}
 
+    // Calculates the FIRST set.
     void first();
-    void follow2();
-    void buildLRSet();
+    // Calculates the FOLLOW set
+    void follow();
+    // Builds a basic set of LR1 Items. This is in use, but should be phased
+    // out as the only value it provides is the generation of the root item.
     void buildLr1Sets();
+    // This runs the Canonical Collection building algorithm. It directly calls
+    // initialLr1Set() and generateLr1Closures().
     void createStates();
+    // TODO: Implement createTables (partially implemented).
+    // TODO: This should populate the action and goto tables.
     void createTables();
+    // TODO: Implement writeTables().
+    // TODO: This function should write the action and
     void writeTables();
 
+    // Used by follow() to find follows that appear after non terminals
+    // in a rule's right hand side.
     void findFollowRHS(string lhs, set<string> &rhsFollow);
-    void findFollowRecurse(string lhs, set<string> &recurseFollow, set<string> &nonterms);
+    // Used by follow to place the appropriate tokens. Calls closure().
     void buildFollow(string lhs, set<string> &follow);
+    // Called by various methods that require the closure of a symbol.
     void closure(string symbol);
-    void findLR0Keys(string token);
+
     void generateLr1SetClosures();
     void initialLr1Set();
 
-    void buildLR0Set();
-    void buildInitLR1Set();
-    void buildLR1Sets();
+    /************************************************************************/
+    /************************** MEMBER VARIABLES ****************************/
+    /************************************************************************/
 
-    void createSets();
-    void createSets(set<string> &terminal, string &handle, string &lhs, size_t phPos);
+    // The grammar stored in the GrammarTree. This is a structure used
+    // for organization and convenience. It is not a parse tree, but simply
+    // a tree-like structure that links parent-child grammar rule relationships.
+    GrammarTree m_grammar;
 
+    map<string, set<string>> m_first;
+    map<string, set<string>> m_follow;
+    // Both m_terminals and m_nonterminals are sets used by the closure
+    // algorithm. These sets are filled with all the terminals and
+    // non terminal symbols reachable from the given token.
     set<const string*> m_terminals;
     set<const string*> m_nonterminals;
-    string m_lhs;
-    map<string, set<string>> m_allLRItems;
-    map<string, set<string>> m_lr0Items;
-    map<string, set<Lr1Item, Lr1Compare>> m_lr1Items;
+
+    // A collection of all possible LR1 Items.
     map<string, set<Lr1Item*>> m_lr1ItemIndex;
     set<Lr1Item, Lr1Compare> m_lr1ItemSet;
-    set<Lr1Item, Lr1Compare> m_lr1CC;
-    set<string> m_lr0Stack;
 
-    ParseTables::Action m_action;
-    ParseTables::Goto m_goto;
+    // The canonical collection of LR1 Items.
+    set<Lr1Item, Lr1Compare> m_lr1CC;
+    // The action table
+    StateTables::Action m_action;
+    // The goto table
+    StateTables::Goto m_goto;
+    // Maps from a state to the set of LR1 Items with that state.
     map<size_t, set<Lr1Item, Lr1Compare>> m_ccCurSets;
+    // Maps to an LR1 Item set by its previous state.
     map<size_t, set<Lr1Item, Lr1Compare>> m_ccPrevSets;
 
-    bool m_branching = false;
-
     /****************************************************************/
-    /*******************INLINE HELPER FUNCTIONS *********************/
+    /******************* INLINE HELPER FUNCTIONS ********************/
     /****************************************************************/
 
-    // returns true if the list contains token.
     bool inline contains(set<const string*> list, const string *token);
     bool inline contains(set<string> list, const string token);
     void inline vecCnstStrPtrToVecStr(const vector<const string*> &vecStrPtr, vector<string> &vecStr);
     void inline setStrToVecStr(const set<string> &setStr, vector<string> &vecStr);
     void inline gotoNextRule(vector<string>::iterator &it);
     void inline gotoNextRule(vector<const string*>::iterator &it);
-    string inline getLastTokenOfRule(vector<const string*>::iterator &it);
-    string inline getLastTokenOfRule(vector<string>::iterator &it);
     bool inline endOfRule(vector<string>::iterator &it);
     bool inline endOfRule(vector<const string*>::iterator &it);
     string inline findNextHandle(string rhs);
     string inline findNextHandle(string rhs, size_t phPos);
-    bool inline advancePH(string &rhs);
-    size_t inline advancePHSets(string &rhs);
-    bool inline closeNext(string &rhs, size_t phPos, string terminal);
     vector<string> inline rhsToLr1ItemFormat(string lhsRule);
 };
 
