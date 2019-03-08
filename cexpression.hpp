@@ -28,26 +28,4 @@ private:
     int m_scope;
 
 };
-
-class Variable
-{
-
-public:
-    Variable(string name, int scope);
-    Variable(string name, int scope, void* data);
-
-    string getName(){return m_name;}
-    int getScope(){return m_scope;}
-
-    void* getData(){return m_data;}
-    void setData(void* data) {m_data = data;}
-
-
-private:
-    string m_name;
-    int m_scope;
-    void *m_data;
-
-};
-
 #endif // EXPRESSION_H

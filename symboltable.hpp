@@ -38,8 +38,8 @@ private:
     SymbolTable *m_parent;
 
     // Private Functions
-    void addParent(SymbolTable *parent);
-    bool isTaken(string id);
+    void inline addParent(SymbolTable *parent);
+    bool inline isTaken(string id);
 };
 
 #endif //SYMBOLTABLE_H
