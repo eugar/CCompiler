@@ -7,8 +7,6 @@ include_directories(.)
 add_executable(CCompiler
         ccompiler.hpp
         ccompiler.cpp
-        cparser.hpp
-        cparser.cpp
         cexpression.cpp
         cexpression.hpp
         cscanner.cpp

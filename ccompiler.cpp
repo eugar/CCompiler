@@ -19,7 +19,7 @@ int main(int argc, char * const argv[])
     Scanner m_scanner;
     // eventually I will move grammar building to another class
     // for now it builds in the constructor of Parser
-    Parser m_parser;
+//    Parser m_parser;
     vector<Token> m_tokenList;
 
     StateTableGenerator stateTableGenerator;
@@ -75,17 +75,13 @@ HELP:
 
     if (pTree)
     {
-        printTree(m_parser);
+//        printTree(m_parser);
     }
 
 
     return 0;
 }
 
-void compiler::printTree(Parser &parser)
-{
-    parser.printParseTree();
-}
 
 void symbolTestFunction()
 {
