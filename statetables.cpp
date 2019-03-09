@@ -15,16 +15,17 @@ void StateTables::generateTables(std::map<size_t, std::set<Lr1Item, Lr1Compare>>
         Action::ACTION act;
         for (auto& item : cci->second)
         {
-            if (item.phAtEnd())
-            {
-                act = Action::ACCEPT;
+            if (item.phAtEnd()) {
+                if (item.lookAhead == "EOF")
+                {
+                    act = Action::ACCEPT;
+                }
+                else
+                {
+                    act = Action::REDUCE;
+                }
             }
-            else if (isupper(item.tokenAfterPh()[0]))
-            {
-                //Lr1Item nextItem = gotoItem(item, ccPrevStates);
-                act = Action::REDUCE;
-            }
-            else // non terminal
+            else
             {
                 Lr1Item nextItem = gotoItem(item, ccPrevStates);
                 act = Action::SHIFT;
