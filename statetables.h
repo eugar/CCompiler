@@ -15,6 +15,7 @@ class StateTables
 public:
 
 
+
     typedef struct Action
     {
         enum ACTION {SHIFT, REDUCE, ACCEPT};
@@ -22,7 +23,10 @@ public:
 
         ActionTable table;
 
-        void insert(const size_t &currentState, const size_t &newState, const Lr1Item &item, bool atEnd);
+        void insert(const size_t &currentState, const int &newState, std::string token, ACTION action)
+        {
+            table[currentState][token] = std::make_pair(action, newState);
+        }
 
     } Action;
 

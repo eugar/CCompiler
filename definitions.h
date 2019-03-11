@@ -182,6 +182,11 @@ typedef struct Lr1Item
         nextState = stateMap[key];
         return Lr1Item(lhs, rhs, lookAhead, nextState, newPhPos, state, token);
     }
+    bool equals(const Lr1Item &b) const
+    {
+        bool com = std::tie(this->lhs, this->rhs, this->lookAhead, this->phPos) < std::tie(b.lhs, b.rhs, b.lookAhead, b.phPos);
+        return com;
+    }
 
     std::string lhs;
     std::string rhs;

@@ -12,27 +12,35 @@ void StateTables::generateTables(std::map<size_t, std::set<Lr1Item, Lr1Compare>>
 
     for (auto cci = ccCurrentStates.begin(); cci != ccCurrentStates.end(); cci++)
     {
-        Action::ACTION act;
         for (auto& item : cci->second)
         {
-            if (item.phAtEnd()) {
+            // if
+            if (item.phAtEnd())
+            {
                 if (item.lookAhead == "EOF")
                 {
-                    act = Action::ACCEPT;
+                    action.insert(item.state, 0, "EOF", Action::ACCEPT);
                 }
                 else
                 {
-                    act = Action::REDUCE;
+                    action.insert(item.state, -1, item.lookAhead, Action::REDUCE);
                 }
             }
+            // if terminal is after ph
+            else if (isupper(item.tokenAfterPh()[0]))
+            {
+
+                Lr1Item nextItem = gotoItem(item, ccPrevStates);
+                action.insert(item.state, nextItem.state, item.tokenAfterPh(), Action::SHIFT);
+            }
+            // if non terminal is after ph
             else
             {
                 Lr1Item nextItem = gotoItem(item, ccPrevStates);
-                act = Action::SHIFT;
-                // Goto entry
-                if (item.state != item.nextState)
+                // change state only i.e., Goto entry
+                if (item.state != nextItem.state)
                 {
-                    go.insert(item.state, item.nextState, item.tokenAfterPh());
+                    go.insert(item.state, nextItem.state, item.tokenAfterPh());
                 }
             }
         }
@@ -45,13 +53,22 @@ Lr1Item StateTables::gotoItem(Lr1Item item,
     // next is terminal
     bool atEnd, atStart = false;
     std::string token = item.tokenAfterPh(atEnd, atStart);
-    if (isupper(token[0]))
-    {
+    // next is terminal token, i.e., action item
 
-    }
-    // next is non terminal
-    else
+/*    if (isupper(token[0]))
     {
+        if (item.phAtEnd())
+        {
+
+        }
+        else
+        {
+
+        }
+    }
+    // next is non terminal, i.e., goto item
+    else
+  */  {
         Lr1Item newItem(item);
         // The ph should be on the last character in the rhs string.
         if (atEnd) // This is also the case when both are true, i.e., only one token on RHS
@@ -74,24 +91,7 @@ Lr1Item StateTables::gotoItem(Lr1Item item,
         // Find it in the prevStates map. Get the proper set with the
         // current item's state.
         auto nextItemSet = ccPrevStates[item.state];
-        auto iter = *nextItemSet.find(newItem);
-        return iter;
+        Lr1Item lastItem = *nextItemSet.find(newItem);
+        return lastItem;
     }
-}
-
-void StateTables::Action::insert(const size_t &currentState,
-                                 const size_t &prevState,
-                                 const Lr1Item &item,
-                                 bool atEnd)
-{
-    std::string token = "";
-    if (atEnd)
-    {
-
-    }
-    else
-    {
-        token = item.tokenAfterPh();
-    }
-    //table[currentState].insert(std::make_pair(token, std::make_pair(action, prevState)));
 }
