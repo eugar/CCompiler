@@ -26,6 +26,8 @@ public:
     symbol* lookup(string id);
     void printRecords();
     SymbolTable* addChild(string tableId, SymbolTable *child);
+    // delete a scope and go back to the parent scope
+    SymbolTable* deleteChild();
 
 private:
     // Private members

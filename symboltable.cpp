@@ -85,6 +85,29 @@ SymbolTable* SymbolTable::addChild(string tableId, SymbolTable *child)
     return child;
 }
 
+// Deletes a child scope and return a pointer to the parent
+SymbolTable* SymbolTable::deleteChild()
+{
+    if (this->m_parent == NULL)
+    {
+        cout << "Deleting lobal scope" << endl;
+        return NULL;
+    }
+
+    for(auto &symbol: m_symbolTable)
+    {
+        remove(symbol.first);
+    }
+
+    for(auto &child: m_childTable)
+    {
+        child.second = NULL;
+        m_childTable.erase(child.first);
+    }
+
+    return this->m_parent;
+}
+
 /**********************Private Functions**********************/
 void SymbolTable::addParent(SymbolTable *parent)
 {
