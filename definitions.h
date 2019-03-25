@@ -55,6 +55,7 @@ typedef struct Lr1Item
             }
             return rhs.substr(afterHandlePos + 1, end - (afterHandlePos + 1));
         }
+        return " ";
     }
 
     // Returns true if the lhs (the lr1item in usage) is empty.
