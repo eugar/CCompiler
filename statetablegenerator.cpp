@@ -16,7 +16,7 @@ StateTableGenerator::StateTableGenerator()
     follow();
     buildLr1Sets();
     createStates();
-    createTables();
+    //createTables();
     writeTables();
 
     int w;
@@ -24,7 +24,8 @@ StateTableGenerator::StateTableGenerator()
 void StateTableGenerator::createTables()
 {
     StateTables tables;
-    tables.generateTables(m_ccCurSets, m_ccPrevSets, m_action, m_goto);
+
+    //tables.generateTables(m_ccCurSets, m_ccPrevSets, m_action, m_goto);
 }
 void StateTableGenerator::writeTables()
 {
@@ -81,11 +82,8 @@ void StateTableGenerator::initialLr1Set()
     Lr1Item rootItem(m_grammar.ruleIndex()[0], (rhsToLr1ItemFormat(m_grammar.ruleIndex()[0]))[0], "EOF");
     // Place into Canonical Collection
     m_lr1CC.emplace(rootItem);
-    // Add to state matching sets for later (action/goto table construction).
-    m_ccCurSets[0].emplace(rootItem);
-    // This is not strictly necessary to add here, but it lets us know if
-    // something went wrong such as if some sets weren't added properly.
-    m_ccPrevSets[0].emplace(rootItem);
+    m_tables  = StateTables(rootItem.lhs);
+    //m_tables.addEntry(rootItem, 0, 0);
 
 }
 
@@ -97,7 +95,8 @@ void StateTableGenerator::generateLr1SetClosures()
         prevSize = m_lr1CC.size();
         for (auto lr1Item = m_lr1CC.begin(); lr1Item != m_lr1CC.end(); lr1Item++)
         {
-            string handle = findNextHandle(lr1Item->rhs, lr1Item->phPos);
+            //string handle = findNextHandle(lr1Item->rhs, lr1Item->phPos);
+            string handle = lr1Item->tokenAfterPh();
 
             // If the token following the placeholder is the same as the lhs
             if (handle == lr1Item->lhs)
@@ -114,7 +113,14 @@ void StateTableGenerator::generateLr1SetClosures()
                 {
                     for (auto item : m_lr1ItemIndex[lr1Item->lhs])
                     {
-                        m_lr1CC.emplace(Lr1Item(item, token));
+                        // if the item was added to the cannonical collection
+                        if (m_lr1CC.emplace(Lr1Item(item, token)).second)
+                        {
+                            if (m_tables.addEntry(Lr1Item(item, token), item->state, m_nextState))
+                            {
+                                m_nextState++;
+                            }
+                        }
                     }
                 }
                 // If a non-terminal follows the current handle, get the FIRST set for that nonterminal and place each
@@ -125,7 +131,14 @@ void StateTableGenerator::generateLr1SetClosures()
                     {
                         for (auto& terminal : m_first[token])
                         {
-                            m_lr1CC.emplace(Lr1Item(item, terminal));
+                            // if the item was added to the canonical collection
+                            if (m_lr1CC.emplace(Lr1Item(item, terminal)).second)
+                            {
+                                if (m_tables.addEntry(*item, item->state, m_nextState))
+                                {
+                                    m_nextState++;
+                                }
+                            }
                         }
                     }
                 }
@@ -137,13 +150,25 @@ void StateTableGenerator::generateLr1SetClosures()
                 closure(handle);
                 for (auto rhs : rhsToLr1ItemFormat(handle))
                 {
-                    m_lr1CC.emplace(handle, rhs, lr1Item->lookAhead, lr1Item->state);
+                    if (m_lr1CC.emplace(handle, rhs, lr1Item->lookAhead, lr1Item->state).second)
+                    {
+                        if (m_tables.addEntry(Lr1Item(handle, rhs, lr1Item->lookAhead, lr1Item->state), lr1Item->state, m_nextState))
+                        {
+                            m_nextState++;
+                        }
+                    }
                 }
                 for (auto& nt : m_nonterminals)
                 {
                     for (auto& rhs : rhsToLr1ItemFormat(*nt))
                     {
-                        m_lr1CC.emplace(*nt, rhs, lr1Item->lookAhead, lr1Item->state);
+                        if (m_lr1CC.emplace(*nt, rhs, lr1Item->lookAhead, lr1Item->state).second)
+                        {
+                            if (m_tables.addEntry(Lr1Item(handle, rhs, lr1Item->lookAhead, lr1Item->state), lr1Item->state, m_nextState))
+                            {
+                                m_nextState++;
+                            }
+                        }
                     }
                 }
             }
@@ -178,22 +203,25 @@ void StateTableGenerator::createStates()
 
         // Iterate on all current items in the canonical collection and advance
         // the ph for any item that has not reached the end.
+
         for (auto& item : m_lr1CC)
         {
             Lr1Item newLr1Item;
             if (!item.phAtEnd() &&
-            !(newLr1Item = (const_cast<Lr1Item*>(&item))->advancePh(stateMap)).empty() )
+            !(newLr1Item = (const_cast<Lr1Item*>(&item))->advancePh(stateMap, const_cast<Lr1Item*>(&item))).empty() )
             {
-                auto result = CCi.emplace(newLr1Item);
+                CCi.emplace(newLr1Item);
             }
         }
         for (auto& item : CCi)
         {
-            auto result = m_lr1CC.insert(item);
-            // Add the item to state maps for later use in constructing
-            // the tables.
-            m_ccCurSets[item.nextState].emplace(item);
-            m_ccPrevSets[item.fromState].emplace(item);
+            if (m_lr1CC.insert(item).second)
+            {
+                if (m_tables.addEntry(item, item.fromItem->state, m_nextState))
+                {
+                    m_nextState++;
+                }
+            }
         }
     // Has the number of LR1 Items increased? If yes, go around again.
     } while(m_lr1CC.size() > prevSize);

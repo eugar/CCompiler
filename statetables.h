@@ -14,7 +14,12 @@ class StateTables
 {
 public:
 
-
+    explicit StateTables(std::string goalSymbol)
+    :
+    m_goalSymbol(goalSymbol)
+    {}
+    bool addEntry(Lr1Item item, int fromState, int toState);
+    void addEntry(Lr1Item item);
 
     typedef struct Action
     {
@@ -43,6 +48,7 @@ public:
 
     } Goto;
 
+    std::string m_goalSymbol;
     StateTables() = default;
     void generateTables(std::map<size_t, std::set<Lr1Item, Lr1Compare>> &ccPrevStates,
                         std::map<size_t, std::set<Lr1Item, Lr1Compare>> &ccCurrentStates,
@@ -51,9 +57,12 @@ public:
 
     ~StateTables() = default;
 
+    Action m_action;
+    Goto m_goto;
+    std::vector<Lr1Item> gotoQueue;
 private:
-    Lr1Item gotoItem(Lr1Item item,
-                     std::map<size_t, std::set<Lr1Item, Lr1Compare>> &ccPrevStates);
+    Lr1Item gotoItem(Lr1Item item
+                    /*, std::map<size_t, std::set<Lr1Item, Lr1Compare>> &ccPrevStates*/);
 };
 
 #endif //CCOMPILER_PARSETABLES_H
