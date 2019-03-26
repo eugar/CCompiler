@@ -31,6 +31,11 @@ int main(int argc, char * const argv[])
     int c;
     int pTokens = 0;
     int pTree = 0;
+    int irRead = 0;
+    int irWrite = 0;
+    string irInFile;
+    string irOutFile;
+
 
     if (argc < 2)
     {
@@ -41,11 +46,13 @@ HELP:
             << "Optional arguments:\n"
             << "-h displays this help menu\n"
             << "-s displays list of tokens\n"
-            << "-p displays parse tree\n";
+            << "-p displays parse tree\n"
+            << "-i [file] populate the IR from a file\n"
+            << "-o [file] write the IR to a file\n";
         return 1;
     }
 
-    while ((c = getopt(argc, argv, "?:hsp")) != -1)
+    while ((c = getopt(argc, argv, "?:hspi:o:")) != -1)
     {
         switch (c)
         {
@@ -54,6 +61,14 @@ HELP:
                 break;
             case 'p':
                 pTree = 1;
+                break;
+            case 'i':
+                irRead = 1;
+                irInFile = optarg;
+                break;
+            case 'o':
+                irWrite = 1;
+                irOutFile = optarg;
                 break;
             case 'h':
                 goto HELP;
@@ -81,6 +96,16 @@ HELP:
 //        printTree(m_parser);
     }
 
+    if (irRead) //todo: change these to handle the current programs IR
+    {
+        vector<irInstruction> test = ir::readFromFile(irInFile);
+    }
+
+    if (irWrite)
+    {
+        vector<irInstruction> test = ir::readFromFile("irexample.txt");
+        ir::writeToFile(irOutFile, test);
+    }
 
     return 0;
 }
