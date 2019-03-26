@@ -4,6 +4,7 @@
 #include "cscanner.hpp"
 #include "token.h"
 #include "symboltable.hpp"
+#include "ir.h"
 #include <vector>
 #include <fstream>
 
