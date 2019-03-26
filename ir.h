@@ -9,10 +9,6 @@
 
 using namespace std;
 
-typedef enum {
-    IRADD, IRSUB, IRMUL, IRDIV, IRCMP, IRJEQ, IRJUMP, IRJNEQ, IRLOAD, IRSTORE, IRPOS, IRNEG, IRNOT, IREQ, IRNOTEQ, IRLSTH, IRGRTH, IRLSEQ, IRGREQ, IRGOTO, IRCOPY, IRERR
-} irOp;
-
 typedef struct
 {
     string op;
