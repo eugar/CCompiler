@@ -1,3 +1,6 @@
+//
+// Created by Victor Gutierrez
+//
 #include "ccompiler.hpp"
 #include "cscanner.hpp"
 #include <iostream>
@@ -137,7 +140,7 @@ void Scanner::scanFile(istream &input, // [in] file stream to tokenize
                         lineNo++;
                     }
                 }
-                
+
                 else if (isalnum(c) || c == '_')
                 {
                     token.append(1, c);

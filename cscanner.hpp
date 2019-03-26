@@ -1,3 +1,6 @@
+//
+// Created by Victor Gutierrez
+//
 #ifndef SCANNER_H
 #define SCANNER_H
 
@@ -7,7 +10,7 @@
 
 using namespace std;
 
-class Scanner 
+class Scanner
 {
 
 public:

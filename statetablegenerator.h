@@ -83,9 +83,8 @@ private:
     // The canonical collection of LR1 Items.
     set<Lr1Item, Lr1Compare> m_lr1CC;
     // The action table
-    StateTables::Action m_action;
-    // The goto table
-    StateTables::Goto m_goto;
+    StateTables m_tables;
+    int m_nextState = 1;
     // Maps from a state to the set of LR1 Items with that state.
     map<size_t, set<Lr1Item, Lr1Compare>> m_ccCurSets;
     // Maps to an LR1 Item set by its previous state.
