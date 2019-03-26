@@ -24,9 +24,8 @@ int main(int argc, char * const argv[])
     // for now it builds in the constructor of Parser
 //    Parser m_parser;
     vector<Token> m_tokenList;
-
     StateTableGenerator stateTableGenerator;
-
+    Parser parser = Parser(m_tokenList);
 
     int c;
     int pTokens = 0;
