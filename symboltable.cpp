@@ -10,7 +10,7 @@ SymbolTable::SymbolTable()
 }
 
 //given id info, this will insert the record into the symbol table
-void SymbolTable::insert(string id, string type, void* data)
+void SymbolTable::insert(string id, string type, string data)
 {
     // will insert symbol if it doesn't exist in current scope
     if (!isTaken(id))
@@ -27,7 +27,7 @@ void SymbolTable::insert(string id, string type, void* data)
 }
 
 // modifies the data in a variable
-int SymbolTable::modify(string id, void* data)
+int SymbolTable::modify(string id, string data)
 {
     symbol *sym = lookup(id);
     if (sym == NULL) {
@@ -90,7 +90,7 @@ SymbolTable* SymbolTable::deleteChild()
 {
     if (this->m_parent == NULL)
     {
-        cout << "Deleting lobal scope" << endl;
+        cout << "Deleting global scope" << endl;
         return NULL;
     }
 

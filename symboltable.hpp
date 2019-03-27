@@ -11,7 +11,7 @@ using namespace std;
 typedef struct
 {
     string type;
-    void* data;
+    string data;
 } symbol;
 
 class SymbolTable
@@ -20,8 +20,8 @@ class SymbolTable
 public:
 
     SymbolTable();
-    void insert(string id, string type, void *data);
-    int modify(string id, void* data);
+    void insert(string id, string type, string data);
+    int modify(string id, string data);
     void remove(string id);
     symbol* lookup(string id);
     void printRecords();
