@@ -13,7 +13,7 @@ ParseTree::ParseTree()
 
 void ParseTree::printTree()
 {
-    cout << m_root->token() << endl;
+    cout << m_root->rule() << endl;
     for(auto child : m_root->children())
     {
         printChildren(child, 1);
@@ -25,7 +25,9 @@ void ParseTree::reduce(pnode* newRoot, vector<pnode*>children)
     this->newRoot(newRoot);
     for(auto child : children)
     {
-        m_root->addChild(child);
+        if (child != nullptr) {
+            m_root->addChild(child);
+        }
     }
 }
 
@@ -34,7 +36,7 @@ void ParseTree::printChildren(pnode* pn, int count)
     for (size_t i = 0; i < count; i++) {
         cout << "\t";
     }
-    cout << pn->token() << endl;
+    cout << pn->rule() << endl;
 
     if (pn->childCount() > 0) {
         for(auto child : pn->children())

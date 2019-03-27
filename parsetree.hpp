@@ -14,13 +14,13 @@ typedef struct pnode
 {
 public:
     pnode() = default;
-    pnode(string token){m_token = token;}
+    pnode(string rule){m_rule = rule;}
     void addParentNode(pnode *parentNode = nullptr)
     {
         m_parentNode = parentNode;
     }
-    void setToken(string token){m_token = token;}
-    string token(){return m_token;}
+    void setToken(string rule){m_rule = rule;}
+    string rule(){return m_rule;}
     vector<pnode*> children(){return m_children;}
     void addChild(pnode* child){m_children.push_back(child);}
     size_t childCount(){return m_children.size();}
@@ -28,7 +28,7 @@ public:
 private:
     struct pnode* m_parentNode;
     vector<pnode*> m_children;
-    string m_token;
+    string m_rule;
 }pnode;
 
 class ParseTree
@@ -44,8 +44,8 @@ public:
 
 private:
     pnode* m_root;
-
     void newRoot(pnode* newRoot){m_root = newRoot;}
+
     inline void printChildren(pnode* pn, int count);
 };
 

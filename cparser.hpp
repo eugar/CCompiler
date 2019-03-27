@@ -11,23 +11,30 @@
 
 using namespace std;
 
+typedef pair<StateTables::Action::ACTION, size_t> act;
+
 class Parser
 {
 public:
-    Parser(vector<Token> &tokenList);
+    Parser();
     void printParseTree();
+    void buildParseTree(ParseTree &parseTree, vector<Token> &tokenList);
 
 private:
-    // Gets the action from current state and token.
-    pair<StateTables::Action::ACTION, size_t> getAction(size_t currentState, string token);
-    // Gets the goto state from current state and token.
-    size_t getGoto(size_t currentState, string token);
-    void setState(size_t newState){m_currentState = newState;}
+    size_t runAction(act actRun, ParseTree &parseTree);
 
-    size_t m_currentState;
+    // Gets the action from current state and token.
+    inline act getAction(size_t currentState, string token);
+    // Gets the goto state from current state and token.
+    inline size_t getGoto(size_t currentState, string token);
+
+    size_t m_curState;
     StateTables m_stateTable;
     vector<string> m_stateStack;
-    vector<Token> m_tokenList;
+    act m_action;
+    pnode* newRoot;
+    vector<pnode*> newNodes;
+    //ParseTree m_parseTree;
 };
 
 #endif //CCOMPILER_CPARSER_H

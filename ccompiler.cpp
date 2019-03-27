@@ -22,10 +22,10 @@ int main(int argc, char * const argv[])
     Scanner m_scanner;
     // eventually I will move grammar building to another class
     // for now it builds in the constructor of Parser
-//    Parser m_parser;
     vector<Token> m_tokenList;
     StateTableGenerator stateTableGenerator;
-    Parser parser = Parser(m_tokenList);
+    Parser parser;
+    ParseTree parseTree;
 
     int c;
     int pTokens = 0;
@@ -83,7 +83,7 @@ HELP:
     string filename = argv[optind];
 
     m_scanner.openFile(filename, m_tokenList);
-
+    parser.buildParseTree(parseTree, m_tokenList);
 
     if (pTokens)
     {
@@ -107,13 +107,4 @@ HELP:
     }
 
     return 0;
-}
-
-
-void symbolTestFunction()
-{
-    SymbolTable st = SymbolTable();
-    int data = 3;
-
-    st.insert("var", "string", &data);
 }
