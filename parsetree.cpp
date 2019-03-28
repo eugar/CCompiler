@@ -8,40 +8,37 @@ using namespace std;
 
 ParseTree::ParseTree()
 {
-    m_root = nullptr;
+
 }
 
 void ParseTree::printTree()
 {
-    cout << m_root->rule() << endl;
-    for(auto child : m_root->children())
+    cout << "[" << m_root.rule() << "]" << endl;
+    for(auto child : m_root.children())
     {
         printChildren(child, 1);
     }
 }
 
-void ParseTree::reduce(pnode* newRoot, vector<pnode*>children)
+void ParseTree::reduce(pnode newRoot, vector<pnode>children)
 {
     this->newRoot(newRoot);
     for(auto child : children)
     {
-        if (child != nullptr) {
-            m_root->addChild(child);
-        }
+        m_root.addChild(child);
     }
 }
 
-void ParseTree::printChildren(pnode* pn, int count)
+void ParseTree::printChildren(pnode pn, int count)
 {
-    for (size_t i = 0; i < count; i++) {
-        cout << "\t";
+    for (size_t i = 0; i < count; i++)
+    {
+        cout << " ";
     }
-    cout << pn->rule() << endl;
-
-    if (pn->childCount() > 0) {
-        for(auto child : pn->children())
-        {
-            printChildren(child, count + 1);
-        }
+    cout << "[" << pn.rule() << "]";
+    cout << " " << pn.childCount() << endl;
+    for(int i = 0; i < pn.childCount(); i++)
+    {
+        printChildren(pn.children()[i], count + 1);
     }
 }

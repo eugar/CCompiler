@@ -10,7 +10,7 @@ Parser::Parser()
 {
     m_curState = 0;
     m_stateStack.push_back("0");
-    newRoot = nullptr;
+    //m_newRoot = nullptr;
 }
 
 void Parser::buildParseTree(ParseTree &parseTree, vector<Token> &m_tokenList)
@@ -18,17 +18,19 @@ void Parser::buildParseTree(ParseTree &parseTree, vector<Token> &m_tokenList)
     for(auto token : m_tokenList)
     {
         m_action = getAction(m_curState, token.getLiteral());
-        m_curState = runAction(m_action, parseTree);
+        m_curState = runAction(m_action, parseTree, token);
     }
 }
 
 // TODO: Fix the reduce and accept cases
 //       add a reject case
-size_t Parser::runAction(act actRun, ParseTree &parseTree)
+size_t Parser::runAction(act actRun, ParseTree &parseTree, Token token)
 {
     if (actRun.first == StateTables::Action::ACTION::SHIFT)
     {
-        //cout<< "shift: " << actRun.second << endl;
+        pnode newpnode = pnode(token.getLiteral());
+        m_newNodes.push_back(newpnode);
+        //cout<< newpnode.rule() << " shift: " << actRun.second << endl;
         return actRun.second;
     }
     else if(actRun.first == StateTables::Action::ACTION::REDUCE)
@@ -36,14 +38,15 @@ size_t Parser::runAction(act actRun, ParseTree &parseTree)
         // reduce the parse tree
         //cout<< "reduce: " << actRun.second << endl;
 
-        if (newRoot != nullptr && newNodes.size() < 0) {
-            parseTree.reduce(newRoot, newNodes);
+        if (m_newNodes.size() < 0) {
+            reduce(parseTree);
         }
+        replaceNodes(parseTree);
     }
     else if(actRun.first == StateTables::Action::ACTION::ACCEPT)
     {
         // End the parse building
-        //cout << "accepted!" << endl;
+        cout << "accepted!" << endl;
     }
     else
     {
@@ -54,14 +57,38 @@ size_t Parser::runAction(act actRun, ParseTree &parseTree)
     return 0;
 }
 
-act Parser::getAction(size_t currentState, string token)
+void Parser::reduce(ParseTree &parseTree)
 {
-    auto a = m_stateTable.m_action.table.find(currentState);
-    return a->second.find(token)->second;
+    string temp = "";
+    for(auto node : m_newNodes)
+    {
+        temp += " " + node.rule();
+    }
+    try
+    {
+        m_newRoot = m_grammarRed.at(temp);
+        parseTree.reduce(m_newRoot, m_newNodes);
+    }
+    catch(const std::out_of_range& oor)
+    {
+        cerr << temp << "could not be reduced: " << endl;
+    }
 }
 
-size_t Parser::getGoto(size_t currentState, string token)
+act Parser::getAction(size_t currentState, string rule)
+{
+    auto a = m_stateTable.m_action.table.find(currentState);
+    return a->second.find(rule)->second;
+}
+
+size_t Parser::getGoto(size_t currentState, string rule)
 {
     auto gt = m_stateTable.m_goto.table.find(currentState);
-    return gt->second.find(token)->second;
+    return gt->second.find(rule)->second;
+}
+
+void Parser::replaceNodes(ParseTree &parseTree)
+{
+    m_newNodes.clear();
+    m_newNodes = parseTree.rootChildren();
 }
