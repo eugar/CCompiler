@@ -1,0 +1,93 @@
+program -> declList
+declList -> declList decl
+declList -> decl
+decl -> funcDecl
+decl -> varDecl
+
+funcDecl -> typeSpec ID ( params ) stmt
+typeSpec -> returnTypeSpec
+returnTypeSpec -> int
+returnTypeSpec -> char
+returnTypeSpec -> bool
+params -> paramList
+params ->
+paramList -> paramList , typeSpec ID
+paramList -> typeSpec ID
+
+stmt -> exprStmt
+stmt -> compStmt
+stmt -> selStmt
+stmt -> iterStmt
+stmt -> retStmt
+stmt -> breakStmt
+compStmt -> { stmtList }
+stmtList -> stmtList stmt
+stmtList -> stmt
+stmtList ->
+exprStmt -> expr ;
+exprStmt -> ;
+selStmt -> if ( simpleExpr ) stmt
+selStmt -> if ( simpleExpr ) stmt else stmt
+iterStmt -> while ( simpleExpr ) stmt
+retStmt -> return ;
+retStmt -> return expr ;
+breakStmt -> break ;
+
+expr -> mutable mutBinOp expr
+expr -> mutable mutUnaryOp
+expr -> mutUnaryOp mutable
+expr -> simpleExpr
+mutBinOp -> =
+mutBinOp -> +=
+mutBinOp -> -=
+mutBinOp -> *
+mutBinOp -> /
+mutUnaryOp -> ++
+mutUnaryOp -> --
+simpleExpr -> simpleExpr || andExpr
+simpleExpr -> andExpr
+andExpr -> andExpr && unaryRelExpr
+andExpr -> unaryRelExpr
+unaryRelExpr -> ! unaryRelExpr
+unaryRelExpr -> relExpr
+relExpr -> sumExpr relOp sumExpr
+relExpr -> sumExpr
+relOp -> <=
+relOp -> <
+relOp -> >
+relOp -> >=
+relOp -> =
+relOp -> !=
+sumExpr -> sumExpr sumOp term
+sumExpr -> term
+sumOp -> +
+sumOp -> -
+term -> term mulOp unaryExpr
+term -> term
+mulOp -> *
+mulOp -> /
+mulOp -> %
+unaryExpr -> unaryOp mutable
+unaryExpr -> immutable
+unaryExpr -> mutable
+unaryOp -> -
+unaryOp -> &
+mutable -> ID
+immutable -> ( expr )
+immutable -> call
+immutable -> constant
+call -> ID ( args )
+args -> argList
+args ->
+argList -> argList , expr
+argList -> expr
+constant -> NUMCONST
+constant -> CHARCONST
+constant -> true
+constant -> false
+
+varDecl -> typeSpec varDeclList
+varDeclList -> varDeclList , varDeclInit
+varDeclList -> varDeclInit
+varDeclInit -> ID
+varDeclInit -> ID = simpleExpr
