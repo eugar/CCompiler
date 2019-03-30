@@ -17,28 +17,6 @@ using namespace std;
 // avoided) or this file.
 using namespace compiler;
 
-void tree_test()
-{
-    ParseTree parsetree;
-    pnode root = pnode("root");
-    root.addParentNode();
-    vector<pnode> children;
-
-    for(int i = 0; i < 10; i++)
-    {
-        pnode child = pnode("Child");
-        for(int j = 0; j < 5; j++)
-        {
-            pnode grandc = pnode("Grand Child");
-            child.addChild(grandc);
-        }
-        children.push_back(child);
-    }
-
-    parsetree.reduce(root, children);
-    parsetree.printTree();
-}
-
 int main(int argc, char * const argv[])
 {
     Scanner m_scanner;
@@ -48,8 +26,6 @@ int main(int argc, char * const argv[])
     StateTableGenerator stateTableGenerator;
     Parser parser;
     ParseTree parseTree;
-
-    //tree_test();
 
     int c;
     int pTokens = 0;
@@ -116,7 +92,7 @@ HELP:
 
     if (pTree)
     {
-//        printTree(m_parser);
+        parseTree.printTree();
     }
 
     if (irRead) //todo: change these to handle the current programs IR
