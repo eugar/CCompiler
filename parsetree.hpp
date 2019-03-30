@@ -41,11 +41,10 @@ public:
     pnode root(){return m_root;}
     // returns the children of root
     vector<pnode> rootChildren(){return m_root.children();}
+    void newRoot(pnode newRoot){m_root = newRoot;}
 
 private:
     struct pnode m_root;
-    void newRoot(pnode newRoot){m_root = newRoot;}
-
     inline void printChildren(pnode pn, int count);
 };
 

@@ -13,11 +13,12 @@ ParseTree::ParseTree()
 
 void ParseTree::printTree()
 {
-    cout << "[" << m_root.rule() << "]" << endl;
+    cout << "\n[" << m_root.rule() << "]" << endl;
     for(auto child : m_root.children())
     {
         printChildren(child, 1);
     }
+    cout << endl;
 }
 
 void ParseTree::reduce(pnode newRoot, vector<pnode>children)
@@ -33,12 +34,12 @@ void ParseTree::printChildren(pnode pn, int count)
 {
     for (size_t i = 0; i < count; i++)
     {
-        cout << " ";
+        cout << "   ";
     }
     cout << "[" << pn.rule() << "]";
     cout << " " << pn.childCount() << endl;
-    for(int i = 0; i < pn.childCount(); i++)
+    for(auto child : pn.children())
     {
-        printChildren(pn.children()[i], count + 1);
+        printChildren(child, count + 1);
     }
 }

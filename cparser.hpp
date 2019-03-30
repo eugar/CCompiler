@@ -17,28 +17,28 @@ class Parser
 {
 public:
     Parser();
-    void printParseTree();
     void buildParseTree(ParseTree &parseTree, vector<Token> &tokenList);
 
 private:
-    size_t runAction(act actRun, ParseTree &parseTree, Token token);
+    bool runAction(act actRun, ParseTree &parseTree, string rule);
     void reduce(ParseTree &parseTree);
+    void hardcodeTest();
 
     // Gets the action from current state and rule.
-    inline act getAction(size_t currentState, string rule);
+    inline act getAction(string rule);
     // Gets the goto state from current state and rule.
-    inline size_t getGoto(size_t currentState, string rule);
-    inline void replaceNodes(ParseTree &parseTree);
+    inline size_t getGoto(string rule);
+    inline void replaceStack(ParseTree &parseTree, int i);
+    inline void printStack();
 
-    size_t m_curState;
+    vector<size_t> m_stateStack;
     StateTables m_stateTable;
-    vector<string> m_stateStack;
     act m_action;
     pnode m_newRoot;
-    vector<pnode> m_newNodes;
+    vector<pnode> m_nodeStack;
     // <  RHS ,   LHS >
     map<string, string> m_grammarRed;
-
+    vector<Token> m_tokenStack;
 };
 
 #endif //CCOMPILER_CPARSER_H
