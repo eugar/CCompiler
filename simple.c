@@ -1,1 +1,1 @@
-int ID (int ID) { return;}
+int main (int x) {return;}
