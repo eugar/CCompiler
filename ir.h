@@ -6,6 +6,7 @@
 #define CCOMPILER_IR_H
 
 #include <string>
+#include <vector>
 
 using namespace std;
 

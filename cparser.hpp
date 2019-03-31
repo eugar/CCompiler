@@ -9,6 +9,8 @@
 #include "token.h"
 #include <vector>
 
+#define LRTABLE "resources/mainLrTable.txt"
+
 using namespace std;
 
 typedef pair<StateTables::Action::ACTION, size_t> act;
@@ -22,6 +24,9 @@ public:
 private:
     bool runAction(act actRun, ParseTree &parseTree, string rule);
     void reduce(ParseTree &parseTree);
+
+    void loadTables(string filepath = LRTABLE);
+
     void hardcodeTest();
 
     // Gets the action from current state and rule.

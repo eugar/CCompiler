@@ -23,7 +23,8 @@ int main(int argc, char * const argv[])
     // eventually I will move grammar building to another class
     // for now it builds in the constructor of Parser
     vector<Token> m_tokenList;
-    StateTableGenerator stateTableGenerator;
+    // Currently using a third party state table generator, slightly modified to our purpose.
+    //StateTableGenerator stateTableGenerator;
     Parser parser;
     ParseTree parseTree;
 
@@ -38,6 +39,7 @@ int main(int argc, char * const argv[])
 
     if (argc < 2)
     {
+
 HELP:
         cout << "ccompiler - compile a C file\n"
             << "Usage:\n"
@@ -108,3 +110,4 @@ HELP:
 
     return 0;
 }
+

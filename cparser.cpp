@@ -5,26 +5,30 @@
 #include "cparser.hpp"
 #include "token.h"
 #include <cstdio>
+#include <fstream>
+#include <regex>
 
 using namespace std;
+
+
 
 void Parser::hardcodeTest()
 {
     m_stateTable.m_action.insert(0, 3, "(", StateTables::Action::ACTION::SHIFT);
-    m_stateTable.m_action.insert(1, 0, "%", StateTables::Action::ACTION::ACCEPT);
+    m_stateTable.m_action.insert(1, 0, "$", StateTables::Action::ACTION::ACCEPT);
     m_stateTable.m_action.insert(1, 3, "(", StateTables::Action::ACTION::SHIFT);
-    m_stateTable.m_action.insert(2, 3, "%", StateTables::Action::ACTION::REDUCE);
+    m_stateTable.m_action.insert(2, 3, "$", StateTables::Action::ACTION::REDUCE);
     m_stateTable.m_action.insert(2, 3, "(", StateTables::Action::ACTION::REDUCE);
     m_stateTable.m_action.insert(3, 6, "(", StateTables::Action::ACTION::SHIFT);
     m_stateTable.m_action.insert(3, 7, ")", StateTables::Action::ACTION::SHIFT);
-    m_stateTable.m_action.insert(4, 2, "%", StateTables::Action::ACTION::REDUCE);
+    m_stateTable.m_action.insert(4, 2, "$", StateTables::Action::ACTION::REDUCE);
     m_stateTable.m_action.insert(4, 2, "(", StateTables::Action::ACTION::REDUCE);
     m_stateTable.m_action.insert(5, 8, ")", StateTables::Action::ACTION::SHIFT);
     m_stateTable.m_action.insert(6, 10, ")", StateTables::Action::ACTION::SHIFT);
     m_stateTable.m_action.insert(6, 6, "(", StateTables::Action::ACTION::SHIFT);
-    m_stateTable.m_action.insert(7, 5, "%", StateTables::Action::ACTION::REDUCE);
+    m_stateTable.m_action.insert(7, 5, "$", StateTables::Action::ACTION::REDUCE);
     m_stateTable.m_action.insert(7, 5, "(", StateTables::Action::ACTION::REDUCE);
-    m_stateTable.m_action.insert(8, 4, "%", StateTables::Action::ACTION::REDUCE);
+    m_stateTable.m_action.insert(8, 4, "$", StateTables::Action::ACTION::REDUCE);
     m_stateTable.m_action.insert(8, 4, "(", StateTables::Action::ACTION::REDUCE);
     m_stateTable.m_action.insert(9, 11, ")", StateTables::Action::ACTION::SHIFT);
     m_stateTable.m_action.insert(10, 5, ")", StateTables::Action::ACTION::REDUCE);
@@ -46,13 +50,16 @@ void Parser::hardcodeTest()
 Parser::Parser()
 {
     m_stateStack.push_back(0);
-    hardcodeTest();
+    //hardcodeTest();
+    loadTables();
+    // for breakpoint
+    int i;
 }
 
 void Parser::buildParseTree(ParseTree &parseTree, vector<Token> &tokenList)
 {
     int i = 0;
-    tokenList.push_back(Token("%", ERR, 0));
+    tokenList.push_back(Token("$", ERR, 0));
     m_tokenStack = tokenList;
 
     while(m_tokenStack.size() >= 1)
@@ -76,6 +83,84 @@ void Parser::buildParseTree(ParseTree &parseTree, vector<Token> &tokenList)
         i++;
     }
     parseTree.newRoot(m_newRoot);
+}
+
+void Parser::loadTables(string path)
+{
+    string line;
+    regex rx("\\s+");
+    ifstream fs(path);
+    int section = 0;
+    while (getline(fs, line))
+    {
+        if (line[0] == '#')
+        {
+            continue;
+        }
+        else
+        {
+            // read rules
+            if (section == 0)
+            {
+                if (line[0] == '~')
+                {
+                    section++;
+                }
+                else
+                {
+                    sregex_token_iterator it(line.begin(), line.end(), rx, -1);
+                    sregex_token_iterator end;
+                    string lhs = it->str();
+                    it++;
+                    string rhs;
+                    while (it != end)
+                    {
+                        rhs.append(it->str() + " ");
+                        it++;
+                    }
+                    rhs.erase(rhs.end() - 1);
+                    m_grammarRed[rhs] = lhs;
+                }
+            }
+            else
+            {
+                sregex_token_iterator it(line.begin(), line.end(), rx, -1);
+                unsigned long state = stoul(it->str());
+                it++;
+                string token = it->str();
+                it++;
+                // goto entry
+                if (isdigit(it->str()[0]))
+                {
+                    m_stateTable.m_goto.insert(state, stoul(it->str()), token);
+                }
+                    // action entry
+                else
+                {
+                    StateTables::Action::ACTION action;
+                    string a = it->str().substr(0,1);
+                    if (a == "r")
+                    {
+                        if (it->str() == "r0")
+                        {
+                            action = StateTables::Action::ACTION::ACCEPT;
+                        }
+                        else
+                        {
+                            action = StateTables::Action::ACTION::REDUCE;
+                        }
+                    }
+                    else
+                    {
+                        action = StateTables::Action::ACTION::SHIFT;
+                    }
+                    int newState = stoi(it->str().substr(1));
+                    m_stateTable.m_action.insert(state, newState, token, action);
+
+                }
+            }
+        }
+    }
 }
 
 bool Parser::runAction(act actRun, ParseTree &parseTree, string rule)
