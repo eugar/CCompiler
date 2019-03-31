@@ -60,24 +60,31 @@ void Parser::buildParseTree(ParseTree &parseTree, vector<Token> &tokenList)
 {
     int i = 0;
     tokenList.push_back(Token("$", ERR, 0));
-    m_tokenStack = tokenList;
+    convertTokenList(tokenList);
 
     while(m_tokenStack.size() >= 1)
     {
-        m_action = getAction(m_tokenStack.begin()->getLiteral());
+
+        //if (m_tokenStack.begin()->getType() == ID) {
+        //    cout << "ID: " << m_tokenStack.begin()->rule() << endl;
+        //    m_action = getAction("ID");
+        //}
+        //else{
+            m_action = getAction(m_tokenStack.begin()->rule());
+        //}
 
         if (m_stateStack.back() == -1) {
             cout << "error: -1" << endl;
             break;
         }
 
-        if(!runAction(m_action, parseTree, m_tokenStack.begin()->getLiteral()))
+        if(!runAction(m_action, parseTree, m_tokenStack[0]))
         {
             break;
         }
         cout << "step "<< i ;
         cout << "\t\tstate: " << m_stateStack.back();
-        cout << "\tInput: " << m_tokenStack.begin()->getLiteral() << endl;
+        cout << "\tInput: " << m_tokenStack.begin()->rule() << endl;
         printStack();
         cout << "\n";
         i++;
@@ -163,12 +170,12 @@ void Parser::loadTables(string path)
     }
 }
 
-bool Parser::runAction(act actRun, ParseTree &parseTree, string rule)
+bool Parser::runAction(act actRun, ParseTree &parseTree, pnode rule)
 {
     if (actRun.first == StateTables::Action::ACTION::SHIFT)
     {
-        pnode newpnode = pnode(rule);
-        m_nodeStack.push_back(newpnode);
+        //pnode newpnode = pnode(rule);
+        m_nodeStack.push_back(rule);
         cout<< "\nshift: " << actRun.second << endl;
         m_stateStack.push_back(actRun.second);
         m_tokenStack.erase(m_tokenStack.begin());
@@ -210,7 +217,7 @@ void Parser::reduce(ParseTree &parseTree)
         {
             m_newRoot = m_grammarRed.at(m_nodeStack[0].rule());
             m_newRoot.addChild(m_nodeStack[0]);
-            cout << "reducing: " << m_nodeStack[0].rule() << " to: " << m_newRoot.rule() << endl;
+            //cout << "reducing: " << m_nodeStack[0].rule() << " to: " << m_newRoot.rule() << endl;
             replaceStack(parseTree, 0);
             return;
         }
@@ -235,11 +242,11 @@ void Parser::reduce(ParseTree &parseTree)
         {
             m_newRoot = m_grammarRed.at(temp);
             x = i;
-            cout << "reducing: " << temp << " to: " << m_newRoot.rule() << endl;
+            //cout << "reducing: " << temp << " to: " << m_newRoot.rule() << endl;
         }
         catch(const std::out_of_range& oor)
         {
-            cerr << "\"" << temp << "\" - could not be reduced" << endl;
+            //cerr << "\"" << temp << "\" - could not be reduced" << endl;
         }
         i--;
     }
@@ -252,6 +259,38 @@ void Parser::reduce(ParseTree &parseTree)
         m_newRoot.addChild(child);
     }
     replaceStack(parseTree, x);
+}
+
+void Parser::convertTokenList(vector<Token> tokenList)
+{
+    for(auto tok : tokenList)
+    {
+        pnode node;
+        pnode child;
+        switch (tok.getType()) {
+            case ID:
+                child.setRule(tok.getLiteral());
+                node.setRule("ID");
+                node.addChild(child);
+                m_tokenStack.push_back(node);
+            break;
+            case NUMCONST:
+                child.setRule(tok.getLiteral());
+                node.setRule("NUMCONST");
+                node.addChild(child);
+                m_tokenStack.push_back(node);
+            break;
+            case CHAR:
+                child.setRule(tok.getLiteral());
+                node.setRule("CHARCONST");
+                node.addChild(child);
+                m_tokenStack.push_back(node);
+            break;
+            default:
+                node.setRule(tok.getLiteral());
+                m_tokenStack.push_back(node);
+        }
+    }
 }
 
 act Parser::getAction(string rule)
@@ -296,7 +335,7 @@ void Parser::replaceStack(ParseTree &parseTree, int i)
     m_nodeStack.push_back(m_newRoot);
     m_stateStack.push_back(getGoto(m_newRoot.rule()));
 
-    cout << "goto: " << m_newRoot.rule() << ": " << m_stateStack.back() << endl;
+    //cout << "goto: " << m_newRoot.rule() << ": " << m_stateStack.back() << endl;
 }
 
 void Parser::printStack()

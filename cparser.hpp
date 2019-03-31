@@ -7,6 +7,7 @@
 #include "statetables.h"
 #include "parsetree.hpp"
 #include "token.h"
+#include "symboltable.hpp"
 #include <vector>
 
 #define LRTABLE "resources/mainLrTable.txt"
@@ -22,12 +23,15 @@ public:
     void buildParseTree(ParseTree &parseTree, vector<Token> &tokenList);
 
 private:
-    bool runAction(act actRun, ParseTree &parseTree, string rule);
+    bool runAction(act actRun, ParseTree &parseTree, pnode rule);
     void reduce(ParseTree &parseTree);
 
     void loadTables(string filepath = LRTABLE);
 
     void hardcodeTest();
+
+    void createSymbolTable();
+    void convertTokenList(vector<Token> tokenList);
 
     // Gets the action from current state and rule.
     inline act getAction(string rule);
@@ -43,7 +47,8 @@ private:
     vector<pnode> m_nodeStack;
     // <  RHS ,   LHS >
     map<string, string> m_grammarRed;
-    vector<Token> m_tokenStack;
+    vector<pnode> m_tokenStack;
+    SymbolTable m_symbolTable;
 };
 
 #endif //CCOMPILER_CPARSER_H
