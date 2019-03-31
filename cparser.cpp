@@ -200,8 +200,10 @@ bool Parser::runAction(act actRun, ParseTree &parseTree, string rule)
 
 void Parser::reduce(ParseTree &parseTree)
 {
-    string temp = m_nodeStack[m_nodeStack.size()-1].rule();
-    vector<pnode> tempNodes = {m_nodeStack[m_nodeStack.size()-1]};
+    string temp = "";
+    vector<pnode> tempNodes;
+    int i = m_nodeStack.size()-1;
+    int x = i;
 
     if (m_nodeStack.size() == 1) {
         try
@@ -218,28 +220,38 @@ void Parser::reduce(ParseTree &parseTree)
         }
     }
 
-    for(int i = m_nodeStack.size()-2; i >= 0; i--)
+    while(i >= 0)
     {
-        temp = m_nodeStack[i].rule() + " " + temp;
-        tempNodes.insert(tempNodes.begin(), m_nodeStack[i]);
-        //tempNodes.push_back(m_nodeStack[i]);
-        //printStack();
+        if (temp == "")
+        {
+            temp = m_nodeStack[i].rule();
+        }
+        else
+        {
+            temp = m_nodeStack[i].rule() + " " + temp;
+        }
+
         try
         {
             m_newRoot = m_grammarRed.at(temp);
-            for(auto child : tempNodes)
-            {
-                m_newRoot.addChild(child);
-            }
+            x = i;
             cout << "reducing: " << temp << " to: " << m_newRoot.rule() << endl;
-            replaceStack(parseTree, i);
-            break;
         }
         catch(const std::out_of_range& oor)
         {
-            //cerr << "\"" << temp << "\" - could not be reduced" << endl;
+            cerr << "\"" << temp << "\" - could not be reduced" << endl;
         }
+        i--;
     }
+    for(int y = m_nodeStack.size()-1; y >= x; y--)
+    {
+        tempNodes.insert(tempNodes.begin(), m_nodeStack[y]);
+    }
+    for(auto child : tempNodes)
+    {
+        m_newRoot.addChild(child);
+    }
+    replaceStack(parseTree, x);
 }
 
 act Parser::getAction(string rule)
