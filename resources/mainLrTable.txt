@@ -11,7 +11,7 @@ returnTypeSpec int
 returnTypeSpec char
 returnTypeSpec bool
 params paramList
-params 
+params EMPTY
 paramList paramList typeSpec ID
 paramList typeSpec ID
 stmt exprStmt
@@ -23,7 +23,7 @@ stmt breakStmt
 compStmt { stmtList }
 stmtList stmtList stmt
 stmtList stmt
-stmtList 
+stmtList EMPTY
 exprStmt expr ;
 exprStmt ;
 selStmt if ( simpleExpr ) stmt
@@ -77,7 +77,7 @@ immutable call
 immutable constant
 call ID ( args )
 args argList
-args 
+args EMPTY
 argList argList expr
 argList expr
 constant NUMCONST
@@ -153,7 +153,7 @@ varDeclInit ID = simpleExpr
 14 int s7
 14 char s8
 14 bool s9
-14  s19
+14 EMPTY s19
 14 typeSpec 20
 14 returnTypeSpec 6
 14 params 17
@@ -449,7 +449,7 @@ varDeclInit ID = simpleExpr
 58 bool r25
 58 $ r25
 59 ID s67
-59  s99
+59 EMPTY s99
 59 { s108
 59 ; s107
 59 if s109
@@ -944,7 +944,7 @@ varDeclInit ID = simpleExpr
 107 -- r25
 107 ! r25
 108 ID s67
-108  s99
+108 EMPTY s99
 108 { s108
 108 ; s107
 108 if s109
@@ -1248,7 +1248,7 @@ varDeclInit ID = simpleExpr
 159 % s49,r62
 159 mulOp 224
 160 ID s67
-160  s227
+160 EMPTY s227
 160 ++ s68
 160 -- s69
 160 ! s234
@@ -2010,7 +2010,7 @@ varDeclInit ID = simpleExpr
 249 % r71
 250 ) s326
 251 ID s67
-251  s227
+251 EMPTY s227
 251 ++ s68
 251 -- s69
 251 ! s234
@@ -2051,7 +2051,7 @@ varDeclInit ID = simpleExpr
 253 $ r71
 254 ) s328
 255 ID s67
-255  s227
+255 EMPTY s227
 255 ++ s68
 255 -- s69
 255 ! s234
@@ -2487,7 +2487,7 @@ varDeclInit ID = simpleExpr
 306 else r25
 306 $ r25
 307 ID s67
-307  s99
+307 EMPTY s99
 307 { s108
 307 ; s107
 307 if s109
@@ -2723,7 +2723,7 @@ varDeclInit ID = simpleExpr
 335 % r71
 336 ) s399
 337 ID s67
-337  s227
+337 EMPTY s227
 337 ++ s68
 337 -- s69
 337 ! s234
@@ -3047,7 +3047,7 @@ varDeclInit ID = simpleExpr
 365 -- r25
 365 ! r25
 366 ID s67
-366  s99
+366 EMPTY s99
 366 { s108
 366 ; s107
 366 if s109
@@ -3203,7 +3203,7 @@ varDeclInit ID = simpleExpr
 381 % r71
 382 ) s422
 383 ID s67
-383  s227
+383 EMPTY s227
 383 ++ s68
 383 -- s69
 383 ! s234
@@ -3423,7 +3423,7 @@ varDeclInit ID = simpleExpr
 406 % r71
 407 ) s442
 408 ID s67
-408  s227
+408 EMPTY s227
 408 ++ s68
 408 -- s69
 408 ! s234
@@ -3587,7 +3587,7 @@ varDeclInit ID = simpleExpr
 425 % r71
 426 ) s452
 427 ID s67
-427  s227
+427 EMPTY s227
 427 ++ s68
 427 -- s69
 427 ! s234
@@ -3876,7 +3876,7 @@ varDeclInit ID = simpleExpr
 455 % r71
 456 ) s464
 457 ID s67
-457  s227
+457 EMPTY s227
 457 ++ s68
 457 -- s69
 457 ! s234

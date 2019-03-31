@@ -3,17 +3,15 @@ declList -> declList decl
 declList -> decl
 decl -> funcDecl
 decl -> varDecl
-
 funcDecl -> typeSpec ID ( params ) stmt
 typeSpec -> returnTypeSpec
 returnTypeSpec -> int
 returnTypeSpec -> char
 returnTypeSpec -> bool
 params -> paramList
-params ->
+params -> EMPTY
 paramList -> paramList , typeSpec ID
 paramList -> typeSpec ID
-
 stmt -> exprStmt
 stmt -> compStmt
 stmt -> selStmt
@@ -23,7 +21,7 @@ stmt -> breakStmt
 compStmt -> { stmtList }
 stmtList -> stmtList stmt
 stmtList -> stmt
-stmtList ->
+stmtList -> EMPTY
 exprStmt -> expr ;
 exprStmt -> ;
 selStmt -> if ( simpleExpr ) stmt
@@ -32,7 +30,6 @@ iterStmt -> while ( simpleExpr ) stmt
 retStmt -> return ;
 retStmt -> return expr ;
 breakStmt -> break ;
-
 expr -> mutable mutBinOp expr
 expr -> mutable mutUnaryOp
 expr -> mutUnaryOp mutable
@@ -78,14 +75,13 @@ immutable -> call
 immutable -> constant
 call -> ID ( args )
 args -> argList
-args ->
+args -> EMPTY
 argList -> argList , expr
 argList -> expr
 constant -> NUMCONST
 constant -> CHARCONST
 constant -> true
 constant -> false
-
 varDecl -> typeSpec varDeclList
 varDeclList -> varDeclList , varDeclInit
 varDeclList -> varDeclInit
