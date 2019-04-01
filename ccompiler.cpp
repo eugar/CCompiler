@@ -88,6 +88,8 @@ HELP:
     m_scanner.openFile(filename, m_tokenList);
     parser.buildParseTree(parseTree, m_tokenList);
     parser.buildSymbolTable(symbolTable, parseTree.root(), "No type");
+    ir ir(parseTree);
+
 
     if (pTokens)
     {
@@ -102,15 +104,15 @@ HELP:
         cout << endl;
     }
 
-    if (irRead) //todo: change these to handle the current programs IR
+    if (irRead)
     {
-        vector<irInstruction> test = ir::readFromFile(irInFile);
+        ir.readFromFile(irInFile);
     }
 
     if (irWrite)
     {
-        vector<irInstruction> test = ir::readFromFile("irexample.txt");
-        ir::writeToFile(irOutFile, test);
+        //vector<irInstruction> test = ir::readFromFile("irexample.txt");
+        ir.writeToFile(irOutFile);
     }
 
     return 0;
