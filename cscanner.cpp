@@ -88,8 +88,11 @@ void Scanner::scanFile(istream &input, // [in] file stream to tokenize
             }
             else
             {
-
-                if (c == '/' && ((char)input.peek() == '*' || (char)input.peek() == '/'))
+                if (c == ',')
+                {
+                    tokenList.push_back(Token(",", COMMA, lineNo));
+                }
+                else if (c == '/' && ((char)input.peek() == '*' || (char)input.peek() == '/'))
                 {
                     c = input.get();
 

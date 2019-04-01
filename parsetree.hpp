@@ -19,6 +19,7 @@ public:
     {
         m_parentNode = parentNode;
     }
+    pnode* parent() {return m_parentNode;}
     void setRule(string rule){m_rule = rule;}
     string rule(){return m_rule;}
     vector<pnode> children(){return m_children;}

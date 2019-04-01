@@ -88,7 +88,7 @@ HELP:
     m_scanner.openFile(filename, m_tokenList);
     parser.buildParseTree(parseTree, m_tokenList);
     parser.buildSymbolTable(symbolTable, parseTree.root(), "No type");
-    ir ir(parseTree);
+    ir ir(parseTree, symbolTable);
 
 
     if (pTokens)

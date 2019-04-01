@@ -10,12 +10,16 @@
 
 using namespace std;
 
-ir::ir(ParseTree parseTree)
+ir::ir(ParseTree parseTree, SymbolTable symbolTable)
+:
+    m_parseTree(parseTree)
+,   m_symbolTable(symbolTable)
 {
     vector<irInstruction> instructions;
     generateIR(parseTree);
+    getGlobals(parseTree.root());
+    int x;
 }
-
 
 void ir::readFromFile(string filename)
 {
@@ -231,5 +235,48 @@ void ir::getTreeChildren(pnode pn) {
     for (auto child : pn.children())
     {
         getTreeChildren(child);
+    }
+}
+
+void ir::getGlobals(pnode root)
+{
+    vector<pnode> children = root.children();
+    for (auto child : children)
+    {
+        if (child.rule() == "funcDecl")
+        {
+            m_globals.push_back(child);
+            return;
+        }
+        getGlobals(child);
+    }
+}
+
+void ir::readGlobals()
+{
+    for (auto global : m_globals)
+    {
+       if (global.rule() == "funcDecl")
+       {
+           // name of function is index 1 of child.
+           // wrap this in a function.
+           string funcName = global.children()[1].children()[0].rule();
+           pnode paramNode = global.children()[1].children()[3];
+           for (auto& param : paramNode.children())
+           {
+               // get symbols
+               symbol* sym = m_symbolTable.lookup(param.rule());
+           }
+           pnode statementNode = global.children()[1].children()[5];
+           for (auto& statement : statementNode.children())
+           {
+
+           }
+
+       }
+       else if (global.rule() == "varDecl")
+       {
+
+       }
     }
 }

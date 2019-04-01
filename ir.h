@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include "parsetree.hpp"
+#include "symboltable.hpp"
 
 using namespace std;
 
@@ -22,16 +23,22 @@ typedef struct
 class ir {
 
 public:
-    ir(ParseTree parseTree);
+    ir(ParseTree parseTree, SymbolTable symbolTable);
     void readFromFile(string filename);
     void writeToFile(string filename);
     void generateIR(ParseTree pTree);
     vector <irInstruction> instructions;
 
+    void getGlobals(pnode root);
+    void readGlobals();
 
 private:
     static irInstruction createIns(vector<string> params);
     void getTreeChildren(pnode pn);
+    bool generateIr(string rule){}
+    ParseTree m_parseTree;
+    SymbolTable m_symbolTable;
+    vector<pnode> m_globals;
 
 };
 

@@ -240,7 +240,8 @@ void Parser::reduce(ParseTree &parseTree)
         {
             m_newRoot = m_grammarRed.at(m_nodeStack[0].rule());
             m_newRoot.addChild(m_nodeStack[0]);
-            //cout << "reducing: " << m_nodeStack[0].rule() << " to: " << m_newRoot.rule() << endl;
+            m_nodeStack[0].addParentNode(&m_newRoot);
+            cout << "reducing: " << m_nodeStack[0].rule() << " to: " << m_newRoot.rule() << endl;
             replaceStack(parseTree, 0);
             return;
         }
@@ -280,6 +281,7 @@ void Parser::reduce(ParseTree &parseTree)
     for(auto child : tempNodes)
     {
         m_newRoot.addChild(child);
+        child.addParentNode(&m_newRoot);
     }
     replaceStack(parseTree, x);
 }
@@ -294,6 +296,7 @@ void Parser::convertTokenList(vector<Token> tokenList)
             case ID:
                 child.setRule(tok.getLiteral());
                 child.setType(tok.getType());
+                child.addParentNode(&node);
                 node.setRule("ID");
                 node.addChild(child);
                 m_tokenStack.push_back(node);
@@ -301,6 +304,7 @@ void Parser::convertTokenList(vector<Token> tokenList)
             case NUMCONST:
                 child.setRule(tok.getLiteral());
                 child.setType(tok.getType());
+                child.addParentNode(&node);
                 node.setRule("NUMCONST");
                 node.addChild(child);
                 m_tokenStack.push_back(node);
