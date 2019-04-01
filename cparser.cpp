@@ -54,6 +54,7 @@ Parser::Parser()
     int i;
 }
 
+// Uses the state tables and tokens to create the parse tree
 void Parser::buildParseTree(ParseTree &parseTree, vector<Token> &tokenList)
 {
     int i = 0;
@@ -83,7 +84,7 @@ void Parser::buildParseTree(ParseTree &parseTree, vector<Token> &tokenList)
     parseTree.newRoot(m_newRoot);
 }
 
-// TODO: fix the insert function call
+// iterates through the parse tree and creates the symbol table
 bool Parser::buildSymbolTable(SymbolTable &symbolTable, pnode parent, string type)
 {
     //string type = "Error no type";
@@ -115,6 +116,7 @@ bool Parser::buildSymbolTable(SymbolTable &symbolTable, pnode parent, string typ
     return true;
 }
 
+// Loads the state tables
 void Parser::loadTables(string path)
 {
     string line;
@@ -193,6 +195,7 @@ void Parser::loadTables(string path)
     }
 }
 
+// runs action from action goto table
 bool Parser::runAction(act actRun, ParseTree &parseTree, pnode rule)
 {
     if (actRun.first == StateTables::Action::ACTION::SHIFT)
@@ -228,6 +231,7 @@ bool Parser::runAction(act actRun, ParseTree &parseTree, pnode rule)
     }
 }
 
+// reduces rules based on action table
 void Parser::reduce(ParseTree &parseTree)
 {
     string temp = "";
@@ -284,6 +288,7 @@ void Parser::reduce(ParseTree &parseTree)
     replaceStack(parseTree, x);
 }
 
+// adds Tokens in the parse tree
 void Parser::convertTokenList(vector<Token> tokenList)
 {
     for(auto tok : tokenList)
@@ -315,6 +320,7 @@ void Parser::convertTokenList(vector<Token> tokenList)
 
 // Inline functions
 
+// gets action from action goto table
 act Parser::getAction(string rule)
 {
     auto a = m_stateTable.m_action.table.find(m_stateStack.back());
@@ -331,6 +337,7 @@ act Parser::getAction(string rule)
     return am->second;
 }
 
+// gets goto from action goto table
 size_t Parser::getGoto(string rule)
 {
     auto gt = m_stateTable.m_goto.table.find(m_stateStack.back());
@@ -346,6 +353,7 @@ size_t Parser::getGoto(string rule)
     return r->second;
 }
 
+// replaces current stack
 void Parser::replaceStack(ParseTree &parseTree, int i)
 {
     for(int j = m_nodeStack.size()-1; j >= i; j--)
@@ -360,6 +368,7 @@ void Parser::replaceStack(ParseTree &parseTree, int i)
     //cout << "goto: " << m_newRoot.rule() << ": " << m_stateStack.back() << endl;
 }
 
+// prints the current stack
 void Parser::printStack()
 {
     cout << "stack - ";
@@ -375,6 +384,7 @@ void Parser::printStack()
     cout << endl;
 }
 
+// checks to see if a node in the parse tree is in the symbol table
 bool Parser::isSym(pnode node)
 {
     if (node.type() == ID) {
@@ -383,6 +393,7 @@ bool Parser::isSym(pnode node)
     return false;
 }
 
+// checks to see if a node in the parse tree is a type specifier
 bool Parser::isType(pnode node)
 {
     switch (node.type()) {
@@ -398,6 +409,7 @@ bool Parser::isType(pnode node)
     }
 }
 
+// finds children that are type specifiers
 string Parser::findType(pnode node)
 {
     for(auto child : node.children())
@@ -413,6 +425,7 @@ string Parser::findType(pnode node)
     return "Error no type";
 }
 
+// finds children that are functions
 string Parser::findFunName(pnode node)
 {
     for(auto child : node.children())

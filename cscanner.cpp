@@ -244,6 +244,7 @@ void Scanner::openFile(string filename, // Path of file to program
     }
 }
 
+// used to connect strings and Tokens
 tokType Scanner::findToken(string token)
 {
 map<string, tokType>::const_iterator pos = Scanner::cinstructions.find(token);

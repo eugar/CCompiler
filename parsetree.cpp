@@ -10,6 +10,7 @@ ParseTree::ParseTree()
 {
 }
 
+// Starts at the root of the parse tree and calls a helper function
 void ParseTree::printTree()
 {
     cout << "\n[" << m_root.rule() << "]" << endl;
@@ -20,6 +21,7 @@ void ParseTree::printTree()
     cout << endl;
 }
 
+// Reduces multiple "trees" into the main tree that starts with the root node
 void ParseTree::reduce(pnode newRoot, vector<pnode>children)
 {
     this->newRoot(newRoot);
@@ -29,6 +31,7 @@ void ParseTree::reduce(pnode newRoot, vector<pnode>children)
     }
 }
 
+// Helper function that iterates over the tree recursively and pretty prints the parse tree
 void ParseTree::printChildren(pnode pn, int count)
 {
     for (size_t i = 0; i < count; i++)
