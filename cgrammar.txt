@@ -1,0 +1,80 @@
+program -> declList
+declList -> declList decl
+declList -> decl
+decl -> funcDecl
+decl -> varDecl
+funcDecl -> declSpec declarator compStmt
+declSpec -> typeSpec
+declSpec -> void
+typeSpec -> int
+typeSpec -> char
+typeSpec -> bool
+declarator -> ID ( paramList )
+paramList -> paramList , paramDecl
+paramList -> paramDecl
+paramDecl -> typeSpec ID
+compStmt -> { stmt }
+stmt -> exprStmt
+stmt -> selStmt
+stmt -> compStmt
+stmt -> iterStmt
+stmt -> jumpStmt
+exprStmt -> expr ;
+expr -> asgnExpr
+expr -> expr , asgnExpr
+asgnExpr -> condExpr
+asgnExpr -> unaryExpr asgnOp asgnExpr
+unaryExpr -> postExpr
+unaryExpr -> ++ unaryExpr
+unaryExpr -> -- unaryExpr
+unaryExpr -> unaryOp unaryExpr
+asgnOp -> =
+asgnOp -> +=
+asgnOp -> -=
+asgnOp -> *=
+asgnOp -> /=
+asgnOp -> %=
+unaryOp -> +
+unaryOp -> -
+unaryOp -> !
+postExpr -> primExpr
+postExpr -> postExpr ++
+postExpr -> postExpr --
+selStmt -> if ( expr ) stmt elseStmt
+selStmt -> if ( expr ) stmt elseIfStmt
+elseStmt -> else stmt
+elseIfStmt -> else if ( expr ) elseStmt
+elseIfStmt -> else if ( expr ) elseIfStmt
+iterStmt -> while ( expr ) stmt
+iterStmt -> do stmt while ( expr ) ;
+iterStmt -> for ( expr ; expr ; expr ) stmt
+jumpStmt -> continue ;
+jumpStmt -> break ;
+jumpStmt -> return expr ;
+jumpStmt -> return ;
+constExpr -> condExpr
+condExpr -> orExpr
+orExpr -> andExpr
+orExpr -> orExpr || andExpr
+andExpr -> andExpr && orExpr
+eqExpr -> relExpr
+eqExpr -> eqExpr == relExpr
+eqExpr -> eqExpr != relExpr
+relExpr -> shiftExpr
+relExpr -> relExpr <= addExpr
+relExpr -> relExpr >= addExpr
+addExpr -> multExpr
+addExpr -> addExpr + multExpr
+addExpr -> addExpr - multExpr
+multExpr -> unaryExpr
+multExpr -> multExpr * unaryExpr
+multExpr -> multExpr / unaryExpr
+multExpr -> multExpr % unaryExpr
+primExpr -> ID
+primExpr -> CONST
+primExpr -> NUMCONST
+varDecl -> typeSpec varDeclList ;
+varDeclList -> varDeclList , varDeclInit
+varDeclList -> varDeclInit
+varDeclInit -> primExpr
+varDeclInit -> asgnExpr
