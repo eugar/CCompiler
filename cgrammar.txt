@@ -3,13 +3,11 @@ declList -> declList decl
 declList -> decl
 decl -> funcDecl
 decl -> varDecl
-funcDecl -> declSpec declarator compStmt
-declSpec -> typeSpec
-declSpec -> void
-typeSpec -> int
-typeSpec -> char
-typeSpec -> bool
-declarator -> ID ( paramList )
+funcDecl -> typespec ID ( paramList ) compStmt
+typeSpec -> returnTypeSpec
+returnTypeSpec -> int
+returnTypeSpec -> char
+returnTypeSpec -> bool
 paramList -> paramList , paramDecl
 paramList -> paramDecl
 paramDecl -> typeSpec ID
@@ -77,5 +75,5 @@ primExpr -> NUMCONST
 varDecl -> typeSpec varDeclList ;
 varDeclList -> varDeclList , varDeclInit
 varDeclList -> varDeclInit
-varDeclInit -> primExpr
+varDeclInit -> ID
 varDeclInit -> asgnExpr
