@@ -64,7 +64,9 @@ Optional arguments:
 ```
 
 ## Limitations:
-* The compiler, in its current state, does not process 'for' loops -- it only recognizes them.
+* Functions must have arguments, i.e., main(args)
+* Our group ran into some issues with our grammar so our compiler only accepts a very limited subset of C shown in simple.c
+
 
 ## Keywords:
 * break

@@ -21,6 +21,9 @@ ir::ir(ParseTree parseTree, SymbolTable symbolTable)
     int x;
 }
 
+
+
+// populate the IR from a  specified file
 void ir::readFromFile(string filename)
 {
     instructions.clear(); // remove the existing IR and replace it with the one from the file.
@@ -51,6 +54,7 @@ void ir::readFromFile(string filename)
     }
 }
 
+// This function will write the current IR to a specified file.
 void ir::writeToFile(string filename)
 {
     ofstream out(filename);
@@ -69,6 +73,7 @@ void ir::writeToFile(string filename)
     }
 }
 
+// Used by the readFromFile function. This function will create a row that will be inserted into the IR table.
 irInstruction ir::createIns(vector<string> params) {
     irInstruction instruction;
     string op = params.front();
