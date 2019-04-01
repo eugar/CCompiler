@@ -10,4 +10,4 @@ add_executable(CCompiler
         cexpression.cpp
         cexpression.hpp
         cscanner.cpp
-        cscanner.hpp grammartree.cpp grammartree.h definitions.h grammar.h grammar.cpp statetablegenerator.cpp statetablegenerator.h symboltable.cpp symboltable.hpp token.cpp token.h statetables.cpp statetables.h ir.cpp ir.h cparser.cpp cparser.hpp parsetree.cpp parsetree.hpp ASTNode.cpp ASTNode.h)
+        cscanner.hpp grammartree.cpp grammartree.h definitions.h grammar.h grammar.cpp statetablegenerator.cpp statetablegenerator.h symboltable.cpp symboltable.hpp token.cpp token.h statetables.cpp statetables.h ir.cpp ir.h cparser.cpp cparser.hpp parsetree.cpp parsetree.hpp)
