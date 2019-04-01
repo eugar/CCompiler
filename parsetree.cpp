@@ -8,7 +8,6 @@ using namespace std;
 
 ParseTree::ParseTree()
 {
-
 }
 
 void ParseTree::printTree()

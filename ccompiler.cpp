@@ -86,6 +86,8 @@ HELP:
 
     m_scanner.openFile(filename, m_tokenList);
     parser.buildParseTree(parseTree, m_tokenList);
+    ir ir(parseTree);
+
 
     if (pTokens)
     {
@@ -97,15 +99,15 @@ HELP:
         parseTree.printTree();
     }
 
-    if (irRead) //todo: change these to handle the current programs IR
+    if (irRead)
     {
-        vector<irInstruction> test = ir::readFromFile(irInFile);
+        ir.readFromFile(irInFile);
     }
 
     if (irWrite)
     {
-        vector<irInstruction> test = ir::readFromFile("irexample.txt");
-        ir::writeToFile(irOutFile, test);
+        //vector<irInstruction> test = ir::readFromFile("irexample.txt");
+        ir.writeToFile(irOutFile);
     }
 
     return 0;

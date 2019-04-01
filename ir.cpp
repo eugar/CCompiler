@@ -10,16 +10,16 @@
 
 using namespace std;
 
-ir::ir()
+ir::ir(ParseTree parseTree)
 {
-    //vector<irInstruction> instructions;
-
+    vector<irInstruction> instructions;
+    generateIR(parseTree);
 }
 
 
-vector<irInstruction> ir::readFromFile(string filename)
+void ir::readFromFile(string filename)
 {
-    vector<irInstruction> instructions;
+    instructions.clear(); // remove the existing IR and replace it with the one from the file.
     ifstream in(filename);
     if (!in.is_open())
     {
@@ -45,10 +45,9 @@ vector<irInstruction> ir::readFromFile(string filename)
         }
         in.close();
     }
-    return instructions;
 }
 
-void ir::writeToFile(string filename, vector<irInstruction> instructions)
+void ir::writeToFile(string filename)
 {
     ofstream out(filename);
     if (!out.is_open())
@@ -66,8 +65,7 @@ void ir::writeToFile(string filename, vector<irInstruction> instructions)
     }
 }
 
-irInstruction ir::createIns(vector<string> params)
-{
+irInstruction ir::createIns(vector<string> params) {
     irInstruction instruction;
     string op = params.front();
 
@@ -77,145 +75,132 @@ irInstruction ir::createIns(vector<string> params)
         instruction.res = params.at(1);
         instruction.arg1 = "";
         instruction.arg2 = "";
-    }
-    else if (op == "ADD")
+    } else if (op == "ADD")
     {
         instruction.op = op;
         instruction.res = params.at(3);
         instruction.arg1 = params.at(1);
         instruction.arg2 = params.at(2);
-    }
-    else if (op == "SUB")
+    } else if (op == "SUB")
     {
         instruction.op = op;
         instruction.res = params.at(3);
         instruction.arg1 = params.at(1);
         instruction.arg2 = params.at(2);
-    }
-    else if (op == "MUL")
+    } else if (op == "MUL")
     {
         instruction.op = op;
         instruction.res = params.at(3);
         instruction.arg1 = params.at(1);
         instruction.arg2 = params.at(2);
-    }
-    else if (op == "DIV")
+    } else if (op == "DIV")
     {
         instruction.op = op;
         instruction.res = params.at(3);
         instruction.arg1 = params.at(1);
         instruction.arg2 = params.at(2);
-    }
-    else if (op == "CMP")
+    } else if (op == "CMP")
     {
         instruction.op = op;
         instruction.res = "";
         instruction.arg1 = params.at(1);
         instruction.arg2 = params.at(2);
-    }
-    else if (op == "JEQ")
+    } else if (op == "JEQ")
     {
         instruction.op = "JEQ";
         instruction.res = "";
         instruction.arg1 = params.at(1); // this will be the result (1 or 0) from a CMP instruction stored in the table
         instruction.arg2 = params.at(2); // a label to jump to
-    }
-    else if (op == "JNEQ")
+    } else if (op == "JNEQ")
     {
         instruction.op = "JNEQ";
         instruction.res = "";
         instruction.arg1 = params.at(1);
         instruction.arg2 = params.at(2); // a label to jump to
-    }
-    else if (op == "LOAD") //LOAD ADDRESS REGISTER
+    } else if (op == "LOAD") //LOAD ADDRESS REGISTER
+    {
+        instruction.op = op;
+        instruction.res = params.at(2);
+        instruction.arg1 = params.at(1);
+        instruction.arg2 = "";
+    } else if (op == "STORE") //STORE ADDRESS REGISTER
+    {
+        instruction.op = op;
+        instruction.res = params.at(2);
+        instruction.arg1 = params.at(1);
+        instruction.arg2 = "";
+    } else if (op == "POS") //+1
+    {
+        instruction.op = op;
+        instruction.res = "";
+        instruction.arg1 = params.at(1);
+        instruction.arg2 = "";
+    } else if (op == "NEG") //-1
+    {
+        instruction.op = op;
+        instruction.res = "";
+        instruction.arg1 = params.at(1);
+        instruction.arg2 = "";
+    } else if (op == "NOT") //!
+    {
+        instruction.op = op;
+        instruction.res = "";
+        instruction.arg1 = params.at(1);
+        instruction.arg2 = "";
+    } else if (op == "EQ") //EQ VALUE VALUE RESULTREGISTER
+    {
+        instruction.op = op;
+        instruction.res = params.at(3);
+        instruction.arg1 = params.at(1);
+        instruction.arg2 = params.at(2);
+    } else if (op == "NOTEQ") // NOTEQ VALUE VALUE RESULTREGISTER
+    {
+        instruction.op = op;
+        instruction.res = params.at(3);
+        instruction.arg1 = params.at(1);
+        instruction.arg2 = params.at(2);
+    } else if (op == "LSTH")
+    {
+        instruction.op = op;
+        instruction.res = params.at(3);
+        instruction.arg1 = params.at(1);
+        instruction.arg2 = params.at(2);
+    } else if (op == "GRTH")
+    {
+        instruction.op = op;
+        instruction.res = params.at(3);
+        instruction.arg1 = params.at(1);
+        instruction.arg2 = params.at(2);
+    } else if (op == "LSEQ")
+    {
+        instruction.op = op;
+        instruction.res = params.at(3);
+        instruction.arg1 = params.at(1);
+        instruction.arg2 = params.at(2);
+    } else if (op == "GREQ")
+    {
+        instruction.op = op;
+        instruction.res = params.at(3);
+        instruction.arg1 = params.at(1);
+        instruction.arg2 = params.at(2);
+    } else if (op == "GOTO")
+    {
+        instruction.op = op;
+        instruction.res = "";
+        instruction.arg1 = params.at(1);
+        instruction.arg2 = "";
+    } else if (op == "COPY")
     {
         instruction.op = op;
         instruction.res = params.at(2);
         instruction.arg1 = params.at(1);
         instruction.arg2 = "";
     }
-    else if (op == "STORE") //STORE ADDRESS REGISTER
-    {
-        instruction.op = op;
-        instruction.res = params.at(2);
-        instruction.arg1 = params.at(1);
-        instruction.arg2 = "";
-    }
-    else if (op == "POS") //+1
+    else if (op == "FUNC")
     {
         instruction.op = op;
         instruction.res = "";
-        instruction.arg1 = params.at(1);
-        instruction.arg2 = "";
-    }
-    else if (op == "NEG") //-1
-    {
-        instruction.op = op;
-        instruction.res = "";
-        instruction.arg1 = params.at(1);
-        instruction.arg2 = "";
-    }
-    else if (op == "NOT") //!
-    {
-        instruction.op = op;
-        instruction.res = "";
-        instruction.arg1 = params.at(1);
-        instruction.arg2 = "";
-    }
-    else if (op == "EQ") //EQ VALUE VALUE RESULTREGISTER
-    {
-        instruction.op = op;
-        instruction.res = params.at(3);
-        instruction.arg1 = params.at(1);
-        instruction.arg2 = params.at(2);
-    }
-    else if (op == "NOTEQ") // NOTEQ VALUE VALUE RESULTREGISTER
-    {
-        instruction.op = op;
-        instruction.res = params.at(3);
-        instruction.arg1 = params.at(1);
-        instruction.arg2 = params.at(2);
-    }
-    else if (op == "LSTH")
-    {
-        instruction.op = op;
-        instruction.res = params.at(3);
-        instruction.arg1 = params.at(1);
-        instruction.arg2 = params.at(2);
-    }
-    else if (op == "GRTH")
-    {
-        instruction.op = op;
-        instruction.res = params.at(3);
-        instruction.arg1 = params.at(1);
-        instruction.arg2 = params.at(2);
-    }
-    else if (op == "LSEQ")
-    {
-        instruction.op = op;
-        instruction.res = params.at(3);
-        instruction.arg1 = params.at(1);
-        instruction.arg2 = params.at(2);
-    }
-    else if (op == "GREQ")
-    {
-        instruction.op = op;
-        instruction.res = params.at(3);
-        instruction.arg1 = params.at(1);
-        instruction.arg2 = params.at(2);
-    }
-    else if (op == "GOTO")
-    {
-        instruction.op = op;
-        instruction.res = "";
-        instruction.arg1 = params.at(1);
-        instruction.arg2 = "";
-    }
-    else if (op == "COPY")
-    {
-        instruction.op = op;
-        instruction.res = params.at(2);
-        instruction.arg1 = params.at(1);
+        instruction.arg1 = params.at(1); //function name
         instruction.arg2 = "";
     }
     else if (params.size() == 2 && op.at(op.size() - 1) == ':') // this is the case where we found a label
@@ -231,4 +216,20 @@ irInstruction ir::createIns(vector<string> params)
     }
 
     return instruction;
+}
+
+void ir::generateIR(ParseTree pTree) // will change this to an AST (?)
+{
+    pnode root = pTree.root();
+    for (auto child : root.children())
+    {
+        this->getTreeChildren(child);
+    }
+}
+
+void ir::getTreeChildren(pnode pn) {
+    for (auto child : pn.children())
+    {
+        getTreeChildren(child);
+    }
 }
