@@ -3,10 +3,11 @@
 
 using namespace std;
 
-SymbolTable::SymbolTable()
+SymbolTable::SymbolTable(string scope)
 {
     // root is global scope
     m_parent = NULL;
+    m_scope = scope;
 }
 
 //given id info, this will insert the record into the symbol table
@@ -15,14 +16,14 @@ void SymbolTable::insert(string id, string type, string data)
     // will insert symbol if it doesn't exist in current scope
     if (!isTaken(id))
     {
-        symbol *sym;
+        symbol *sym = new symbol();
         sym->type = type;
         sym->data = data;
         m_symbolTable.insert(pair<string, symbol*>(id, sym));
     }
     else
     {
-        cout << "id already taken." << endl;
+        cout << "id: "<< id << " already taken." << endl;
     }
 }
 
@@ -70,18 +71,23 @@ symbol* SymbolTable::lookup(string id)
 
 void SymbolTable::printRecords()
 {
-    for (auto sym = m_symbolTable.begin(); sym != m_symbolTable.end(); sym++)
+    for (auto sym : m_symbolTable)
     {
-        cout << sym->first << " " << sym->second->type << endl;
+        cout  << sym.second->type << " " << sym.first  << endl;
+    }
+    //cout << "\n################# NEW SCOPE #################\n\n";
+    for(auto scope : m_childTable)
+    {
+        scope.second.printRecords();
     }
 }
 
 // Creates a new scope as a child of the current scope
-SymbolTable* SymbolTable::addChild(string tableId, SymbolTable *child)
+SymbolTable SymbolTable::addChild(string tableId, SymbolTable child)
 {
-    this->m_childTable.insert(pair<string, SymbolTable*>(tableId, child));
+    m_childTable.insert(pair<string, SymbolTable>(tableId, child));
 
-    child->addParent(this);
+    child.addParent(this);
     return child;
 }
 
@@ -101,7 +107,7 @@ SymbolTable* SymbolTable::deleteChild()
 
     for(auto &child: m_childTable)
     {
-        child.second = NULL;
+        //child.second = NULL;
         m_childTable.erase(child.first);
     }
 

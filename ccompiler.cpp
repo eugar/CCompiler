@@ -27,6 +27,7 @@ int main(int argc, char * const argv[])
     //StateTableGenerator stateTableGenerator;
     Parser parser;
     ParseTree parseTree;
+    SymbolTable symbolTable;
 
     int c;
     int pTokens = 0;
@@ -86,6 +87,7 @@ HELP:
 
     m_scanner.openFile(filename, m_tokenList);
     parser.buildParseTree(parseTree, m_tokenList);
+    parser.buildSymbolTable(symbolTable, parseTree.root(), "No type");
 
     if (pTokens)
     {
@@ -95,6 +97,9 @@ HELP:
     if (pTree)
     {
         parseTree.printTree();
+        cout << "--Symbol Table--" << endl;
+        symbolTable.printRecords();
+        cout << endl;
     }
 
     if (irRead) //todo: change these to handle the current programs IR
@@ -110,4 +115,3 @@ HELP:
 
     return 0;
 }
-

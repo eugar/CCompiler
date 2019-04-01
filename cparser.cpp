@@ -10,8 +10,6 @@
 
 using namespace std;
 
-
-
 void Parser::hardcodeTest()
 {
     m_stateTable.m_action.insert(0, 3, "(", StateTables::Action::ACTION::SHIFT);
@@ -64,14 +62,7 @@ void Parser::buildParseTree(ParseTree &parseTree, vector<Token> &tokenList)
 
     while(m_tokenStack.size() >= 1)
     {
-
-        //if (m_tokenStack.begin()->getType() == ID) {
-        //    cout << "ID: " << m_tokenStack.begin()->rule() << endl;
-        //    m_action = getAction("ID");
-        //}
-        //else{
-            m_action = getAction(m_tokenStack.begin()->rule());
-        //}
+        m_action = getAction(m_tokenStack.begin()->rule());
 
         if (m_stateStack.back() == -1) {
             cout << "error: -1" << endl;
@@ -90,6 +81,38 @@ void Parser::buildParseTree(ParseTree &parseTree, vector<Token> &tokenList)
         i++;
     }
     parseTree.newRoot(m_newRoot);
+}
+
+// TODO: fix the insert function call
+bool Parser::buildSymbolTable(SymbolTable &symbolTable, pnode parent, string type)
+{
+    //string type = "Error no type";
+    for(auto node : parent.children())
+    {
+        // if the node is an ID insert to table
+        if (node.rule() == "typeSpec")
+        {
+            type = findType(node);
+        }
+        if(isSym(node))
+        {
+            cout << "inserting: "<< node.rule() << " in scope: " << symbolTable.scope() << endl;
+            symbolTable.insert(node.rule(), type, "0");
+        }
+        // if the node is a block of code or function
+        // insert to table and create a new child (scope)
+        /*if(node.rule() == "funcDecl")
+        {
+            SymbolTable symTab = SymbolTable(findFunName(node));
+            symbolTable.addChild(findFunName(node), symTab);
+            cout << "Creating Scope: " << findFunName(node) << endl;
+            buildSymbolTable(symTab, node, type);
+            continue;
+        }*/
+
+        buildSymbolTable(symbolTable, node, type);
+    }
+    return true;
 }
 
 void Parser::loadTables(string path)
@@ -270,28 +293,27 @@ void Parser::convertTokenList(vector<Token> tokenList)
         switch (tok.getType()) {
             case ID:
                 child.setRule(tok.getLiteral());
+                child.setType(tok.getType());
                 node.setRule("ID");
                 node.addChild(child);
                 m_tokenStack.push_back(node);
             break;
             case NUMCONST:
                 child.setRule(tok.getLiteral());
+                child.setType(tok.getType());
                 node.setRule("NUMCONST");
-                node.addChild(child);
-                m_tokenStack.push_back(node);
-            break;
-            case CHAR:
-                child.setRule(tok.getLiteral());
-                node.setRule("CHARCONST");
                 node.addChild(child);
                 m_tokenStack.push_back(node);
             break;
             default:
                 node.setRule(tok.getLiteral());
+                node.setType(tok.getType());
                 m_tokenStack.push_back(node);
         }
     }
 }
+
+// Inline functions
 
 act Parser::getAction(string rule)
 {
@@ -351,4 +373,57 @@ void Parser::printStack()
         cout << m_stateStack[i];
     }
     cout << endl;
+}
+
+bool Parser::isSym(pnode node)
+{
+    if (node.type() == ID) {
+        return true;
+    }
+    return false;
+}
+
+bool Parser::isType(pnode node)
+{
+    switch (node.type()) {
+        case INT:
+        case DUB:
+        case SHORT:
+        case FLOAT:
+        case CHAR:
+            return true;
+        break;
+        default:
+            return false;
+    }
+}
+
+string Parser::findType(pnode node)
+{
+    for(auto child : node.children())
+    {
+        if (isType(child)) {
+            return child.rule();
+        }
+        else
+        {
+            return findType(child);
+        }
+    }
+    return "Error no type";
+}
+
+string Parser::findFunName(pnode node)
+{
+    for(auto child : node.children())
+    {
+        if (isSym(child)) {
+            return child.rule();
+        }
+        else
+        {
+            return findType(child);
+        }
+    }
+    return "No Name";
 }

@@ -13,8 +13,8 @@ using namespace std;
 typedef struct pnode
 {
 public:
-    pnode() = default;
-    pnode(string rule){m_rule = rule;}
+    pnode(){m_type = ERR;}
+    pnode(string rule){m_rule = rule; m_type = ERR;}
     void addParentNode(pnode* parentNode = nullptr)
     {
         m_parentNode = parentNode;
@@ -24,11 +24,14 @@ public:
     vector<pnode> children(){return m_children;}
     void addChild(pnode child){m_children.push_back(child);}
     size_t childCount(){return m_children.size();}
+    void setType(tokType type){m_type = type;}
+    tokType type(){return m_type;}
 
 private:
     struct pnode* m_parentNode;
     vector<pnode> m_children;
     string m_rule;
+    tokType m_type;
 }pnode;
 
 class ParseTree
@@ -44,7 +47,7 @@ public:
     void newRoot(pnode newRoot){m_root = newRoot;}
 
 private:
-    struct pnode m_root;
+    pnode m_root;
     inline void printChildren(pnode pn, int count);
 };
 
