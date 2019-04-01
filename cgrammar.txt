@@ -40,6 +40,7 @@ unaryOp -> !
 postExpr -> primExpr
 postExpr -> postExpr ++
 postExpr -> postExpr --
+selStmt -> if ( expr )
 selStmt -> if ( expr ) stmt elseStmt
 selStmt -> if ( expr ) stmt elseIfStmt
 elseStmt -> else stmt
