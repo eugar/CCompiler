@@ -19,15 +19,19 @@ class SymbolTable
 
 public:
 
-    SymbolTable();
+    SymbolTable(string scope = "Global");
     void insert(string id, string type, string data);
     int modify(string id, string data);
     void remove(string id);
     symbol* lookup(string id);
     void printRecords();
-    SymbolTable* addChild(string tableId, SymbolTable *child);
+    SymbolTable addChild(string tableId, SymbolTable child);
     // delete a scope and go back to the parent scope
     SymbolTable* deleteChild();
+    // returns the to the parent scope
+    SymbolTable* parent(){return m_parent;}
+
+    string scope(){return m_scope;}
 
 private:
     // Private members
@@ -35,9 +39,10 @@ private:
     unordered_map<string, symbol*> m_symbolTable;
     // childs are new scope within the parent
     // parent cannot access child scope
-    map<string, SymbolTable*> m_childTable;
+    map<string, SymbolTable> m_childTable;
     // root is global scope
     SymbolTable *m_parent;
+    string m_scope;
 
     // Private Functions
     void inline addParent(SymbolTable *parent);

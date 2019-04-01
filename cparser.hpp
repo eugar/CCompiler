@@ -22,6 +22,9 @@ public:
     Parser();
     void buildParseTree(ParseTree &parseTree, vector<Token> &tokenList);
 
+    // returns false if it fails to create tables
+    bool buildSymbolTable(SymbolTable &symbolTable, pnode parent, string type);
+
 private:
     bool runAction(act actRun, ParseTree &parseTree, pnode rule);
     void reduce(ParseTree &parseTree);
@@ -30,15 +33,18 @@ private:
 
     void hardcodeTest();
 
-    void createSymbolTable();
     void convertTokenList(vector<Token> tokenList);
 
     // Gets the action from current state and rule.
-    inline act getAction(string rule);
+     act inline getAction(string rule);
     // Gets the goto state from current state and rule.
-    inline size_t getGoto(string rule);
-    inline void replaceStack(ParseTree &parseTree, int i);
-    inline void printStack();
+     size_t inline getGoto(string rule);
+     void inline replaceStack(ParseTree &parseTree, int i);
+     void inline printStack();
+     bool inline isSym(pnode node);
+     bool inline isType(pnode node);
+     string findType(pnode node);
+     string findFunName(pnode node);
 
     vector<size_t> m_stateStack;
     StateTables m_stateTable;
@@ -48,7 +54,6 @@ private:
     // <  RHS ,   LHS >
     map<string, string> m_grammarRed;
     vector<pnode> m_tokenStack;
-    SymbolTable m_symbolTable;
 };
 
 #endif //CCOMPILER_CPARSER_H

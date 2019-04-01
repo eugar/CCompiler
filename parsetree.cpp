@@ -35,7 +35,7 @@ void ParseTree::printChildren(pnode pn, int count)
     {
         cout << "   ";
     }
-    cout << "[" << pn.rule() << "]";
+    cout << "[" << pn.rule() << "] -> ";
     cout << " " << pn.childCount() << endl;
     for(auto child : pn.children())
     {
