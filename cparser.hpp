@@ -10,7 +10,7 @@
 #include "symboltable.hpp"
 #include <vector>
 
-#define LRTABLE "resources/newLrTable.txt"
+#define LRTABLE "resources/mainLrTable.txt"
 
 using namespace std;
 
