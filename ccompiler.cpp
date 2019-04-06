@@ -86,7 +86,11 @@ HELP:
     string filename = argv[optind];
 
     m_scanner.openFile(filename, m_tokenList);
-    parser.buildParseTree(parseTree, m_tokenList);
+    if(!parser.buildParseTree(parseTree, m_tokenList))
+    {
+        cout << "Unable to build parse tree\n";
+        return -1;
+    }
     parser.buildSymbolTable(symbolTable, parseTree.root(), "No type");
     ir ir(parseTree, symbolTable);
 
