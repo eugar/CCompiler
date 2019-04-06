@@ -55,7 +55,7 @@ Parser::Parser()
 }
 
 // Uses the state tables and tokens to create the parse tree
-void Parser::buildParseTree(ParseTree &parseTree, vector<Token> &tokenList)
+size_t Parser::buildParseTree(ParseTree &parseTree, vector<Token> &tokenList)
 {
     int i = 0;
     tokenList.push_back(Token("$", ERR, 0));
@@ -66,13 +66,13 @@ void Parser::buildParseTree(ParseTree &parseTree, vector<Token> &tokenList)
         m_action = getAction(m_tokenStack.begin()->rule());
 
         if (m_stateStack.back() == -1) {
-            cout << "error: -1" << endl;
-            break;
+            cerr<< "error: -1" << endl;
+            return 0;
         }
 
         if(!runAction(m_action, parseTree, m_tokenStack[0]))
         {
-            break;
+            return 0;
         }
         cout << "step "<< i ;
         cout << "\t\tstate: " << m_stateStack.back();
@@ -82,6 +82,7 @@ void Parser::buildParseTree(ParseTree &parseTree, vector<Token> &tokenList)
         i++;
     }
     parseTree.newRoot(m_newRoot);
+    return 1;
 }
 
 // iterates through the parse tree and creates the symbol table
@@ -123,6 +124,7 @@ void Parser::loadTables(string path)
     regex rx("\\s+");
     ifstream fs(path);
     int section = 0;
+    size_t ncount = 0;
     while (getline(fs, line))
     {
         if (line[0] == '#')
@@ -152,6 +154,8 @@ void Parser::loadTables(string path)
                     }
                     rhs.erase(rhs.end() - 1);
                     m_grammarRed[rhs] = lhs;
+                    m_reduceMap[ncount] = lhs;
+                    ncount++;
                 }
             }
             else
@@ -210,7 +214,7 @@ bool Parser::runAction(act actRun, ParseTree &parseTree, pnode rule)
     else if(actRun.first == StateTables::Action::ACTION::REDUCE)
     {
         // reduce the parse tree
-        reduce(parseTree);
+        reduce(parseTree, actRun);
         return true;
     }
     else if(actRun.first == StateTables::Action::ACTION::ACCEPT)
@@ -218,7 +222,7 @@ bool Parser::runAction(act actRun, ParseTree &parseTree, pnode rule)
         // End the parse building
         cout << "accepted!" << endl;
         m_tokenStack.erase(m_tokenStack.begin());
-        return false;
+        return true;
     }
     else
     {
@@ -232,7 +236,7 @@ bool Parser::runAction(act actRun, ParseTree &parseTree, pnode rule)
 }
 
 // reduces rules based on action table
-void Parser::reduce(ParseTree &parseTree)
+void Parser::reduce(ParseTree &parseTree, act redAction)
 {
     string temp = "";
     vector<pnode> tempNodes;
@@ -242,7 +246,8 @@ void Parser::reduce(ParseTree &parseTree)
     if (m_nodeStack.size() == 1) {
         try
         {
-            m_newRoot = m_grammarRed.at(m_nodeStack[0].rule());
+            //m_newRoot = m_grammarRed.at(m_nodeStack[0].rule());
+            m_newRoot = m_reduceMap.at(redAction.second);
             m_newRoot.addChild(m_nodeStack[0]);
             m_nodeStack[0].addParentNode(&m_newRoot);
             cout << "reducing: " << m_nodeStack[0].rule() << " to: " << m_newRoot.rule() << endl;
@@ -268,7 +273,8 @@ void Parser::reduce(ParseTree &parseTree)
 
         try
         {
-            m_newRoot = m_grammarRed.at(temp);
+            m_grammarRed.at(temp);
+            //break;
             x = i;
             //cout << "reducing: " << temp << " to: " << m_newRoot.rule() << endl;
         }
@@ -278,6 +284,7 @@ void Parser::reduce(ParseTree &parseTree)
         }
         i--;
     }
+    m_newRoot = m_reduceMap.at(redAction.second);
     for(int y = m_nodeStack.size()-1; y >= x; y--)
     {
         tempNodes.insert(tempNodes.begin(), m_nodeStack[y]);
@@ -329,12 +336,14 @@ act Parser::getAction(string rule)
 {
     auto a = m_stateTable.m_action.table.find(m_stateStack.back());
     if (a == m_stateTable.m_action.table.end()) {
-        cout << "State: " << m_stateStack.back() << " not found\n";
+        cout << "State (" << m_stateStack.back() << ") not found\n";
+        m_stateStack.push_back(-1);
         //return make_pair<StateTables::Action::SHIFT, -1>;
     }
     auto am = a->second.find(rule);
     if (am == a->second.end()) {
-        cout << "Action - " <<rule<<" : "<<m_stateStack.back() <<" not found\n";
+        cout << "Action (" <<rule<<" : "<<m_stateStack.back() <<") not found\n";
+        m_stateStack.push_back(-1);
         //auto ret = make_pair<StateTables::Action::SHIFT, -1>;
         //return ret;
     }
@@ -346,12 +355,12 @@ size_t Parser::getGoto(string rule)
 {
     auto gt = m_stateTable.m_goto.table.find(m_stateStack.back());
     if (gt == m_stateTable.m_goto.table.end()) {
-        cout << "State: " << m_stateStack.back() << " not found\n";
+        cout << "State (" << m_stateStack.back() << ") not found\n";
         return -1;
     }
     auto r = gt->second.find(rule);
     if (r == gt->second.end()) {
-        cout << "Rule: " << rule << " not found\n";
+        cout << "Rule (" << rule << ") not found\n";
         return -1;
     }
     return r->second;

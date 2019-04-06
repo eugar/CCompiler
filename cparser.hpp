@@ -10,7 +10,7 @@
 #include "symboltable.hpp"
 #include <vector>
 
-#define LRTABLE "resources/mainLrTable.txt"
+#define LRTABLE "resources/LrTable.txt"
 
 using namespace std;
 
@@ -20,14 +20,14 @@ class Parser
 {
 public:
     Parser();
-    void buildParseTree(ParseTree &parseTree, vector<Token> &tokenList);
+    size_t buildParseTree(ParseTree &parseTree, vector<Token> &tokenList);
 
     // returns false if it fails to create tables
     bool buildSymbolTable(SymbolTable &symbolTable, pnode parent, string type);
 
 private:
     bool runAction(act actRun, ParseTree &parseTree, pnode rule);
-    void reduce(ParseTree &parseTree);
+    void reduce(ParseTree &parseTree, act redAction);
 
     void loadTables(string filepath = LRTABLE);
 
@@ -52,7 +52,10 @@ private:
     pnode m_newRoot;
     vector<pnode> m_nodeStack;
     // <  RHS ,   LHS >
+    //map<string, string> m_grammarRed;
     map<string, string> m_grammarRed;
+    // used by the reduce funciton
+    map<size_t, string> m_reduceMap;
     vector<pnode> m_tokenStack;
 };
 
