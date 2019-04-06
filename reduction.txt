@@ -18,6 +18,7 @@ stmt -> selStmt
 stmt -> iterStmt
 stmt -> retStmt
 stmt -> breakStmt
+stmt -> varDecl
 compStmt -> { stmtList }
 stmtList -> stmtList stmt
 stmtList -> stmt
