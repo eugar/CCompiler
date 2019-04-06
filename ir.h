@@ -35,7 +35,7 @@ public:
 private:
     static irInstruction createIns(vector<string> params);
     void getTreeChildren(pnode pn);
-    bool generateIr(string rule){}
+    bool generateIr(string rule);
     ParseTree m_parseTree;
     SymbolTable m_symbolTable;
     vector<pnode> m_globals;
