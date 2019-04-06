@@ -60,7 +60,7 @@ sumExpr -> term
 sumOp -> +
 sumOp -> -
 term -> term mulOp unaryExpr
-term -> term
+term -> unaryExpr
 mulOp -> *
 mulOp -> /
 mulOp -> %
