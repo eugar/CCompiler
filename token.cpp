@@ -156,6 +156,12 @@ void Token::printToken()
         case NOTEQ:
             cout << "<" << token << ", not equal, (" << lineNo << ")>\n" << endl;
             break;
+        case COMMA:
+            cout << "<" << token << ", comma, (" << lineNo << ")>\n" << endl;
+            break;
+        case EMPTY_PARAM:
+            cout << "<empty parameter, (" << lineNo << ")>\n" << endl;
+            break;
         default:
             cout << "<" << token << ", Not in the set of known instructions>\n" << endl;
             break;

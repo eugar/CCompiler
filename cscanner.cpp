@@ -155,6 +155,10 @@ void Scanner::scanFile(istream &input, // [in] file stream to tokenize
                          c == ']' || c == '#')
                 {
                     token.append(1, c);
+                    if (((c == ')') && tokenList.back().getType() == OPAREN))
+                    {
+                        tokenList.push_back(Token("", EMPTY_PARAM, lineNo));
+                    }
                     tokenList.push_back(Token(token, findToken(token), lineNo));
 
                     token.clear();
@@ -211,8 +215,17 @@ void Scanner::scanFile(istream &input, // [in] file stream to tokenize
                     }
                     else
                     {
-                        // define as identifier and check integrity later
-                        tokenList.push_back(Token(token, ID, lineNo));
+                        if (token.back() == ',')
+                        { // separating commas
+                            token.pop_back();
+                            tokenList.push_back(Token(token, ID, lineNo));
+                            tokenList.push_back(Token(",", COMMA, lineNo));
+
+                        }
+                        else {
+                            // define as identifier and check integrity later
+                            tokenList.push_back(Token(token, ID, lineNo));
+                        }
                     }
                 }
                 token.clear();
