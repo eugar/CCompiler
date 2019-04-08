@@ -31,6 +31,7 @@ public:
 
     void getGlobals(pnode root);
     void readGlobals();
+    void extractGlobals(pnode &root);
 
 private:
     static irInstruction createIns(vector<string> params);

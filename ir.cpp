@@ -11,8 +11,7 @@
 using namespace std;
 
 ir::ir(ParseTree parseTree, SymbolTable symbolTable)
-:
-    m_parseTree(parseTree)
+:   m_parseTree(parseTree)
 ,   m_symbolTable(symbolTable)
 {
     vector<irInstruction> instructions;
@@ -243,6 +242,39 @@ void ir::getTreeChildren(pnode pn) {
     }
 }
 
+// recurses on the parse tree to find all global declarations.
+void ir::extractGlobals(pnode &root)
+{
+    if (root.children().empty())
+    {
+        return;
+    }
+    for (auto child : root.children())
+    {
+        if (child.rule() == "declList")
+        {
+            extractGlobals(child);
+        }
+        else if (child.rule() == "decl")
+        {
+            // A decl node always has only 1 child, the type of declaration.
+            pnode decl = child.children()[0];
+
+            if (decl.rule() == "funcDecl")
+            {
+
+            }
+            else if (decl.rule() == "varDecl")
+            {
+
+            }
+        }
+        else
+        {
+            return;
+        }
+    }
+}
 void ir::getGlobals(pnode root)
 {
     vector<pnode> children = root.children();
