@@ -155,6 +155,10 @@ void Scanner::scanFile(istream &input, // [in] file stream to tokenize
                          c == ']' || c == '#')
                 {
                     token.append(1, c);
+                    if (((c == ')') && tokenList.back().getType() == OPAREN))
+                    {
+                        tokenList.push_back(Token("", EMPTY_PARAM, lineNo));
+                    }
                     tokenList.push_back(Token(token, findToken(token), lineNo));
 
                     token.clear();
