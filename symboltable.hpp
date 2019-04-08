@@ -31,6 +31,7 @@ public:
     // returns the to the parent scope
     SymbolTable* parent(){return m_parent;}
 
+    void scopeName(string name){m_scope = name;}
     string scope(){return m_scope;}
 
 private:

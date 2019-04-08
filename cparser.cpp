@@ -88,8 +88,10 @@ size_t Parser::buildParseTree(ParseTree &parseTree, vector<Token> &tokenList)
 // iterates through the parse tree and creates the symbol table
 bool Parser::buildSymbolTable(SymbolTable &symbolTable, pnode parent, string type)
 {
-    //string type = "Error no type";
-    for(auto node : parent.children())
+
+    newScopes(symbolTable, parent);
+    //string scope = "Error no scope";
+    /*for(auto node : parent.children())
     {
         // if the node is an ID insert to table
         if (node.rule() == "typeSpec")
@@ -103,18 +105,39 @@ bool Parser::buildSymbolTable(SymbolTable &symbolTable, pnode parent, string typ
         }
         // if the node is a block of code or function
         // insert to table and create a new child (scope)
-        /*if(node.rule() == "funcDecl")
+        if(node.rule() == "funcDecl")
         {
             SymbolTable symTab = SymbolTable(findFunName(node));
             symbolTable.addChild(findFunName(node), symTab);
             cout << "Creating Scope: " << findFunName(node) << endl;
-            buildSymbolTable(symTab, node, type);
-            continue;
-        }*/
+            //buildSymbolTable(symTab, node, scope);
+            //continue;
+        }
 
         buildSymbolTable(symbolTable, node, type);
-    }
+    }*/
+
     return true;
+}
+
+void Parser::newScopes(SymbolTable &symbolTable, pnode parent)
+{
+    for(auto child : parent.children())
+    {
+        if (child.rule() == "funcDecl") {
+            SymbolTable st;
+            st.scopeName(findFunName(child));
+            symbolTable.addChild(st.scope(), st);
+            continue;
+        }
+        else if (child.rule() == "iterStmt") {
+            SymbolTable st;
+            st.scopeName(child.children()[0].rule());
+            symbolTable.addChild(st.scope(), st);
+            continue;
+        }
+        newScopes(symbolTable, child);
+    }
 }
 
 // Loads the state tables
@@ -443,12 +466,12 @@ string Parser::findFunName(pnode node)
 {
     for(auto child : node.children())
     {
-        if (isSym(child)) {
-            return child.rule();
+        if (child.rule() == "ID") {
+            return child.children()[0].rule();
         }
         else
         {
-            return findType(child);
+            findFunName(child);
         }
     }
     return "No Name";

@@ -35,6 +35,8 @@ private:
 
     void convertTokenList(vector<Token> tokenList);
 
+    void newScopes(SymbolTable &symbolTable, pnode parent);
+
     // Gets the action from current state and rule.
      act inline getAction(string rule);
     // Gets the goto state from current state and rule.
@@ -43,8 +45,9 @@ private:
      void inline printStack();
      bool inline isSym(pnode node);
      bool inline isType(pnode node);
-     string findType(pnode node);
-     string findFunName(pnode node);
+     string inline findType(pnode node);
+     string inline findFunName(pnode node);
+
 
     vector<size_t> m_stateStack;
     StateTables m_stateTable;
@@ -57,6 +60,7 @@ private:
     // used by the reduce funciton
     map<size_t, string> m_reduceMap;
     vector<pnode> m_tokenStack;
+    string m_scope;
 };
 
 #endif //CCOMPILER_CPARSER_H

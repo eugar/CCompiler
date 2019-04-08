@@ -71,11 +71,11 @@ symbol* SymbolTable::lookup(string id)
 
 void SymbolTable::printRecords()
 {
+    cout << "\n---- "<< scope()<<" ----\n\n";
     for (auto sym : m_symbolTable)
     {
         cout  << sym.second->type << " " << sym.first  << endl;
     }
-    //cout << "\n################# NEW SCOPE #################\n\n";
     for(auto scope : m_childTable)
     {
         scope.second.printRecords();

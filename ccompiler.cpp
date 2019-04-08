@@ -94,6 +94,9 @@ HELP:
     parser.buildSymbolTable(symbolTable, parseTree.root(), "No type");
     ir ir(parseTree, symbolTable);
 
+    cout << "###### Symbol Table ######" << endl;
+    symbolTable.printRecords();
+    cout << endl;
 
     if (pTokens)
     {
@@ -103,9 +106,6 @@ HELP:
     if (pTree)
     {
         parseTree.printTree();
-        cout << "--Symbol Table--" << endl;
-        symbolTable.printRecords();
-        cout << endl;
     }
 
     if (irRead)
