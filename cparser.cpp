@@ -50,6 +50,8 @@ Parser::Parser()
     m_stateStack.push_back(0);
     //hardcodeTest();
     loadTables();
+    m_loopCount = 0;
+    m_ifCount = 0;
     // for breakpoint
     int i;
 }
@@ -86,57 +88,54 @@ size_t Parser::buildParseTree(ParseTree &parseTree, vector<Token> &tokenList)
 }
 
 // iterates through the parse tree and creates the symbol table
-bool Parser::buildSymbolTable(SymbolTable &symbolTable, pnode parent, string type)
+bool Parser::buildSymbolTable(SymbolTable &symbolTable, pnode parent)
 {
 
-    newScopes(symbolTable, parent);
-    //string scope = "Error no scope";
-    /*for(auto node : parent.children())
-    {
-        // if the node is an ID insert to table
-        if (node.rule() == "typeSpec")
-        {
-            type = findType(node);
-        }
-        if(isSym(node))
-        {
-            cout << "inserting: "<< node.rule() << " in scope: " << symbolTable.scope() << endl;
-            symbolTable.insert(node.rule(), type, "0");
-        }
-        // if the node is a block of code or function
-        // insert to table and create a new child (scope)
-        if(node.rule() == "funcDecl")
-        {
-            SymbolTable symTab = SymbolTable(findFunName(node));
-            symbolTable.addChild(findFunName(node), symTab);
-            cout << "Creating Scope: " << findFunName(node) << endl;
-            //buildSymbolTable(symTab, node, scope);
-            //continue;
-        }
-
-        buildSymbolTable(symbolTable, node, type);
-    }*/
-
-    return true;
-}
-
-void Parser::newScopes(SymbolTable &symbolTable, pnode parent)
-{
+    /* The loop finds all of the scopes in the tree*/
     for(auto child : parent.children())
     {
+        //findVarDecls(symbolTable, child);
         if (child.rule() == "funcDecl") {
             SymbolTable st;
             st.scopeName(findFunName(child));
+            findVarDecls(st, child);
             symbolTable.addChild(st.scope(), st);
+            symbolTable.insert(st.scope(), findType(child), "funcDecl");
             continue;
         }
-        else if (child.rule() == "iterStmt") {
+        buildSymbolTable(symbolTable, child);
+    }
+    return true;
+}
+
+/* Finds all of the vaiable declerations within a scope */
+void Parser::findVarDecls(SymbolTable &symbolTable, pnode parent)
+{
+    for(auto child : parent.children())
+    {
+        if (child.rule() == "varDecl")
+        {
+            symbolTable.insert(findVarName(child), findType(child), findData(child));
+            continue;
+        }
+        if (child.rule() == "selStmt")
+        {
+            m_ifCount++;
             SymbolTable st;
-            st.scopeName(child.children()[0].rule());
+            st.scopeName(child.children()[0].rule()+to_string(m_ifCount));
+            findVarDecls(st, child);
             symbolTable.addChild(st.scope(), st);
             continue;
         }
-        newScopes(symbolTable, child);
+        if (child.rule() == "iterStmt") {
+            m_loopCount++;
+            SymbolTable st;
+            st.scopeName(child.children()[0].rule()+to_string(m_loopCount));
+            findVarDecls(st, child);
+            symbolTable.addChild(st.scope(), st);
+            continue;
+        }
+        findVarDecls(symbolTable, child);
     }
 }
 
@@ -425,15 +424,6 @@ void Parser::printStack()
     cout << endl;
 }
 
-// checks to see if a node in the parse tree is in the symbol table
-bool Parser::isSym(pnode node)
-{
-    if (node.type() == ID) {
-        return true;
-    }
-    return false;
-}
-
 // checks to see if a node in the parse tree is a type specifier
 bool Parser::isType(pnode node)
 {
@@ -480,4 +470,44 @@ string Parser::findFunName(pnode node)
         }
     }
     return "No Name";
+}
+
+string Parser::findVarName(pnode node)
+{
+    for(auto child : node.children())
+    {
+        if (child.rule() == "ID") {
+            return child.children()[0].rule();
+        }
+        else if (child.rule() == "typeSpec") {
+            continue;
+        }
+        return findVarName(child);
+    }
+    return "No Name";
+}
+
+string Parser::findData(pnode node)
+{
+    for(auto child : node.children())
+    {
+        if (child.rule() == "NUMCONST")
+        {
+            return child.children()[0].rule();
+        }
+        if (child.rule() == "typeSpec")
+        {
+            continue;
+        }
+        if(child.rule() == "ID")
+        {
+            continue;
+        }
+        if (child.rule() == "=")
+        {
+            continue;
+        }
+        return findData(child);
+    }
+    return "No Data";
 }

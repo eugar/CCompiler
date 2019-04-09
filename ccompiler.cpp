@@ -91,12 +91,8 @@ HELP:
         cout << "Unable to build parse tree\n";
         return -1;
     }
-    parser.buildSymbolTable(symbolTable, parseTree.root(), "No type");
+    parser.buildSymbolTable(symbolTable, parseTree.root());
     ir ir(parseTree, symbolTable);
-
-    cout << "###### Symbol Table ######" << endl;
-    symbolTable.printRecords();
-    cout << endl;
 
     if (pTokens)
     {
@@ -106,6 +102,9 @@ HELP:
     if (pTree)
     {
         parseTree.printTree();
+        cout << "\n###### Symbol Table ######" << endl;
+        symbolTable.printRecords(1);
+        cout << endl;
     }
 
     if (irRead)

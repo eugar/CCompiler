@@ -24,7 +24,7 @@ public:
     int modify(string id, string data);
     void remove(string id);
     symbol* lookup(string id);
-    void printRecords();
+    void printRecords(int level);
     SymbolTable addChild(string tableId, SymbolTable child);
     // delete a scope and go back to the parent scope
     SymbolTable* deleteChild();
@@ -33,6 +33,8 @@ public:
 
     void scopeName(string name){m_scope = name;}
     string scope(){return m_scope;}
+
+    map<string, SymbolTable> children(){return m_childTable;}
 
 private:
     // Private members

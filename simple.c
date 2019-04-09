@@ -1,19 +1,26 @@
 int fun ()
 {
     int t = 1;
-    y = 5 + 6 * t - 2;
-    return y;
+    return t;
 }
 
 int main (int v, int a)
 {
-    int z = 5;
-
-    a = z+v;
+    int z = fun();
 
     if(a < z)
     {
-        a = a + z;
+        int a = 8;
+    }
+
+    if(z > a)
+    {
+        int c = a;
+    }
+
+    while(a<z)
+    {
+        int b = 40;
     }
 
     return z;

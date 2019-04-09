@@ -23,7 +23,7 @@ public:
     size_t buildParseTree(ParseTree &parseTree, vector<Token> &tokenList);
 
     // returns false if it fails to create tables
-    bool buildSymbolTable(SymbolTable &symbolTable, pnode parent, string type);
+    bool buildSymbolTable(SymbolTable &symbolTable, pnode parent);
 
 private:
     bool runAction(act actRun, ParseTree &parseTree, pnode rule);
@@ -35,19 +35,18 @@ private:
 
     void convertTokenList(vector<Token> tokenList);
 
-    void newScopes(SymbolTable &symbolTable, pnode parent);
-
+    void findVarDecls(SymbolTable &symbolTable, pnode parent);
     // Gets the action from current state and rule.
      act inline getAction(string rule);
     // Gets the goto state from current state and rule.
      size_t inline getGoto(string rule);
      void inline replaceStack(ParseTree &parseTree, int i);
      void inline printStack();
-     bool inline isSym(pnode node);
      bool inline isType(pnode node);
      string inline findType(pnode node);
      string inline findFunName(pnode node);
-
+     string inline findVarName(pnode node);
+     string inline findData(pnode node);
 
     vector<size_t> m_stateStack;
     StateTables m_stateTable;
@@ -61,6 +60,8 @@ private:
     map<size_t, string> m_reduceMap;
     vector<pnode> m_tokenStack;
     string m_scope;
+    int m_loopCount;        // used to distiguish loop scopes
+    int m_ifCount;          // used to distiguish if scopes
 };
 
 #endif //CCOMPILER_CPARSER_H

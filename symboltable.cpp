@@ -69,16 +69,33 @@ symbol* SymbolTable::lookup(string id)
     }
 }
 
-void SymbolTable::printRecords()
+void SymbolTable::printRecords(int level)
 {
-    cout << "\n---- "<< scope()<<" ----\n\n";
+    cout << "\n";
+    for(int i=0; i<level; i++)
+    {
+        cout << "|";
+    }
+    cout << "| ---- "<< scope()<<" ----\n";
     for (auto sym : m_symbolTable)
     {
-        cout  << sym.second->type << " " << sym.first  << endl;
+        for(int i=0; i<level; i++)
+        {
+            cout << "|";
+        }
+        cout  << "|"<< sym.second->type << " " << sym.first << " = "<<sym.second->data << endl;
     }
     for(auto scope : m_childTable)
     {
-        scope.second.printRecords();
+        for(int i=0; i<level; i++)
+        {
+            cout << "  ";
+        }
+        scope.second.printRecords(level+1);
+    }
+    for(int i=0; i<level; i++)
+    {
+        cout << "  ";
     }
 }
 
