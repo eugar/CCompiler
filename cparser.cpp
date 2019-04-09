@@ -344,6 +344,11 @@ void Parser::convertTokenList(vector<Token> tokenList)
                 node.addChild(child);
                 m_tokenStack.push_back(node);
             break;
+            case EMPTY_PARAM:
+                node.setRule("EMPTY");
+                node.setType(tok.getType());
+                m_tokenStack.push_back(node);
+            break;
             default:
                 node.setRule(tok.getLiteral());
                 node.setType(tok.getType());

@@ -12,7 +12,7 @@ returnTypeSpec char
 returnTypeSpec bool
 params paramList
 params EMPTY
-paramList paramList typeSpec ID
+paramList paramList , typeSpec ID
 paramList typeSpec ID
 stmt exprStmt
 stmt compStmt

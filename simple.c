@@ -1,19 +1,19 @@
-
-
-int fun (int x)
+int fun ()
 {
     int t = 1;
     y = 5 + 6 * t - 2;
     return y;
 }
 
-int main (int v)
+int main (int v, int a)
 {
-    z = fun(v);
+    int z = 5;
 
-    while(v < z)
+    a = z+v;
+
+    if(a < z)
     {
-        v = z;
+        a = a + z;
     }
 
     return z;
