@@ -68,7 +68,9 @@ size_t Parser::buildParseTree(ParseTree &parseTree, vector<Token> &tokenList)
         m_action = getAction(m_tokenStack.begin()->rule());
 
         if (m_stateStack.back() == -1) {
-            cerr<< "error: -1" << endl;
+            cerr << "error: -1" << endl;
+            // failed attempt at printing line number info on error
+            //cerr<< "error: " << m_tokenStack.begin()->rule() << " on line " << m_tokenStack.begin()->lineNo() << endl;
             return 0;
         }
 
@@ -330,6 +332,7 @@ void Parser::convertTokenList(vector<Token> tokenList)
             case ID:
                 child.setRule(tok.getLiteral());
                 child.setType(tok.getType());
+                child.setLineNo(tok.getLineNo());
                 child.addParentNode(&node);
                 node.setRule("ID");
                 node.addChild(child);
@@ -338,6 +341,7 @@ void Parser::convertTokenList(vector<Token> tokenList)
             case NUMCONST:
                 child.setRule(tok.getLiteral());
                 child.setType(tok.getType());
+                child.setLineNo(tok.getLineNo());
                 child.addParentNode(&node);
                 node.setRule("NUMCONST");
                 node.addChild(child);
@@ -346,11 +350,16 @@ void Parser::convertTokenList(vector<Token> tokenList)
             case EMPTY_PARAM:
                 node.setRule("EMPTY");
                 node.setType(tok.getType());
+                node.setLineNo(tok.getLineNo());
                 m_tokenStack.push_back(node);
             break;
+            case SCOMM: // ignore comments
+            case BCOMM:
+                break;
             default:
                 node.setRule(tok.getLiteral());
                 node.setType(tok.getType());
+                node.setLineNo(tok.getLineNo());
                 m_tokenStack.push_back(node);
         }
     }

@@ -27,12 +27,15 @@ public:
     size_t childCount(){return m_children.size();}
     void setType(tokType type){m_type = type;}
     tokType type(){return m_type;}
+    int lineNo(){return m_lineNo;}
+    void setLineNo(int lineNo){m_lineNo = lineNo;}
 
 private:
     struct pnode* m_parentNode;
     vector<pnode> m_children;
     string m_rule;
     tokType m_type;
+    int m_lineNo;
 }pnode;
 
 class ParseTree
