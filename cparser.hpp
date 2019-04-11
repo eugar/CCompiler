@@ -36,6 +36,8 @@ private:
     void convertTokenList(vector<Token> tokenList);
 
     void findVarDecls(SymbolTable &symbolTable, pnode parent);
+    void findParams(SymbolTable &symbolTable, pnode parent);
+
     // Gets the action from current state and rule.
      act inline getAction(string rule);
     // Gets the goto state from current state and rule.
