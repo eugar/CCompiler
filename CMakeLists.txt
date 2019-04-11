@@ -31,4 +31,6 @@ add_executable(CCompiler
         parsetree.cpp
         parsetree.hpp
         instructions.cpp
-        instructions.h)
+        instructions.h
+        assembly.cpp
+        assembly.h)

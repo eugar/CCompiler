@@ -36,6 +36,7 @@ int main(int argc, char * const argv[])
     int irWrite = 0;
     string irInFile;
     string irOutFile;
+    string assemblyOutFile;
 
 
     if (argc < 2)
@@ -50,11 +51,12 @@ HELP:
             << "-s displays list of tokens\n"
             << "-p displays parse tree\n"
             << "-i [file] populate the IR from a file\n"
-            << "-o [file] write the IR to a file\n";
+            << "-o [file] write the IR to a file\n"
+            << "-w [file] write the assembly code out to a specified file. If this argument is not used, the compiler will automatically write to out.s" << endl;
         return 1;
     }
 
-    while ((c = getopt(argc, argv, "?:hspi:o:")) != -1)
+    while ((c = getopt(argc, argv, "?:hspi:o:w:")) != -1)
     {
         switch (c)
         {
@@ -72,6 +74,8 @@ HELP:
                 irWrite = 1;
                 irOutFile = optarg;
                 break;
+            case 'w':
+                assemblyOutFile = optarg;
             case 'h':
                 goto HELP;
         }
@@ -117,6 +121,9 @@ HELP:
         //vector<irInstruction> test = ir::readFromFile("irexample.txt");
         ir.writeToFile(irOutFile);
     }
+
+    Assembly a = Assembly(assemblyOutFile);
+    a.generateCode(ir.instructions);
 
     return 0;
 }

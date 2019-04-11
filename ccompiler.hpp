@@ -9,6 +9,7 @@
 #include "symboltable.hpp"
 #include "cparser.hpp"
 #include "ir.h"
+#include "assembly.h"
 #include <vector>
 #include <fstream>
 
