@@ -100,6 +100,7 @@ bool Parser::buildSymbolTable(SymbolTable &symbolTable, pnode parent)
         if (child.rule() == "funcDecl") {
             SymbolTable st;
             st.scopeName(findFunName(child));
+            findParams(st, child.children()[3]);
             findVarDecls(st, child);
             symbolTable.addChild(st.scope(), st);
             symbolTable.insert(st.scope(), findType(child), "funcDecl");
@@ -115,6 +116,9 @@ void Parser::findVarDecls(SymbolTable &symbolTable, pnode parent)
 {
     for(auto child : parent.children())
     {
+        if (child.rule() == "params") {
+            continue;
+        }
         if (child.rule() == "varDecl")
         {
             symbolTable.insert(findVarName(child), findType(child), findData(child));
@@ -138,6 +142,22 @@ void Parser::findVarDecls(SymbolTable &symbolTable, pnode parent)
             continue;
         }
         findVarDecls(symbolTable, child);
+    }
+}
+
+void Parser::findParams(SymbolTable &symbolTable, pnode parent)
+{
+    for(auto child : parent.children())
+    {
+        if (child.rule() == "paramList")
+        {
+            string type = findType(child);
+            string name = findVarName(child);
+            string data = "Param";
+            symbolTable.insert(name, type, data);
+            findParams(symbolTable, child);
+            return;
+        }
     }
 }
 
@@ -372,13 +392,13 @@ act Parser::getAction(string rule)
 {
     auto a = m_stateTable.m_action.table.find(m_stateStack.back());
     if (a == m_stateTable.m_action.table.end()) {
-        cout << "State (" << m_stateStack.back() << ") not found\n";
+        cout << "State [" << m_stateStack.back() << "] not found\n";
         m_stateStack.push_back(-1);
         //return make_pair<StateTables::Action::SHIFT, -1>;
     }
     auto am = a->second.find(rule);
     if (am == a->second.end()) {
-        cout << "Action (" <<rule<<" : "<<m_stateStack.back() <<") not found\n";
+        cout << "Action [" <<rule<<" : "<<m_stateStack.back() <<"] not found\n";
         m_stateStack.push_back(-1);
         //auto ret = make_pair<StateTables::Action::SHIFT, -1>;
         //return ret;
@@ -391,12 +411,12 @@ size_t Parser::getGoto(string rule)
 {
     auto gt = m_stateTable.m_goto.table.find(m_stateStack.back());
     if (gt == m_stateTable.m_goto.table.end()) {
-        cout << "State (" << m_stateStack.back() << ") not found\n";
+        cout << "State [" << m_stateStack.back() << "] not found\n";
         return -1;
     }
     auto r = gt->second.find(rule);
     if (r == gt->second.end()) {
-        cout << "Rule (" << rule << ") not found\n";
+        cout << "Rule [" << rule << "] not found\n";
         return -1;
     }
     return r->second;
@@ -485,10 +505,18 @@ string Parser::findVarName(pnode node)
 {
     for(auto child : node.children())
     {
-        if (child.rule() == "ID") {
+        if (child.rule() == "ID")
+        {
             return child.children()[0].rule();
         }
-        else if (child.rule() == "typeSpec") {
+        if (child.rule() == "typeSpec")
+        {
+            continue;
+        }
+        if (child.rule() == "paramList") {
+            continue;
+        }
+        if (child.rule() == ",") {
             continue;
         }
         return findVarName(child);

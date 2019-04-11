@@ -23,7 +23,9 @@ void SymbolTable::insert(string id, string type, string data)
     }
     else
     {
-        cout << "id: "<< id << " already taken." << endl;
+        cout << "id: "<< id << " declared more multiple times." << endl;
+        cout << "Error compiling\n\n";
+        exit(0);
     }
 }
 
