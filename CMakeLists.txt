@@ -33,4 +33,6 @@ add_executable(CCompiler
         instructions.cpp
         instructions.h
         assembly.cpp
-        assembly.h)
+        assembly.h
+        assemblycontext.cpp 
+        assemblycontext.h)

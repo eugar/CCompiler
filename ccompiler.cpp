@@ -34,6 +34,7 @@ int main(int argc, char * const argv[])
     int pTree = 0;
     int irRead = 0;
     int irWrite = 0;
+    int assemblyFlag = 0;
     string irInFile;
     string irOutFile;
     string assemblyOutFile;
@@ -75,7 +76,9 @@ HELP:
                 irOutFile = optarg;
                 break;
             case 'w':
+                assemblyFlag = 1;
                 assemblyOutFile = optarg;
+                break;
             case 'h':
                 goto HELP;
         }
@@ -122,8 +125,19 @@ HELP:
         ir.writeToFile(irOutFile);
     }
 
-    Assembly a = Assembly(assemblyOutFile);
+    Assembly a;
+
+    if (assemblyFlag)
+    { //todo: check to make sure the user-entered filename contains .s ??
+        a = Assembly(assemblyOutFile);
+    }
+    else
+    {
+        a = Assembly();
+    }
+
     a.generateCode(ir.instructions);
+    a.closeOutput();
 
     return 0;
 }

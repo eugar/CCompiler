@@ -7,6 +7,7 @@
 
 #include <fstream>
 #include "ir.h"
+#include "assemblycontext.h"
 
 using namespace std;
 
@@ -16,12 +17,15 @@ public:
     Assembly(string filename = "out.s");
 
     void generateCode(vector<irInstruction> instructions);
-    void insertBB(irInstruction instruction);
-    void outputCode(irInstruction instruction);
+    void insertBB(irInstruction ins);
+    void writeInstruction(string line);
+    void chooseInstruction(irInstruction ins);
+    void closeOutput(){this->out.close();};
 
 private:
     ofstream out;
-
+    int bbcount;
+    AssemblyContext assemblyContext;
 };
 
 

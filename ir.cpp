@@ -211,16 +211,31 @@ irInstruction ir::createIns(vector<string> params) {
         instruction.arg1 = params.at(1); //function name
         instruction.arg2 = "";
     }
-    else if (params.size() == 2 && op.at(op.size() - 1) == ':') // this is the case where we found a label
+    else if (op == "RET")
     {
         instruction.op = op;
         instruction.res = "";
-        instruction.arg1 = "";
+        if (params.size() == 1)
+        {
+            instruction.arg1 = ""; //ret (no return value)
+        }
+        else
+        {
+            // todo: figure out how to handle return values that get carried over to the code generator
+            instruction.arg1 = params.at(1); // ret value
+        }
+        instruction.arg2 = "";
+    }
+    else if (op == "LABEL")
+    {
+        instruction.op = "LABEL";
+        instruction.res = "";
+        instruction.arg1 = params.at(1);
         instruction.arg2 = "";
     }
     else
     {
-        cout << "unknown instruction" << endl;
+        cout << "unknown instruction: " << op << endl;
     }
 
     return instruction;
@@ -289,7 +304,7 @@ void ir::getGlobals(pnode root)
     }
 }
 
-void ir::readGlobals()
+void ir::readGlobals() //todo: use symbol table to turn all variable values into immediate values
 {
     for (auto global : m_globals)
     {
