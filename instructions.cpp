@@ -10,11 +10,12 @@ Function::Function(pnode funcRoot)
 {
     pnode compStmtRoot = funcRoot.children()[5].children()[0];
     // sends the root statement list of the compound statement.
-    extractStatements(compStmtRoot.children()[1]);
+    m_statementList = extractStatements(compStmtRoot.children()[1]);
 }
 // takes the root node of a statement list
-void Function::extractStatements(pnode root)
+std::vector<Statement> Function::extractStatements(pnode root)
 {
+    std::vector<Statement> statementList;
     for (auto statement : root.children())
     {
         if (statement.rule() == "stmtList")
@@ -25,27 +26,27 @@ void Function::extractStatements(pnode root)
         {
             if (statement.children()[0].rule() == "exprStmt")
             {
-                m_statementList.push_back(ExpressionStatement(statement.children()[0]));
+                statementList.push_back(ExpressionStatement(statement.children()[0]));
             }
             else if (statement.children()[0].rule() == "selStmt")
             {
-                m_statementList.push_back(SelectionStatement(statement.children()[0]));
+                statementList.push_back(SelectionStatement(statement.children()[0]));
             }
             else if (statement.children()[0].rule() == "iterStmt")
             {
-                m_statementList.push_back(IterationStatement(statement.children()[0]));
+                statementList.push_back(IterationStatement(statement.children()[0]));
             }
             else if (statement.children()[0].rule() == "retStmt")
             {
-                m_statementList.push_back(ReturnStatement(statement.children()[0]));
+                statementList.push_back(ReturnStatement(statement.children()[0]));
             }
             else if (statement.children()[0].rule() == "breakStmt")
             {
-                m_statementList.push_back(BreakStatement(statement.children()[0]));
+                statementList.push_back(BreakStatement(statement.children()[0]));
             }
             else if (statement.children()[0].rule() == "varDecl")
             {
-                m_statementList.push_back(VariableDeclaration(statement.children()[0]));
+                statementList.push_back(VariableDeclaration(statement.children()[0]));
             }
         }
     }
@@ -53,7 +54,7 @@ void Function::extractStatements(pnode root)
 
 void Statement::parseBreakStmt(pnode root, Statement &breakStmt)
 {
-
+    // this could be tricky.
 }
 
 void Statement::parseSelStmt(pnode root, Statement &selStmt)
@@ -81,16 +82,57 @@ void Statement::parseExprStmt(pnode root, Statement &exprStmt)
 
 void Statement::parseIterStmt(pnode root, Statement &iterStmt)
 {
-
+    for (auto child : root.children())
+    {
+        if (child.rule() == "while")
+        {
+            // note that we need to make a loop with what follows.
+        }
+        else if (child.rule() == "(" || child.rule() == ")")
+        {
+            // ignore symbols
+        }
+        else if (child.rule() == "stmt" || child.rule() == "compStmt")
+        {
+            Function::extractStatements(child);
+        }
+    }
 }
 
 void Statement::parseRetStmt(pnode root, Statement &retStmt)
 {
-
+    for (auto child : root.children())
+    {
+        if (child.rule() == "return")
+        {
+            // note a return statement will follow
+        }
+        else if (child.rule() == ";")
+        {
+            return;
+        }
+        else
+        {
+            std::pair<std::string, int> varIter;
+            dfsExpr(child, varIter);
+        }
+    }
 }
 void Statement::parseVarDecl(pnode root, Statement &varDecl)
 {
-
+    for (auto child : root.children())
+    {
+        if (child.rule() == "typeSpec")
+        {
+            // currently only goes to return type spec and that goes to terminals
+            // so assign whatever terminals
+        }
+        else if (child.rule() == "varDeclList")
+        {
+            std::pair<std::string, int> varIter;
+            dfsVarDeclList(child, varIter);
+        }
+    }
 }
 
 void Statement::dfsExpr(pnode node, std::pair<std::string, int> &varIter)
@@ -353,7 +395,43 @@ void Statement::dfsArgList(pnode node, std::pair<string, int> &varIter)
     }
 }
 
+void Statement::dfsVarDeclList(pnode node, std::pair<string, int> &varIter)
+{
+    for (auto child : node.children())
+    {
+        if (child.rule() == "varDeclInit")
+        {
+            dfsVarDeclInit(child, varIter);
+        }
+        else if (child.rule() == ",")
+        {
+            // discard symbol
+        }
+        else
+        {
+            dfsVarDeclList(node, varIter);
+        }
+    }
+}
 
+void Statement::dfsVarDeclInit(pnode node, std::pair<string, int> &varIter)
+{
+    for (auto child : node.children())
+    {
+        if (child.rule() == "ID")
+        {
+            // get id
+        }
+        else if (child.rule() == "=")
+        {
+            // set up assignment
+        }
+        else
+        {
+            dfsSimpleExpr(child, varIter);
+        }
+    }
+}
 
 
 

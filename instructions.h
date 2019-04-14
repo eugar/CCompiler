@@ -23,7 +23,7 @@ class Function
 public:
 
     Function(pnode funcRoot);
-    void extractStatements(pnode root);
+    static std::vector<Statement> extractStatements(pnode root);
 
 private:
     std::vector<Statement> m_statementList;
@@ -63,6 +63,8 @@ private:
     void dfsCall(pnode node, std::pair<string, int> &varIter);
     void dfsArgs(pnode node, std::pair<string, int> &varIter);
     void dfsArgList(pnode node, std::pair<string, int> &varIter);
+    void dfsVarDeclList(pnode node, std::pair<string, int> &varIter);
+    void dfsVarDeclInit(pnode node, std::pair<string, int> &varIter);
 
     void translateTerm(pnode node, std::pair<std::string, int> &varIter);
 };

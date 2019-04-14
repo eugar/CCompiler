@@ -36,6 +36,7 @@ elifStmt -> else ifStmt
 elseStmt -> else stmt
 elseStmt -> else compStmt
 iterStmt -> while ( simpleExpr ) stmt
+iterStmt -> while ( simpleExpr ) compStmt
 retStmt -> return ;
 retStmt -> return expr ;
 breakStmt -> break ;
