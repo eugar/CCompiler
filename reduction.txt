@@ -25,8 +25,16 @@ stmtList -> stmt
 stmtList -> EMPTY
 exprStmt -> expr ;
 exprStmt -> ;
-selStmt -> if ( simpleExpr ) stmt
-selStmt -> if ( simpleExpr ) stmt else stmt
+selStmt -> ifStmt
+selStmt -> ifStmt elseStmt
+selStmt -> ifStmt elifStmt
+selStmt -> ifStmt elifStmt elseStmt
+ifStmt -> if ( simpleExpr ) stmt
+ifStmt -> if ( simpleExpr ) compStmt
+elifStmt -> else ifStmt elifStmt
+elifStmt -> else ifStmt
+elseStmt -> else stmt
+elseStmt -> else compStmt
 iterStmt -> while ( simpleExpr ) stmt
 retStmt -> return ;
 retStmt -> return expr ;
@@ -86,5 +94,5 @@ constant -> false
 varDecl -> typeSpec varDeclList
 varDeclList -> varDeclList , varDeclInit
 varDeclList -> varDeclInit
-varDeclInit -> ID 
+varDeclInit -> ID
 varDeclInit -> ID = simpleExpr

@@ -1,6 +1,12 @@
 //
 // Created by mmalett on 4/7/19.
 //
+// These classes are intended to manipulate the parse tree into a three
+// address code intermediate representation. Since a function is the smallest
+// unit that can comprise a program it starts there. A statement is what
+// a function is made of. So this is intended to systematically go through the
+// legal grammar statements (that are stored in the parsetree) and break them
+// into pieces that can logically be redefined into the IR format.
 
 #ifndef CCOMPILER_INSTRUCTIONS_H
 #define CCOMPILER_INSTRUCTIONS_H
@@ -40,11 +46,24 @@ public:
     virtual void parseRetStmt(pnode root, Statement &retStmt);
     virtual void parseBreakStmt(pnode root, Statement &breakStmt);
     virtual void parseVarDecl(pnode root, Statement &varDecl);
+
     pnode m_root;
     std::vector<irInstruction> m_instructions;
 
 private:
     void dfsExpr(pnode node, std::pair<std::string, int> &varIter);
+    void dfsSimpleExpr(pnode node, std::pair<std::string, int> &varIter);
+    void dfsAndExpr(pnode node, std::pair<std::string, int> &varIter);
+    void dfsUnaryRelExpr(pnode node, std::pair<std::string, int> &varIter);
+    void dfsRelExpr(pnode node, std::pair<std::string, int> &varIter);
+    void dfsSumExpr(pnode node, std::pair<std::string, int> &varIter);
+    void dfsTerm(pnode node, std::pair<std::string, int> &varIter);
+    void dfsUnaryExpr(pnode node, std::pair<string, int> &varIter);
+    void dfsImmutable(pnode node, std::pair<string, int> &varIter);
+    void dfsCall(pnode node, std::pair<string, int> &varIter);
+    void dfsArgs(pnode node, std::pair<string, int> &varIter);
+    void dfsArgList(pnode node, std::pair<string, int> &varIter);
+
     void translateTerm(pnode node, std::pair<std::string, int> &varIter);
 };
 
