@@ -18,7 +18,7 @@ class SymbolTable
 {
 
 public:
-
+    static SymbolTable *symbolTable;
     SymbolTable(string scope = "Global");
     void insert(string id, string type, string data);
     int modify(string id, string data);
@@ -35,6 +35,7 @@ public:
     string scope(){return m_scope;}
 
     map<string, SymbolTable> children(){return m_childTable;}
+
 
 private:
     // Private members

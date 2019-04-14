@@ -12,6 +12,7 @@
 #define CCOMPILER_INSTRUCTIONS_H
 
 #include <vector>
+#include <list>
 #include <string>
 
 #include "ir.h"
@@ -48,9 +49,10 @@ public:
     virtual void parseVarDecl(pnode root, Statement &varDecl);
 
     pnode m_root;
-    std::vector<irInstruction> m_instructions;
+    std::list<irInstruction> m_instructions;
 
 private:
+    void dfsCompStmt(pnode node, std::pair<std::string, int> &varIter);
     void dfsExpr(pnode node, std::pair<std::string, int> &varIter);
     void dfsSimpleExpr(pnode node, std::pair<std::string, int> &varIter);
     void dfsAndExpr(pnode node, std::pair<std::string, int> &varIter);
@@ -60,13 +62,22 @@ private:
     void dfsTerm(pnode node, std::pair<std::string, int> &varIter);
     void dfsUnaryExpr(pnode node, std::pair<string, int> &varIter);
     void dfsImmutable(pnode node, std::pair<string, int> &varIter);
+    void dfsConstant(pnode node, std::pair<string, int> &varIter);
     void dfsCall(pnode node, std::pair<string, int> &varIter);
+    void dfsIfStmt(pnode node, std::pair<string, int> &varIter);
+    void dfsElifStmt(pnode node, std::pair<string, int> &varIter);
+    void dfsElseStmt(pnode node, std::pair<string, int> &varIter);
     void dfsArgs(pnode node, std::pair<string, int> &varIter);
     void dfsArgList(pnode node, std::pair<string, int> &varIter);
     void dfsVarDeclList(pnode node, std::pair<string, int> &varIter);
     void dfsVarDeclInit(pnode node, std::pair<string, int> &varIter);
 
     void translateTerm(pnode node, std::pair<std::string, int> &varIter);
+
+    void processMutUnaryOp(pnode node, std::pair<std::string, int> &varIter);
+
+
+    std::vector<irInstruction> m_curTerms;
 };
 
 class ExpressionStatement : public Statement

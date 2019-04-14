@@ -8,6 +8,7 @@
 
 Function::Function(pnode funcRoot)
 {
+
     pnode compStmtRoot = funcRoot.children()[5].children()[0];
     // sends the root statement list of the compound statement.
     m_statementList = extractStatements(compStmtRoot.children()[1]);
@@ -54,14 +55,114 @@ std::vector<Statement> Function::extractStatements(pnode root)
 
 void Statement::parseBreakStmt(pnode root, Statement &breakStmt)
 {
-    // this could be tricky.
+    // this could be tricky?
 }
 
 void Statement::parseSelStmt(pnode root, Statement &selStmt)
 {
     for (auto child : root.children())
     {
+        if (child.rule() == "ifStmt")
+        {
+            std::pair<std::string, int> varIter;
+            varIter.second = -1;
+            dfsIfStmt(child, varIter);
+        }
+        else if (child.rule() == "elifStmt")
+        {
+            std::pair<std::string, int> varIter;
+            varIter.second = -1;
+            dfsElifStmt(child, varIter);
+        }
+        else if (child.rule() == "elseStmt")
+        {
+            std::pair<std::string, int> varIter;
+            varIter.second = -1;
+            dfsElseStmt(child, varIter);
+        }
+    }
+}
 
+void Statement::dfsIfStmt(pnode node, std::pair<string, int> &varIter)
+{
+    for (auto child : node.children())
+    {
+        if (child.rule() == "if")
+        {
+
+        }
+        else if (child.rule() == "(" || child.rule() == ")")
+        {
+            // discard symbols
+        }
+        else if (child.rule() == "simpleExpr")
+        {
+            dfsSimpleExpr(child, varIter);
+        }
+        else if (child.rule() == "stmt")
+        {
+            Function::extractStatements(child);
+        }
+        else if (child.rule() == "compStmt")
+        {
+            dfsCompStmt(child, varIter);
+        }
+    }
+}
+
+void Statement::dfsElifStmt(pnode node, std::pair<string, int> &varIter)
+{
+    for (auto child : node.children())
+    {
+        if (child.rule() == "else")
+        {
+            // discard symbol, we already have this information since we're here.
+            // possibly use this block to make a note of the fact that only one
+            // of the selection statements in this series of statements should
+            // be executed.
+        }
+        else if (child.rule() == "ifStmt")
+        {
+            dfsIfStmt(child, varIter);
+        }
+        else if (child.rule() == "elifStmt")
+        {
+            dfsElifStmt(child, varIter);
+        }
+    }
+}
+
+void Statement::dfsElseStmt(pnode node, std::pair<string, int> &varIter)
+{
+    for (auto child : node.children())
+    {
+        if (child.rule() == "else")
+        {
+            // discard symbol, and set the appropriate behavior (see comments in dfsElifStmt)
+        }
+        else if (child.rule() == "stmt")
+        {
+            Function::extractStatements(child);
+        }
+        else if (child.rule() == "compStmt")
+        {
+            dfsCompStmt(child, varIter);
+        }
+    }
+}
+
+void Statement::dfsCompStmt(pnode node, std::pair<std::string, int> &varIter)
+{
+    for (auto child : node.children())
+    {
+        if (child.rule() == "{" || child.rule() == "}")
+        {
+            // discard symbol
+        }
+        else
+        {
+            Function::extractStatements(child);
+        }
     }
 }
 void Statement::parseExprStmt(pnode root, Statement &exprStmt)
@@ -75,6 +176,7 @@ void Statement::parseExprStmt(pnode root, Statement &exprStmt)
         if (child.rule() == "expr")
         {
             std::pair<std::string, int> varIter;
+            varIter.second = -1;
             dfsExpr(child, varIter);
         }
     }
@@ -114,6 +216,7 @@ void Statement::parseRetStmt(pnode root, Statement &retStmt)
         else
         {
             std::pair<std::string, int> varIter;
+            varIter.second = -1;
             dfsExpr(child, varIter);
         }
     }
@@ -130,6 +233,7 @@ void Statement::parseVarDecl(pnode root, Statement &varDecl)
         else if (child.rule() == "varDeclList")
         {
             std::pair<std::string, int> varIter;
+            varIter.second = -1;
             dfsVarDeclList(child, varIter);
         }
     }
@@ -142,21 +246,66 @@ void Statement::dfsExpr(pnode node, std::pair<std::string, int> &varIter)
         // the left hand side of an expression.
         if (child.rule() == "mutable")
         {
-            // get var name and place in here m_varIter map.
-            varIter.first  = child.children()[0].children()[0].rule();
-            varIter.second = 0;
+            // Use symbol table to place value of variable into expression.
+            string mutName = child.children()[0].children()[0].rule();
+            auto symbol = SymbolTable::symbolTable->lookup(mutName);
+
+            if (m_curTerms.back().arg1.empty())
+            {
+                m_curTerms.back().arg1 = symbol->data;
+            }
+            else
+            {
+                m_curTerms.back().arg2 = symbol->data;
+            }
+
         }
         else if (child.rule() == "mutUnaryOp")
         {
             // manage op
+            processMutUnaryOp(child, varIter);
         }
         else if (child.rule() == "mutBinOp")
         {
-            // only handling assignment to a single variable for now
+
         }
         else // simpleExpr
         {
             dfsSimpleExpr(node, varIter);
+        }
+    }
+}
+
+void Statement::processMutUnaryOp(pnode node, std::pair<std::string, int> &varIter)
+{
+    for (auto child : node.children())
+    {
+        auto symbol = SymbolTable::symbolTable->lookup(child.rule());
+        if (child.rule() == "++")
+        {
+            // postfix
+            if (node.parent()->children()[0].rule() == "mutable")
+            {
+
+            }
+            // prefix
+            else
+            {
+
+            }
+        }
+        else if (child.rule() == "--")
+        {
+            // postfix
+            if (node.parent()->children()[0].rule() == "mutable")
+            {
+
+            }
+            // prefix
+            else
+            {
+
+            }
         }
     }
 }
@@ -168,6 +317,7 @@ void Statement::dfsSimpleExpr(pnode node, std::pair<std::string, int> &varIter)
         if (child.rule() == "||")
         {
              // manage or op
+
         }
         else if (child.rule() == "andExpr")
         {
@@ -177,37 +327,6 @@ void Statement::dfsSimpleExpr(pnode node, std::pair<std::string, int> &varIter)
         {
             dfsSimpleExpr(child, varIter);
         }
-
-        /*
-        // respect precedence, reorder terms
-        std::vector<pnode> terms = child.children();
-        if (child.rule() == "sumExpr")
-        {
-            // a descending order stable sort (term should come before sumExpr in precedence order)
-            std::stable_sort(terms.begin(), terms.end(), rCompNode);
-        }
-        else if (child.rule() == "term" && child.parent()->rule() == "term")
-        {
-            translateTerm(child, varIter);
-        }
-        // leaf node
-        if (terms.empty())
-        {
-            if (child.rule() == ";" || child.rule() == "(" || child.rule() == ")")
-            {
-                return;
-            }
-            else
-            {
-                // rule = child.rule();
-                return;
-            }
-        }
-        else
-        {
-            dfsExpr(child, varIter);
-        }
-        */
     }
 }
 
@@ -308,7 +427,7 @@ void Statement::dfsUnaryExpr(pnode node, std::pair<string, int> &varIter)
     {
         if (child.rule() == "mutable")
         {
-            // manage mutable
+            // manage mutable, get value from symbol table
         }
         else if (child.rule() == "immutable")
         {
@@ -338,10 +457,62 @@ void Statement::dfsImmutable(pnode node, std::pair<string, int> &varIter)
         else if (child.rule() == "constant")
         {
             // manage constant
+            dfsConstant(child, varIter);
         }
         else
         {
             dfsExpr(child, varIter);
+        }
+    }
+}
+
+void Statement::dfsConstant(pnode node, std::pair<string, int> &varIter)
+{
+    for (auto child : node.children())
+    {
+        if (child.rule () == "NUMCONST")
+        {
+            if (m_curTerms.back().arg1.empty())
+            {
+                m_curTerms.back().arg1 = child.children()[0].rule();
+            }
+            else
+            {
+                m_curTerms.back().arg2 = child.children()[0].rule();
+            }
+        }
+        else if (child.rule() == "CHARCONST")
+        {
+            if (m_curTerms.back().arg1.empty())
+            {
+                m_curTerms.back().arg1 = child.children()[0].rule();
+            }
+            else
+            {
+                m_curTerms.back().arg2 = child.children()[0].rule();
+            }
+        }
+        else if (child.rule() == "true")
+        {
+            if (m_curTerms.back().arg1.empty())
+            {
+                m_curTerms.back().arg1 = child.rule();
+            }
+            else
+            {
+                m_curTerms.back().arg2 = child.rule();
+            }
+        }
+        else if (child.rule() == "false")
+        {
+            if (m_curTerms.back().arg1.empty())
+            {
+                m_curTerms.back().arg1 = child.rule();
+            }
+            else
+            {
+                m_curTerms.back().arg2 = child.rule();
+            }
         }
     }
 }
@@ -353,6 +524,7 @@ void Statement::dfsCall(pnode node, std::pair<string, int> &varIter)
         if (child.rule() == "ID")
         {
             // manage variable name
+            m_curTerms.back().op = child.children()[0].rule();
         }
         else if (child.rule() == "args")
         {
@@ -368,9 +540,12 @@ void Statement::dfsArgs(pnode node, std::pair<string, int> &varIter)
         if (child.rule() == "EMPTY")
         {
             // done here
+            m_curTerms.back().params = nullptr;
         }
         else
         {
+            irInstruction pushOp;
+            m_curTerms.push_back(pushOp);
             dfsArgList(child, varIter);
         }
     }
@@ -383,9 +558,13 @@ void Statement::dfsArgList(pnode node, std::pair<string, int> &varIter)
         if (child.rule() == ",")
         {
             // throw away symbol
+            irInstruction pushOp;
+            m_curTerms.push_back(pushOp);
         }
         else if (child.rule() == "expr")
         {
+
+            m_curTerms.back().op = "push";
             dfsExpr(node, varIter);
         }
         else
@@ -421,10 +600,13 @@ void Statement::dfsVarDeclInit(pnode node, std::pair<string, int> &varIter)
         if (child.rule() == "ID")
         {
             // get id
+            irInstruction newVarDecl;
+            newVarDecl.res = varIter.first + to_string(++(varIter.second));
+            m_curTerms.push_back(newVarDecl);
         }
         else if (child.rule() == "=")
         {
-            // set up assignment
+            // Discard symbol
         }
         else
         {

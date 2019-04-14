@@ -12,10 +12,20 @@
 
 using namespace std;
 
-typedef struct
+typedef struct irInstruction
 {
+    // default constructor that zeroes out all values.
+    irInstruction()
+    : op()
+    , arg1()
+    , params()
+    , arg2()
+    , res()
+    {}
+
     string op;
     string arg1;
+    pnode *params;
     string arg2;
     string res;
 } irInstruction;
