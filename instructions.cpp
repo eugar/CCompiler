@@ -68,12 +68,6 @@ void Statement::parseSelStmt(pnode root, Statement &selStmt)
             varIter.second = -1;
             dfsIfStmt(child, varIter);
         }
-        else if (child.rule() == "elifStmt")
-        {
-            std::pair<std::string, int> varIter;
-            varIter.second = -1;
-            dfsElifStmt(child, varIter);
-        }
         else if (child.rule() == "elseStmt")
         {
             std::pair<std::string, int> varIter;
@@ -110,35 +104,13 @@ void Statement::dfsIfStmt(pnode node, std::pair<string, int> &varIter)
     }
 }
 
-void Statement::dfsElifStmt(pnode node, std::pair<string, int> &varIter)
-{
-    for (auto child : node.children())
-    {
-        if (child.rule() == "else")
-        {
-            // discard symbol, we already have this information since we're here.
-            // possibly use this block to make a note of the fact that only one
-            // of the selection statements in this series of statements should
-            // be executed.
-        }
-        else if (child.rule() == "ifStmt")
-        {
-            dfsIfStmt(child, varIter);
-        }
-        else if (child.rule() == "elifStmt")
-        {
-            dfsElifStmt(child, varIter);
-        }
-    }
-}
-
 void Statement::dfsElseStmt(pnode node, std::pair<string, int> &varIter)
 {
     for (auto child : node.children())
     {
         if (child.rule() == "else")
         {
-            // discard symbol, and set the appropriate behavior (see comments in dfsElifStmt)
+            // discard symbol and set the appropriate behavior.
         }
         else if (child.rule() == "stmt")
         {
@@ -147,6 +119,10 @@ void Statement::dfsElseStmt(pnode node, std::pair<string, int> &varIter)
         else if (child.rule() == "compStmt")
         {
             dfsCompStmt(child, varIter);
+        }
+        else
+        {
+            dfsElseStmt(child, varIter);
         }
     }
 }
