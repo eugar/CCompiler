@@ -3,7 +3,7 @@ declList -> declList decl
 declList -> decl
 decl -> funcDecl
 decl -> varDecl
-funcDecl -> typeSpec ID ( params ) stmt
+funcDecl -> typeSpec ID ( params ) compStmt
 typeSpec -> returnTypeSpec
 returnTypeSpec -> int
 returnTypeSpec -> char
