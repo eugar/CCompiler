@@ -24,7 +24,7 @@ class Function
 public:
 
     Function(pnode funcRoot);
-    static std::vector<Statement> extractStatements(pnode root);
+    std::vector<Statement> extractStatements(pnode root);
 
 private:
     std::vector<Statement> m_statementList;
@@ -38,7 +38,9 @@ public:
 
     Statement(pnode node)
             : m_root(node)
-    {}
+    {
+        dfsStmt(m_root);
+    }
     static bool rCompNode(pnode a, pnode b) {return a.rule() >= b.rule();}
 
     virtual void parseExprStmt(pnode root, Statement &exprStmt);
@@ -49,9 +51,11 @@ public:
     virtual void parseVarDecl(pnode root, Statement &varDecl);
 
     pnode m_root;
+    std::vector<Statement> m_statements;
     std::list<irInstruction> m_instructions;
 
 private:
+    void dfsStmt(pnode node);
     void dfsCompStmt(pnode node, std::pair<std::string, int> &varIter);
     void dfsExpr(pnode node, std::pair<std::string, int> &varIter);
     void dfsSimpleExpr(pnode node, std::pair<std::string, int> &varIter);
