@@ -106,6 +106,9 @@ bool Parser::buildSymbolTable(SymbolTable &symbolTable, pnode parent)
             symbolTable.insert(st.scope(), findType(child), "funcDecl");
             continue;
         }
+        if (child.rule() == "decl" && child.children()[0].rule() == "varDecl") {
+            symbolTable.insert(findVarName(child.children()[0]), findType(child.children()[0]), findData(child.children()[0]));
+        }
         buildSymbolTable(symbolTable, child);
     }
     return true;
