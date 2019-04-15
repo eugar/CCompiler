@@ -16,11 +16,38 @@ Assembly::Assembly(string filename) {
         exit(1);
     }
 
-    bbcount = 0;
+    bbcount = 1;
+}
+
+void Assembly::writeFunctionPrologue() {
+    writeInstruction("pushq\t%rbp");
+    writeInstruction("movq\t%rsp, %rbp");
+}
+
+void Assembly::writeFunctionEpilogue() {
+    writeInstruction("popq\t %rbp");
+    writeInstruction("ret");
+}
+
+void Assembly::writeHeader() {
+    out << ".section .data" << endl;
+    out << ".section .bss" << endl;
+    out << ".section .text" << endl;
+    out << ".globl _start" << endl;
+    out << "#.bb0:" << endl;
+    out << "_start:" << endl;
+    writeFunctionPrologue();
+    out << "" << endl;
+    writeInstruction("call main"); // need to do a check to make sure that main exist
+    writeInstruction("movq\t%rax, %rbx");
+    writeInstruction("movq\t$60, %rax #sys_exit");
+    writeInstruction("movq\t$0x0, %rdi");
+    writeInstruction("syscall");
 }
 
 void Assembly::generateCode(vector<irInstruction> instructions)
 {
+    writeHeader();
     for (auto instruction : instructions)
     {
         insertBB(instruction);
@@ -31,7 +58,7 @@ void Assembly::insertBB(irInstruction ins)
 {
     if (ins.op == "FUNC" || ins.op == "LABEL")
     {
-        out << ".bb" << this->bbcount << endl;
+        out << "#.bb" << this->bbcount << ":" << endl;
         bbcount++;
     }
 
@@ -113,12 +140,13 @@ void Assembly::chooseInstruction(irInstruction ins)
     }
     else if (ins.op == "RET")
     {
-        writeInstruction("ret");
+        writeFunctionEpilogue();
     }
     else if (ins.op == "FUNC") // generate a label
     {
         //todo: need to generate function prologue and epilogue
         out << ins.arg1 << ":" << endl;
+        writeFunctionPrologue();
     }
     else if (ins.op == "LABEL")
     {

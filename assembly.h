@@ -21,6 +21,9 @@ public:
     void writeInstruction(string line);
     void chooseInstruction(irInstruction ins);
     void closeOutput(){this->out.close();};
+    void writeHeader();
+    void writeFunctionPrologue();
+    void writeFunctionEpilogue();
 
 private:
     ofstream out;
