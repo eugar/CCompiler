@@ -10,44 +10,51 @@
 using namespace std;
 
 AssemblyContext::AssemblyContext() {
-    this->context.stack;
+    this->context.registerList = initRegList();
     this->context.numLabels = 0;
     this->context.stackOffset = 0;
 }
 
 void AssemblyContext::newScope() {
-    this->context.stack = newStack();
+    this->context.registerList = initRegList();
     this->context.stackOffset -= 4; //make 4 (num bytes) a macro later
 }
 
-stackItems AssemblyContext::newStack() {
-    stackItems stack;
-    stack.items;
-    stack.size = 0;
+vector<reg> AssemblyContext::initRegList() {
+    vector<reg> registers;
+    registers.reserve(8);
 
-    return stack;
+    for (int i = 8; i <= 15; i++)
+    {
+        reg regg;
+        regg.registerNum = i;
+        regg.name = "";
+        regg.age = 0;
+        regg.isUsed = 0;
+        regg.val = 0;
+
+        registers.push_back(regg);
+    }
+
+    return registers;
 }
+
 // add a new value to the stack
-void AssemblyContext::setOffset(string name, int offset, stackItems stack) {
-    item tmpitem;
-
-    tmpitem.name = name;
-    tmpitem.offset = offset;
-
-    stack.items.push_back(tmpitem);
-    stack.size++;
+void AssemblyContext::fillRegister(int regg, string name) {
+    cout << "filling register " << regg << " with " + name << endl;
+    this->context.registerList.at(regg - 8).name = name;
+    this->context.registerList.at(regg - 8).isUsed = 1;
+    this->context.registerList.at(regg - 8).age = 0;
 }
 
 // return the offset of a variable with the passed in name (if it exists)
-int AssemblyContext::getOffset(string name, stackItems stack) {
-    for (auto it : stack.items)
+int AssemblyContext::getRegister(string name) {
+    for (auto it : this->context.registerList)
     {
         if (it.name == name)
         {
-            return it.offset;
+            return it.registerNum;
         }
     }
-
-    cout << "Could not find var " << name << " in the stack." << endl;
-    return -1;
+    return -1; // couldn't find var
 }
