@@ -304,7 +304,7 @@ void ir::getGlobals(pnode root)
     }
 }
 
-void ir::readGlobals() //todo: use symbol table to turn all variable values into immediate values
+void ir::readGlobals()
 {
     for (auto global : m_globals)
     {
