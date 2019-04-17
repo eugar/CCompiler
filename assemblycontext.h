@@ -13,17 +13,14 @@ using namespace std;
 typedef struct reg {
     string name;
     int registerNum;
-    int val;
+    int isUsed; // flag
+    int age; // used for LRU
+    int val; // might not be needed
 } reg;
-
-typedef struct registerList {
-    size_t size;
-    vector<reg> registers;
-} registerList;
 
 typedef struct regContext {
     int stackOffset;
-    registerList list;
+    vector<reg> registerList;
     int numLabels;
 } regContext;
 
@@ -32,8 +29,9 @@ class AssemblyContext {
 public:
     AssemblyContext();
 
-    void fillRegister(string name, int offset);
+    void fillRegister(int tmpRegister, string name);
     int getRegister(string name);
+    vector<reg> initRegList();
     void newScope();
 
     regContext context;

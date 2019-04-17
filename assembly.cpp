@@ -17,7 +17,6 @@ Assembly::Assembly(string filename) {
     }
 
     bbcount = 1;
-    registerNum = 0;
 }
 
 void Assembly::writeFunctionPrologue() {
@@ -50,9 +49,16 @@ void Assembly::writeHeader() {
 void Assembly::generateCode(vector<irInstruction> instructions)
 {
     writeHeader();
+
     for (auto instruction : instructions)
     {
         insertBB(instruction);
+        updateRegAge();
+        for (auto reg : this->assemblyContext.context.registerList) // debugging
+        {
+            cout << reg.registerNum << ':' << reg.age << endl;
+        }
+        cout << "" << endl;
     }
 }
 
@@ -87,11 +93,60 @@ string Assembly::createString(string argument)
     return "$" + argument;
 }
 
-int Assembly::getNextReg() {
-    int tmpReg = this->registerNum;
-    this->registerNum++;
+int Assembly::evictReg()
+{
+    // find 'oldest' register
+    auto max = max_element(this->assemblyContext.context.registerList.begin(), this->assemblyContext.context.registerList.end(),
+            [](const reg &a, const reg &b)
+            {
+                return a.age < b.age;
+            } );
 
-    return tmpReg;
+    max->age = 0;
+    max->isUsed = 0;
+    max->name = "";
+    max->val = 0;
+
+    return max->registerNum;
+}
+
+int Assembly::getOpenReg(string res) {
+    for (reg regg : this->assemblyContext.context.registerList) // see if the result destination is already a register
+    {
+        if (regg.name == res)
+        {
+            cout << "returning " << regg.registerNum << " " << regg.name << endl;
+            return regg.registerNum;
+        }
+    }
+
+    for (auto reg : this->assemblyContext.context.registerList) // otherwise, we need to iterate through the registers and get an open register
+    {
+        if (!reg.isUsed)
+        {
+            //cout << "found open reg " << reg.registerNum << endl;
+            return reg.registerNum;
+        }
+    }
+
+    // if we reached this point, there are no more open registers. we must evict the LRU register.
+
+    int openReg = evictReg();
+
+    return openReg;
+}
+
+// iterate through the list and increment the age of all registers
+void Assembly::updateRegAge()
+{
+    for (auto &reg : this->assemblyContext.context.registerList)
+    {
+        if (reg.isUsed)
+        {
+            cout << "incrementing age" << endl;
+            reg.age += 1;
+        }
+    }
 }
 
 //this function takes in strings and formats them. After
@@ -99,45 +154,46 @@ int Assembly::getNextReg() {
 //output .s file
 void Assembly::writeInstruction(string line)
 { //todo: format correctly (pretty print)
-    out << "  " << line << endl;
+    out << "    " << line << endl;
 }
 
 //this function takes in an irInstruction and chooses the correct
 //x86 instruction (AT&T syntax) and sends a string to writeInstruction()
 //to be formatted
 void Assembly::chooseInstruction(irInstruction ins)
-{ //todo: choose appropiate instructions, e.g., addq, addw, etc
+{ //todo: choose appropriate instructions, e.g., addq, addw, etc
     if (ins.op == "NOT") // unary instructions
     {
-        int tmpRegNum = getNextReg();
+        int tmpReg = getOpenReg(ins.res); // need to change logic in this op
         writeInstruction(createString(ins.arg1));
         writeInstruction("not\t%eax");
-        writeInstruction("mov\t%eax, %r" + to_string(tmpRegNum));
+        writeInstruction("mov\t%eax, %r" + to_string(tmpReg));
     }
     else if (ins.op == "ADD" || ins.op == "SUB" || ins.op == "MUL" || ins.op == "DIV")
     {
-        int tmpRegNum = getNextReg();
-        writeInstruction("mov\t" + createString(ins.arg2) + ", %eax");
-        writeInstruction("mov\t" + createString(ins.arg1) + ", %ecx");
+        writeInstruction("mov\t\t" + createString(ins.arg2) + ", %eax");
+        writeInstruction("mov\t\t" + createString(ins.arg1) + ", %ecx");
 
         if (ins.op == "ADD")
         {
-            writeInstruction("add\t%ecx, %eax");
+            writeInstruction("add\t\t%ecx, %eax");
         }
         else if (ins.op == "SUB")
         {
-            writeInstruction("sub\t%ecx, %eax");
+            writeInstruction("sub\t\t%ecx, %eax");
         }
         else if (ins.op == "MUL")
         {
-            writeInstruction("mul\t%ecx, %eax");
+            writeInstruction("mul\t\t%ecx, %eax");
         }
         else if (ins.op == "DIV")
         {
 
         }
-        writeInstruction("mov\t%eax, %r" + to_string(tmpRegNum));
-        this->assemblyContext.fillRegister(ins.res, tmpRegNum);
+        // todo: still need to check where the result is being saved, i.e., is it going back into one of the arguments? need to check where that reg is at
+        int tmpReg = getOpenReg(ins.res);
+        writeInstruction("mov\t\t%eax, %r" + to_string(tmpReg));
+        this->assemblyContext.fillRegister(tmpReg, ins.res);
     }
     else if (ins.op == "EQ" || ins.op == "NOTEQ" || ins.op == "LSTH" || ins.op == "GRTH" || ins.op == "GREQ" || ins.op == "LSEQ") //binary instructions
     {
