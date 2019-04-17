@@ -10,41 +10,35 @@
 using namespace std;
 
 AssemblyContext::AssemblyContext() {
-    this->context.stack;
+    this->context.list = {0};
     this->context.numLabels = 0;
     this->context.stackOffset = 0;
 }
 
 void AssemblyContext::newScope() {
-    this->context.stack = newStack();
+    this->context.list = {0};
     this->context.stackOffset -= 4; //make 4 (num bytes) a macro later
 }
 
-stackItems AssemblyContext::newStack() {
-    stackItems stack;
-    stack.items;
-    stack.size = 0;
 
-    return stack;
-}
 // add a new value to the stack
-void AssemblyContext::setOffset(string name, int offset, stackItems stack) {
-    item tmpitem;
+void AssemblyContext::fillRegister(string name, int regNum) {
+    reg tmpReg;
 
-    tmpitem.name = name;
-    tmpitem.offset = offset;
+    tmpReg.name = name;
+    tmpReg.registerNum = regNum;
 
-    stack.items.push_back(tmpitem);
-    stack.size++;
+    this->context.list.registers.push_back(tmpReg);
+    this->context.list.size++;
 }
 
 // return the offset of a variable with the passed in name (if it exists)
-int AssemblyContext::getOffset(string name, stackItems stack) {
-    for (auto it : stack.items)
+int AssemblyContext::getRegister(string name) {
+    for (auto it : this->context.list.registers)
     {
         if (it.name == name)
         {
-            return it.offset;
+            return it.registerNum;
         }
     }
 

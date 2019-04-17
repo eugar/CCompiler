@@ -17,11 +17,13 @@ Assembly::Assembly(string filename) {
     }
 
     bbcount = 1;
+    registerNum = 0;
 }
 
 void Assembly::writeFunctionPrologue() {
     writeInstruction("pushq\t%rbp");
     writeInstruction("movq\t%rsp, %rbp");
+    writeInstruction("xorl\t%eax, %eax"); // zero out eax, the result register
 }
 
 void Assembly::writeFunctionEpilogue() {
@@ -40,7 +42,7 @@ void Assembly::writeHeader() {
     out << "" << endl;
     writeInstruction("call main"); // need to do a check to make sure that main exist
     writeInstruction("movq\t%rax, %rbx");
-    writeInstruction("movq\t$60, %rax #sys_exit");
+    writeInstruction("movq\t$60, %rax #sys_exit ");
     writeInstruction("movq\t$0x0, %rdi");
     writeInstruction("syscall");
 }
@@ -65,6 +67,33 @@ void Assembly::insertBB(irInstruction ins)
     chooseInstruction(ins);
 }
 
+string Assembly::createString(string argument)
+{
+    if (argument.find_first_not_of("0123456789") != std::string::npos) // a char was found, it is an id
+    {
+        //lookup in the table
+        int regNum = this->assemblyContext.getRegister(argument);
+        if (regNum != -1) // it was found
+        {
+            return "%r" + to_string(regNum);
+        }
+        else
+        {
+            cout << "variable " + argument + " was not found while generating assembly";
+            exit(1);
+        }
+    }
+
+    return "$" + argument;
+}
+
+int Assembly::getNextReg() {
+    int tmpReg = this->registerNum;
+    this->registerNum++;
+
+    return tmpReg;
+}
+
 //this function takes in strings and formats them. After
 //the strings have been formatted they are written out to the
 //output .s file
@@ -80,36 +109,39 @@ void Assembly::chooseInstruction(irInstruction ins)
 { //todo: choose appropiate instructions, e.g., addq, addw, etc
     if (ins.op == "NOT") // unary instructions
     {
+        int tmpRegNum = getNextReg();
+        writeInstruction(createString(ins.arg1));
         writeInstruction("not\t%eax");
+        writeInstruction("mov\t%eax, %r" + to_string(tmpRegNum));
     }
-    else if (ins.op == "ADD" || ins.op == "SUB" || ins.op == "MUL" || ins.op == "DIV" || ins.op == "EQ" || ins.op == "NOTEQ" || ins.op == "LSTH" || ins.op == "GRTH" || ins.op == "GREQ" || ins.op == "LSEQ") //binary instructions
+    else if (ins.op == "ADD" || ins.op == "SUB" || ins.op == "MUL" || ins.op == "DIV")
     {
-        writeInstruction("mov\t$" + ins.arg2 + ", %eax");
-
-        int tmpOffset = this->assemblyContext.context.stackOffset;
-        this->assemblyContext.context.stackOffset -= 4;
-        writeInstruction("sub\t$4, %rsp");
-        writeInstruction("mov\t%eax, " + to_string(tmpOffset) + "(%rbp)");
-        writeInstruction("mov\t$" + ins.arg1 + ", %eax");
+        int tmpRegNum = getNextReg();
+        writeInstruction("mov\t" + createString(ins.arg2) + ", %eax");
+        writeInstruction("mov\t" + createString(ins.arg1) + ", %ecx");
 
         if (ins.op == "ADD")
         {
-            writeInstruction("add\t" + to_string(tmpOffset) + "(%rbp), %eax");
+            writeInstruction("add\t%ecx, %eax");
         }
         else if (ins.op == "SUB")
         {
-            writeInstruction("sub\t%eax, " + to_string(tmpOffset) + "(%rbp)");
-            writeInstruction("mov\t" + to_string(tmpOffset) + "(%rbp), %eax");
+            writeInstruction("sub\t%ecx, %eax");
         }
         else if (ins.op == "MUL")
         {
-            //insert logic
+            writeInstruction("mul\t%ecx, %eax");
         }
         else if (ins.op == "DIV")
         {
 
         }
-        else if (ins.op == "EQ")
+        writeInstruction("mov\t%eax, %r" + to_string(tmpRegNum));
+        this->assemblyContext.fillRegister(ins.res, tmpRegNum);
+    }
+    else if (ins.op == "EQ" || ins.op == "NOTEQ" || ins.op == "LSTH" || ins.op == "GRTH" || ins.op == "GREQ" || ins.op == "LSEQ") //binary instructions
+    {
+        if (ins.op == "EQ")
         {
 
         }
@@ -133,10 +165,10 @@ void Assembly::chooseInstruction(irInstruction ins)
         {
 
         }
+
     }
     else if (ins.op == "COPY")
     {
-        writeInstruction("mov\t$" + ins.arg2 + ", " + to_string(this->assemblyContext.context.stackOffset) + "(%rbp)");
     }
     else if (ins.op == "RET")
     {
@@ -144,7 +176,7 @@ void Assembly::chooseInstruction(irInstruction ins)
     }
     else if (ins.op == "FUNC") // generate a label
     {
-        //todo: need to generate function prologue and epilogue
+        //todo: need to insert logic to handle scoping
         out << ins.arg1 << ":" << endl;
         writeFunctionPrologue();
     }

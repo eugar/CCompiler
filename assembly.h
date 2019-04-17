@@ -24,10 +24,13 @@ public:
     void writeHeader();
     void writeFunctionPrologue();
     void writeFunctionEpilogue();
+    int getNextReg();
+    string createString(string argument);
 
 private:
     ofstream out;
     int bbcount;
+    int registerNum;
     AssemblyContext assemblyContext;
 };
 

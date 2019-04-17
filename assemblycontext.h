@@ -10,33 +10,33 @@
 
 using namespace std;
 
-typedef struct item {
+typedef struct reg {
     string name;
-    int offset;
-} item;
+    int registerNum;
+    int val;
+} reg;
 
-typedef struct stackItems {
+typedef struct registerList {
     size_t size;
-    vector<item> items;
-} stackItems;
+    vector<reg> registers;
+} registerList;
 
-typedef struct itemContext {
+typedef struct regContext {
     int stackOffset;
-    stackItems stack;
+    registerList list;
     int numLabels;
-} itemContext;
+} regContext;
 
 class AssemblyContext {
 
 public:
     AssemblyContext();
 
-    stackItems newStack();
-    void setOffset(string name, int offset, stackItems stack);
-    int getOffset(string name, stackItems stack);
+    void fillRegister(string name, int offset);
+    int getRegister(string name);
     void newScope();
 
-    itemContext context;
+    regContext context;
 
 
 private:
