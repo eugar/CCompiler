@@ -9,26 +9,9 @@
 #include <vector>
 #include "parsetree.hpp"
 #include "symboltable.hpp"
+#include "instructions.h"
 
 using namespace std;
-
-typedef struct irInstruction
-{
-    // default constructor that zeroes out all values.
-    irInstruction()
-    : op()
-    , arg1()
-    , params()
-    , arg2()
-    , res()
-    {}
-
-    string op;
-    string arg1;
-    pnode *params;
-    string arg2;
-    string res;
-} irInstruction;
 
 class ir {
 
@@ -41,7 +24,7 @@ public:
 
     void getGlobals(pnode root);
     void readGlobals();
-    void extractGlobals(pnode &root);
+    void extractGlobals(pnode root);
 
 private:
     static irInstruction createIns(vector<string> params);

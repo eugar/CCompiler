@@ -7,6 +7,7 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include "instructions.h"
 
 using namespace std;
 
@@ -16,8 +17,8 @@ ir::ir(ParseTree parseTree, SymbolTable symbolTable)
 {
     vector<irInstruction> instructions;
     generateIR(parseTree);
-    getGlobals(parseTree.root());
-    int x;
+    extractGlobals(parseTree.root());
+    readGlobals();
 }
 
 
@@ -244,10 +245,7 @@ irInstruction ir::createIns(vector<string> params) {
 void ir::generateIR(ParseTree pTree) // will change this to an AST (?)
 {
     pnode root = pTree.root();
-    for (auto child : root.children())
-    {
-        this->getTreeChildren(child);
-    }
+
 }
 
 void ir::getTreeChildren(pnode pn) {
@@ -258,7 +256,7 @@ void ir::getTreeChildren(pnode pn) {
 }
 
 // recurses on the parse tree to find all global declarations.
-void ir::extractGlobals(pnode &root)
+void ir::extractGlobals(pnode root)
 {
     if (root.children().empty())
     {
@@ -277,11 +275,12 @@ void ir::extractGlobals(pnode &root)
 
             if (decl.rule() == "funcDecl")
             {
-
+                m_globals.push_back(decl);
+                return;
             }
             else if (decl.rule() == "varDecl")
             {
-
+                m_globals.push_back(decl);
             }
         }
         else
@@ -304,6 +303,7 @@ void ir::getGlobals(pnode root)
     }
 }
 
+// Statement decleration is expecting a compStmt node
 void ir::readGlobals() //todo: use symbol table to turn all variable values into immediate values
 {
     for (auto global : m_globals)
@@ -312,8 +312,8 @@ void ir::readGlobals() //todo: use symbol table to turn all variable values into
        {
            // name of function is index 1 of child.
            // wrap this in a function.
-           string funcName = global.children()[1].children()[0].rule();
-           pnode paramNode = global.children()[1].children()[3];
+          // string funcName = global.children()[1].children()[0].rule();
+           /*pnode paramNode = global.children()[1].children()[3];
            for (auto& param : paramNode.children())
            {
                // get symbols
@@ -322,9 +322,10 @@ void ir::readGlobals() //todo: use symbol table to turn all variable values into
            pnode statementNode = global.children()[1].children()[5];
            for (auto& statement : statementNode.children())
            {
-
+                //Statement stmt(statement);
+                //this->instructions = stmt.getCurTerms();
            }
-
+           */
        }
        else if (global.rule() == "varDecl")
        {

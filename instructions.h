@@ -14,8 +14,27 @@
 #include <vector>
 #include <list>
 #include <string>
+#include "cparser.hpp"
 
-#include "ir.h"
+//#include "ir.h"
+
+typedef struct irInstruction
+{
+    // default constructor that zeroes out all values.
+    irInstruction()
+    : op()
+    , arg1()
+    , params()
+    , arg2()
+    , res()
+    {}
+
+    string op;
+    string arg1;
+    pnode *params;
+    string arg2;
+    string res;
+} irInstruction;
 
 class Statement;
 
@@ -42,6 +61,7 @@ public:
         dfsStmt(m_root);
     }
     static bool rCompNode(pnode a, pnode b) {return a.rule() >= b.rule();}
+    std::vector<irInstruction> getCurTerms(){return m_curTerms;}
 
     virtual void parseExprStmt(pnode root, Statement &exprStmt);
     virtual void parseSelStmt(pnode root, Statement &selStmt);

@@ -100,7 +100,6 @@ HELP:
     }
     parser.buildSymbolTable(symbolTable, parseTree.root());
     ir ir(parseTree, symbolTable);
-
     if (pTokens)
     {
         Token::printTokens(m_tokenList);
