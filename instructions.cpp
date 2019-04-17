@@ -25,30 +25,7 @@ std::vector<Statement> Function::extractStatements(pnode root)
         }
         else if (statement.rule() == "stmt")
         {
-            if (statement.children()[0].rule() == "exprStmt")
-            {
-                statementList.push_back(ExpressionStatement(statement.children()[0]));
-            }
-            else if (statement.children()[0].rule() == "selStmt")
-            {
-                statementList.push_back(SelectionStatement(statement.children()[0]));
-            }
-            else if (statement.children()[0].rule() == "iterStmt")
-            {
-                statementList.push_back(IterationStatement(statement.children()[0]));
-            }
-            else if (statement.children()[0].rule() == "retStmt")
-            {
-                statementList.push_back(ReturnStatement(statement.children()[0]));
-            }
-            else if (statement.children()[0].rule() == "breakStmt")
-            {
-                statementList.push_back(BreakStatement(statement.children()[0]));
-            }
-            else if (statement.children()[0].rule() == "varDecl")
-            {
-                statementList.push_back(VariableDeclaration(statement.children()[0]));
-            }
+            m_statementList.push_back(Statement(statement.children()[0]));
         }
     }
 }
@@ -77,6 +54,34 @@ void Statement::parseSelStmt(pnode root, Statement &selStmt)
     }
 }
 
+void Statement::dfsStmt(pnode node)
+{
+    if (node.children()[0].rule() == "exprStmt")
+    {
+        m_statements.push_back(ExpressionStatement(node.children()[0]));
+    }
+    else if (node.children()[0].rule() == "selStmt")
+    {
+        m_statements.push_back(SelectionStatement(node.children()[0]));
+    }
+    else if (node.children()[0].rule() == "iterStmt")
+    {
+        m_statements.push_back(IterationStatement(node.children()[0]));
+    }
+    else if (node.children()[0].rule() == "retStmt")
+    {
+        m_statements.push_back(ReturnStatement(node.children()[0]));
+    }
+    else if (node.children()[0].rule() == "breakStmt")
+    {
+        m_statements.push_back(BreakStatement(node.children()[0]));
+    }
+    else if (node.children()[0].rule() == "varDecl")
+    {
+        m_statements.push_back(VariableDeclaration(node.children()[0]));
+    }
+}
+
 void Statement::dfsIfStmt(pnode node, std::pair<string, int> &varIter)
 {
     for (auto child : node.children())
@@ -95,7 +100,7 @@ void Statement::dfsIfStmt(pnode node, std::pair<string, int> &varIter)
         }
         else if (child.rule() == "stmt")
         {
-            Function::extractStatements(child);
+            dfsStmt(child);
         }
         else if (child.rule() == "compStmt")
         {
@@ -114,7 +119,7 @@ void Statement::dfsElseStmt(pnode node, std::pair<string, int> &varIter)
         }
         else if (child.rule() == "stmt")
         {
-            Function::extractStatements(child);
+            dfsStmt(child);
         }
         else if (child.rule() == "compStmt")
         {
@@ -137,7 +142,7 @@ void Statement::dfsCompStmt(pnode node, std::pair<std::string, int> &varIter)
         }
         else
         {
-            Function::extractStatements(child);
+            dfsStmt(child);
         }
     }
 }
@@ -172,7 +177,7 @@ void Statement::parseIterStmt(pnode root, Statement &iterStmt)
         }
         else if (child.rule() == "stmt" || child.rule() == "compStmt")
         {
-            Function::extractStatements(child);
+            dfsStmt(child);
         }
     }
 }
