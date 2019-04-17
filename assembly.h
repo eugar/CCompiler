@@ -24,9 +24,9 @@ public:
     void writeHeader();
     void writeFunctionPrologue();
     void writeFunctionEpilogue();
-    int getOpenReg(string res);
+    reg getOpenReg(string res);
     void updateRegAge();
-    int evictReg();
+    reg evictReg();
     string createString(string argument);
 
 private:
