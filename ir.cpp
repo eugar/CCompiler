@@ -310,26 +310,28 @@ void ir::readGlobals() //todo: use symbol table to turn all variable values into
     {
        if (global.rule() == "funcDecl")
        {
-           // name of function is index 1 of child.
-           // wrap this in a function.
-          // string funcName = global.children()[1].children()[0].rule();
-           /*pnode paramNode = global.children()[1].children()[3];
-           for (auto& param : paramNode.children())
+           // pnode "global" is the start of a function
+           Function function(global);
+
+           for(auto stmt : function.getStatementList())
            {
-               // get symbols
-               symbol* sym = m_symbolTable.lookup(param.rule());
+               for(auto st : stmt.m_statements)
+               {
+                   instructions.insert(instructions.end(), st.getCurTerms().begin(), st.getCurTerms().end());
+                }
            }
-           pnode statementNode = global.children()[1].children()[5];
-           for (auto& statement : statementNode.children())
-           {
-                //Statement stmt(statement);
-                //this->instructions = stmt.getCurTerms();
-           }
-           */
        }
        else if (global.rule() == "varDecl")
        {
 
        }
+    }
+}
+
+void ir::printIR()
+{
+    for (auto it : instructions)
+    {
+     cout << (it.op == "" ? "" : it.op + " ") << (it.arg1 == "" ? "" : it.arg1 + " ") << (it.arg2 == "" ? "" : it.arg2 + " ") << (it.res == "" ? "" : it.res + " ") << endl;
     }
 }

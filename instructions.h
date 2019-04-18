@@ -43,7 +43,8 @@ class Function
 public:
 
     Function(pnode funcRoot);
-    std::vector<Statement> extractStatements(pnode root);
+    void extractStatements(pnode root);
+    std::vector<Statement> getStatementList(){return m_statementList;}
 
 private:
     std::vector<Statement> m_statementList;

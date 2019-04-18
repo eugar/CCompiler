@@ -35,6 +35,7 @@ int main(int argc, char * const argv[])
     int irRead = 0;
     int irWrite = 0;
     int assemblyFlag = 0;
+    int printIr = 0;
     string irInFile;
     string irOutFile;
     string assemblyOutFile;
@@ -57,7 +58,7 @@ HELP:
         return 1;
     }
 
-    while ((c = getopt(argc, argv, "?:hspi:o:w:")) != -1)
+    while ((c = getopt(argc, argv, "?:hspri:o:w:")) != -1)
     {
         switch (c)
         {
@@ -74,6 +75,9 @@ HELP:
             case 'o':
                 irWrite = 1;
                 irOutFile = optarg;
+                break;
+            case 'r':
+                printIr = 1;
                 break;
             case 'w':
                 assemblyFlag = 1;
@@ -122,6 +126,11 @@ HELP:
     {
         //vector<irInstruction> test = ir::readFromFile("irexample.txt");
         ir.writeToFile(irOutFile);
+    }
+
+    if (printIr) {
+        ir.printIR();
+        cout << endl;
     }
 
     Assembly a;

@@ -18,7 +18,6 @@ class SymbolTable
 {
 
 public:
-    static SymbolTable *symbolTable;
     SymbolTable(string scope = "Global");
     void insert(string id, string type, string data);
     int modify(string id, string data);

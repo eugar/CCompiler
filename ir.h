@@ -20,6 +20,7 @@ public:
     void readFromFile(string filename);
     void writeToFile(string filename);
     void generateIR(ParseTree pTree);
+    void printIR();
     vector <irInstruction> instructions;
 
     void getGlobals(pnode root);

@@ -3,12 +3,12 @@
 
 using namespace std;
 
-SymbolTable *SymbolTable::symbolTable;
+//SymbolTable *SymbolTable::symbolTable;
 
 SymbolTable::SymbolTable(string scope)
 {
     // root is global scope
-    symbolTable = this;
+    //symbolTable = this;
     m_parent = NULL;
     m_scope = scope;
 }

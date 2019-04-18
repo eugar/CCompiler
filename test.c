@@ -1,5 +1,4 @@
-
-int main(int x) {
-    int i = 2;
-    return 0;
+int main() {
+    int z = 6 * 7 + 5;
+    return z;
 }

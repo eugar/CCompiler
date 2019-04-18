@@ -5,18 +5,20 @@
 #include "instructions.h"
 
 #include <algorithm>
+#include <iostream>
+
+using namespace std;
 
 Function::Function(pnode funcRoot)
 {
 
-    pnode compStmtRoot = funcRoot.children()[5].children()[0];
+    pnode compStmtRoot = funcRoot.children()[5].children()[1];
     // sends the root statement list of the compound statement.
-    m_statementList = extractStatements(compStmtRoot.children()[1]);
+    extractStatements(compStmtRoot);
 }
 // takes the root node of a statement list
-std::vector<Statement> Function::extractStatements(pnode root)
+void Function::extractStatements(pnode root)
 {
-    std::vector<Statement> statementList;
     for (auto statement : root.children())
     {
         if (statement.rule() == "stmtList")
@@ -25,8 +27,9 @@ std::vector<Statement> Function::extractStatements(pnode root)
         }
         else if (statement.rule() == "stmt")
         {
-            m_statementList.push_back(Statement(statement.children()[0]));
-        }
+            Statement stmt(statement);
+            m_statementList.push_back(stmt);
+         }
     }
 }
 
@@ -229,15 +232,15 @@ void Statement::dfsExpr(pnode node, std::pair<std::string, int> &varIter)
         {
             // Use symbol table to place value of variable into expression.
             string mutName = child.children()[0].children()[0].rule();
-            auto symbol = SymbolTable::symbolTable->lookup(mutName);
+            //auto symbol = SymbolTable::symbolTable->lookup(mutName);
 
             if (m_curTerms.back().arg1.empty())
             {
-                m_curTerms.back().arg1 = symbol->data;
+                m_curTerms.back().arg1 = "dfsExpr";//= symbol->data;
             }
             else
             {
-                m_curTerms.back().arg2 = symbol->data;
+                m_curTerms.back().arg2 = "dfsExpr";//= symbol->data;
             }
 
         }
@@ -261,7 +264,7 @@ void Statement::processMutUnaryOp(pnode node, std::pair<std::string, int> &varIt
 {
     for (auto child : node.children())
     {
-        auto symbol = SymbolTable::symbolTable->lookup(child.rule());
+        //auto symbol = SymbolTable::symbolTable->lookup(child.rule());
         if (child.rule() == "++")
         {
             // postfix
@@ -385,6 +388,7 @@ void Statement::dfsSumExpr(pnode node, std::pair<std::string, int> &varIter)
 
 void Statement::dfsTerm(pnode node, std::pair<std::string, int> &varIter)
 {
+
     for (auto child : node.children())
     {
         if (child.rule() == "mulOp")
@@ -451,6 +455,10 @@ void Statement::dfsConstant(pnode node, std::pair<string, int> &varIter)
 {
     for (auto child : node.children())
     {
+        irInstruction inst;
+        inst.op = "COPY";
+        inst.res = varIter.first + to_string(++(varIter.second));
+        m_curTerms.push_back(inst);
         if (child.rule () == "NUMCONST")
         {
             if (m_curTerms.back().arg1.empty())
