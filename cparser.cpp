@@ -10,41 +10,6 @@
 
 using namespace std;
 
-void Parser::hardcodeTest()
-{
-    m_stateTable.m_action.insert(0, 3, "(", StateTables::Action::ACTION::SHIFT);
-    m_stateTable.m_action.insert(1, 0, "$", StateTables::Action::ACTION::ACCEPT);
-    m_stateTable.m_action.insert(1, 3, "(", StateTables::Action::ACTION::SHIFT);
-    m_stateTable.m_action.insert(2, 3, "$", StateTables::Action::ACTION::REDUCE);
-    m_stateTable.m_action.insert(2, 3, "(", StateTables::Action::ACTION::REDUCE);
-    m_stateTable.m_action.insert(3, 6, "(", StateTables::Action::ACTION::SHIFT);
-    m_stateTable.m_action.insert(3, 7, ")", StateTables::Action::ACTION::SHIFT);
-    m_stateTable.m_action.insert(4, 2, "$", StateTables::Action::ACTION::REDUCE);
-    m_stateTable.m_action.insert(4, 2, "(", StateTables::Action::ACTION::REDUCE);
-    m_stateTable.m_action.insert(5, 8, ")", StateTables::Action::ACTION::SHIFT);
-    m_stateTable.m_action.insert(6, 10, ")", StateTables::Action::ACTION::SHIFT);
-    m_stateTable.m_action.insert(6, 6, "(", StateTables::Action::ACTION::SHIFT);
-    m_stateTable.m_action.insert(7, 5, "$", StateTables::Action::ACTION::REDUCE);
-    m_stateTable.m_action.insert(7, 5, "(", StateTables::Action::ACTION::REDUCE);
-    m_stateTable.m_action.insert(8, 4, "$", StateTables::Action::ACTION::REDUCE);
-    m_stateTable.m_action.insert(8, 4, "(", StateTables::Action::ACTION::REDUCE);
-    m_stateTable.m_action.insert(9, 11, ")", StateTables::Action::ACTION::SHIFT);
-    m_stateTable.m_action.insert(10, 5, ")", StateTables::Action::ACTION::REDUCE);
-    m_stateTable.m_action.insert(11, 4, ")", StateTables::Action::ACTION::REDUCE);
-
-    m_stateTable.m_goto.insert(0, 1, "List");
-    m_stateTable.m_goto.insert(0, 2, "Pair");
-    m_stateTable.m_goto.insert(1, 4, "Pair");
-    m_stateTable.m_goto.insert(3, 5, "Pair");
-    m_stateTable.m_goto.insert(6, 9, "Pair");
-
-    m_grammarRed["List"] = "Goal";
-    m_grammarRed["List Pair"] = "List";
-    m_grammarRed["Pair"] = "List";
-    m_grammarRed["( Pair )"] = "Pair";
-    m_grammarRed["( )"] = "Pair";
-}
-
 Parser::Parser()
 {
     m_stateStack.push_back(0);
@@ -78,11 +43,11 @@ size_t Parser::buildParseTree(ParseTree &parseTree, vector<Token> &tokenList)
         {
             return 0;
         }
-        cout << "step "<< i ;
+        /*cout << "step "<< i ;
         cout << "\t\tstate: " << m_stateStack.back();
         cout << "\tInput: " << m_tokenStack.begin()->rule() << endl;
         printStack();
-        cout << "\n";
+        cout << "\n";*/
         i++;
     }
     parseTree.newRoot(m_newRoot);
@@ -253,7 +218,7 @@ bool Parser::runAction(act actRun, ParseTree &parseTree, pnode rule)
     {
         //pnode newpnode = pnode(rule);
         m_nodeStack.push_back(rule);
-        cout<< "\nshift: " << actRun.second << endl;
+        //cout<< "\nshift: " << actRun.second << endl;
         m_stateStack.push_back(actRun.second);
         m_tokenStack.erase(m_tokenStack.begin());
         return true;
@@ -297,7 +262,7 @@ void Parser::reduce(ParseTree &parseTree, act redAction)
             m_newRoot = m_reduceMap.at(redAction.second);
             m_newRoot.addChild(m_nodeStack[0]);
             m_nodeStack[0].addParentNode(&m_newRoot);
-            cout << "reducing: " << m_nodeStack[0].rule() << " to: " << m_newRoot.rule() << endl;
+            //cout << "reducing: " << m_nodeStack[0].rule() << " to: " << m_newRoot.rule() << endl;
             replaceStack(parseTree, 0);
             return;
         }
