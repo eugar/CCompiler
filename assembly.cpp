@@ -93,7 +93,7 @@ string Assembly::createString(string argument)
     return "$" + argument;
 }
 
-int Assembly::evictReg()
+reg Assembly::evictReg()
 {
     // find 'oldest' register
     auto max = max_element(this->assemblyContext.context.registerList.begin(), this->assemblyContext.context.registerList.end(),
@@ -107,31 +107,31 @@ int Assembly::evictReg()
     max->name = "";
     max->val = 0;
 
-    return max->registerNum;
+    return *max;
 }
 
-int Assembly::getOpenReg(string res) {
-    for (reg regg : this->assemblyContext.context.registerList) // see if the result destination is already a register
+reg Assembly::getOpenReg(string res) {
+    for (auto &reg : this->assemblyContext.context.registerList) // see if the result destination is already a register
     {
-        if (regg.name == res)
+        if (reg.name == res)
         {
-            cout << "returning " << regg.registerNum << " " << regg.name << endl;
-            return regg.registerNum;
+            cout << "returning " << reg.registerNum << " " << reg.name << endl;
+            return reg;
         }
     }
 
-    for (auto reg : this->assemblyContext.context.registerList) // otherwise, we need to iterate through the registers and get an open register
+    for (auto &reg : this->assemblyContext.context.registerList) // otherwise, we need to iterate through the registers and get an open register
     {
         if (!reg.isUsed)
         {
             //cout << "found open reg " << reg.registerNum << endl;
-            return reg.registerNum;
+            return reg;
         }
     }
 
     // if we reached this point, there are no more open registers. we must evict the LRU register.
 
-    int openReg = evictReg();
+    reg openReg = evictReg();
 
     return openReg;
 }
@@ -143,7 +143,6 @@ void Assembly::updateRegAge()
     {
         if (reg.isUsed)
         {
-            cout << "incrementing age" << endl;
             reg.age += 1;
         }
     }
@@ -164,10 +163,10 @@ void Assembly::chooseInstruction(irInstruction ins)
 { //todo: choose appropriate instructions, e.g., addq, addw, etc
     if (ins.op == "NOT") // unary instructions
     {
-        int tmpReg = getOpenReg(ins.res); // need to change logic in this op
+        reg tmpReg = getOpenReg(ins.res); // need to change logic in this op
         writeInstruction(createString(ins.arg1));
         writeInstruction("not\t%eax");
-        writeInstruction("mov\t%eax, %r" + to_string(tmpReg));
+        writeInstruction("mov\t%eax, %r" + to_string(tmpReg.registerNum));
     }
     else if (ins.op == "ADD" || ins.op == "SUB" || ins.op == "MUL" || ins.op == "DIV")
     {
@@ -191,9 +190,9 @@ void Assembly::chooseInstruction(irInstruction ins)
 
         }
         // todo: still need to check where the result is being saved, i.e., is it going back into one of the arguments? need to check where that reg is at
-        int tmpReg = getOpenReg(ins.res);
-        writeInstruction("mov\t\t%eax, %r" + to_string(tmpReg));
-        this->assemblyContext.fillRegister(tmpReg, ins.res);
+        reg tmpReg = getOpenReg(ins.res);
+        writeInstruction("mov\t\t%eax, %r" + to_string(tmpReg.registerNum));
+        this->assemblyContext.fillRegister(tmpReg.registerNum, ins.res);
     }
     else if (ins.op == "EQ" || ins.op == "NOTEQ" || ins.op == "LSTH" || ins.op == "GRTH" || ins.op == "GREQ" || ins.op == "LSEQ") //binary instructions
     {
