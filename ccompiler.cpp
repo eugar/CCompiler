@@ -52,6 +52,7 @@ HELP:
             << "-h displays this help menu\n"
             << "-s displays list of tokens\n"
             << "-p displays parse tree\n"
+            << "-r display the IR generated\n"
             << "-i [file] populate the IR from a file\n"
             << "-o [file] write the IR to a file\n"
             << "-w [file] write the assembly code out to a specified file. If this argument is not used, the compiler will automatically write to out.s" << endl;
