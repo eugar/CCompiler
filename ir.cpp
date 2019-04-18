@@ -312,12 +312,16 @@ void ir::readGlobals() //todo: use symbol table to turn all variable values into
        {
            // pnode "global" is the start of a function
            Function function(global);
-
            for(auto stmt : function.getStatementList())
            {
                for(auto st : stmt.m_statements)
                {
-                   instructions.insert(instructions.end(), st.getCurTerms().begin(), st.getCurTerms().end());
+                   cout << "st: " << st.m_root.rule() << " # of terms: " << st.getCurTerms().size() << endl;
+
+                   for(auto term : st.getCurTerms())
+                   {
+                       instructions.push_back(term);
+                   }
                 }
            }
        }

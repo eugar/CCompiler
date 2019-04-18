@@ -457,7 +457,7 @@ void Statement::dfsConstant(pnode node, std::pair<string, int> &varIter)
     {
         irInstruction inst;
         inst.op = "COPY";
-        inst.res = varIter.first + to_string(++(varIter.second));
+        inst.res = "term" + to_string(++(varIter.second));
         m_curTerms.push_back(inst);
         if (child.rule () == "NUMCONST")
         {
