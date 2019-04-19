@@ -58,7 +58,6 @@ void Assembly::generateCode(vector<irInstruction> instructions)
         {
             cout << reg.registerNum << ':' << reg.age << endl;
         }
-        cout << "" << endl;*/
     }
 }
 
@@ -189,7 +188,6 @@ void Assembly::chooseInstruction(irInstruction ins)
         {
 
         }
-        // todo: still need to check where the result is being saved, i.e., is it going back into one of the arguments? need to check where that reg is at
         reg tmpReg = getOpenReg(ins.res);
         writeInstruction("mov\t\t%eax, %r" + to_string(tmpReg.registerNum));
         this->assemblyContext.fillRegister(tmpReg.registerNum, ins.res);
@@ -224,6 +222,9 @@ void Assembly::chooseInstruction(irInstruction ins)
     }
     else if (ins.op == "COPY")
     {
+        reg tmpReg = getOpenReg(ins.res);
+        writeInstruction("mov\t\t" + createString(ins.arg1) + ", %r" + to_string(tmpReg.registerNum));
+        this->assemblyContext.fillRegister(tmpReg.registerNum, ins.res);
     }
     else if (ins.op == "RET")
     {
