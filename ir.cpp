@@ -311,7 +311,7 @@ void ir::readGlobals() //todo: use symbol table to turn all variable values into
        if (global.rule() == "funcDecl")
        {
            // pnode "global" is the start of a function
-           Function function(global);
+           Function function(global, m_symbolTable);
            for(auto stmt : function.getStatementList())
            {
                for(auto st : stmt.m_statements)

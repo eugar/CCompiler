@@ -9,9 +9,9 @@
 
 using namespace std;
 
-Function::Function(pnode funcRoot)
+Function::Function(pnode funcRoot, SymbolTable symbolTable)
 {
-
+    this->m_symbolTable = symbolTable;
     pnode compStmtRoot = funcRoot.children()[5].children()[1];
     // sends the root statement list of the compound statement.
     extractStatements(compStmtRoot);
@@ -27,7 +27,7 @@ void Function::extractStatements(pnode root)
         }
         else if (statement.rule() == "stmt")
         {
-            Statement stmt(statement);
+            Statement stmt(statement, m_symbolTable);
             m_statementList.push_back(stmt);
          }
     }
@@ -61,27 +61,27 @@ void Statement::dfsStmt(pnode node)
 {
     if (node.children()[0].rule() == "exprStmt")
     {
-        m_statements.push_back(ExpressionStatement(node.children()[0]));
+        m_statements.push_back(ExpressionStatement(node.children()[0], m_symbolTable));
     }
     else if (node.children()[0].rule() == "selStmt")
     {
-        m_statements.push_back(SelectionStatement(node.children()[0]));
+        m_statements.push_back(SelectionStatement(node.children()[0], m_symbolTable));
     }
     else if (node.children()[0].rule() == "iterStmt")
     {
-        m_statements.push_back(IterationStatement(node.children()[0]));
+        m_statements.push_back(IterationStatement(node.children()[0], m_symbolTable));
     }
     else if (node.children()[0].rule() == "retStmt")
     {
-        m_statements.push_back(ReturnStatement(node.children()[0]));
+        m_statements.push_back(ReturnStatement(node.children()[0], m_symbolTable));
     }
     else if (node.children()[0].rule() == "breakStmt")
     {
-        m_statements.push_back(BreakStatement(node.children()[0]));
+        m_statements.push_back(BreakStatement(node.children()[0], m_symbolTable));
     }
     else if (node.children()[0].rule() == "varDecl")
     {
-        m_statements.push_back(VariableDeclaration(node.children()[0]));
+        m_statements.push_back(VariableDeclaration(node.children()[0], m_symbolTable));
     }
 }
 

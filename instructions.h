@@ -42,13 +42,13 @@ class Function
 {
 public:
 
-    Function(pnode funcRoot);
+    Function(pnode funcRoot, SymbolTable symbolTable);
     void extractStatements(pnode root);
     std::vector<Statement> getStatementList(){return m_statementList;}
 
 private:
     std::vector<Statement> m_statementList;
-
+    SymbolTable m_symbolTable;
 };
 
 // Abstract base class
@@ -56,11 +56,13 @@ class Statement
 {
 public:
 
-    Statement(pnode node)
-            : m_root(node)
+    Statement(pnode node, SymbolTable symbolTable)
+            : m_root(node),
+            m_symbolTable(symbolTable)
     {
         dfsStmt(m_root);
     }
+
     static bool rCompNode(pnode a, pnode b) {return a.rule() >= b.rule();}
     std::vector<irInstruction> getCurTerms(){return m_curTerms;}
 
@@ -103,13 +105,14 @@ private:
 
 
     std::vector<irInstruction> m_curTerms;
+    SymbolTable m_symbolTable;
 };
 
 class ExpressionStatement : public Statement
 {
 public:
-    ExpressionStatement(pnode node)
-    : Statement(node)
+    ExpressionStatement(pnode node, SymbolTable symbolTable)
+    : Statement(node, symbolTable)
     {
         parseExprStmt(node, *this);
     }
@@ -120,8 +123,8 @@ public:
 class SelectionStatement : public Statement
 {
 public:
-    SelectionStatement(pnode node)
-    : Statement(node)
+    SelectionStatement(pnode node, SymbolTable symbolTable)
+    : Statement(node, symbolTable)
     {
         parseSelStmt(node, *this);
     }
@@ -132,8 +135,8 @@ public:
 class IterationStatement : public Statement
 {
 public:
-    IterationStatement(pnode node)
-    : Statement(node)
+    IterationStatement(pnode node, SymbolTable symbolTable)
+    : Statement(node, symbolTable)
     {
         parseIterStmt(node, *this);
     }
@@ -143,8 +146,8 @@ public:
 class ReturnStatement : public Statement
 {
 public:
-    ReturnStatement(pnode node)
-    : Statement(node)
+    ReturnStatement(pnode node, SymbolTable symbolTable)
+    : Statement(node, symbolTable)
     {
         parseRetStmt(node, *this);
     }
@@ -154,8 +157,8 @@ public:
 class BreakStatement : public Statement
 {
 public:
-    BreakStatement(pnode node)
-    : Statement(node)
+    BreakStatement(pnode node, SymbolTable symbolTable)
+    : Statement(node, symbolTable)
     {
         parseBreakStmt(node, *this);
     }
@@ -165,8 +168,8 @@ public:
 class VariableDeclaration : public Statement
 {
 public:
-    VariableDeclaration(pnode node)
-    : Statement(node)
+    VariableDeclaration(pnode node, SymbolTable symbolTable)
+    : Statement(node, symbolTable)
     {
         parseVarDecl(node, *this);
     }
