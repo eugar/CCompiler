@@ -57,7 +57,7 @@ void Assembly::generateCode(vector<irInstruction> instructions)
         /*for (auto reg : this->assemblyContext.context.registerList) // debugging
         {
             cout << reg.registerNum << ':' << reg.age << endl;
-        }
+        }*/
     }
 }
 
