@@ -65,6 +65,7 @@ void Scanner::scanFile(istream &input, // [in] file stream to tokenize
     token.clear();
     int mapValue = -1;
     int lineNo = 1;
+    int ch = 0;
 
     while (true)
     {
@@ -159,6 +160,16 @@ void Scanner::scanFile(istream &input, // [in] file stream to tokenize
                     {
                         tokenList.push_back(Token("", EMPTY_PARAM, lineNo));
                     }
+                    if (c == '\'' || c == '\"') {
+                        if (ch)
+                        {
+                            ch = 0;
+                        }
+                        else
+                        {
+                            ch = 1;
+                        }
+                    }
                     tokenList.push_back(Token(token, findToken(token), lineNo));
 
                     token.clear();
@@ -212,6 +223,10 @@ void Scanner::scanFile(istream &input, // [in] file stream to tokenize
                         }
                         // define as num constant and check integrity later
                         tokenList.push_back(Token(token, NUMCONST, lineNo));
+                    }
+                    else if(ch)
+                    {
+                        tokenList.push_back(Token(token, CHARCONST, lineNo));
                     }
                     else
                     {

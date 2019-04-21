@@ -13,7 +13,6 @@ using namespace std;
 Parser::Parser()
 {
     m_stateStack.push_back(0);
-    //hardcodeTest();
     loadTables();
     m_loopCount = 0;
     m_ifCount = 0;
@@ -34,8 +33,6 @@ size_t Parser::buildParseTree(ParseTree &parseTree, vector<Token> &tokenList)
 
         if (m_stateStack.back() == -1) {
             cerr << "error: -1" << endl;
-            // failed attempt at printing line number info on error
-            //cerr<< "error: " << m_tokenStack.begin()->rule() << " on line " << m_tokenStack.begin()->lineNo() << endl;
             return 0;
         }
 
@@ -43,11 +40,11 @@ size_t Parser::buildParseTree(ParseTree &parseTree, vector<Token> &tokenList)
         {
             return 0;
         }
-        /*cout << "step "<< i ;
+        cout << "step "<< i ;
         cout << "\t\tstate: " << m_stateStack.back();
         cout << "\tInput: " << m_tokenStack.begin()->rule() << endl;
         printStack();
-        cout << "\n";*/
+        cout << "\n";
         i++;
     }
     parseTree.newRoot(m_newRoot);
@@ -343,9 +340,19 @@ void Parser::convertTokenList(vector<Token> tokenList)
                 node.setLineNo(tok.getLineNo());
                 m_tokenStack.push_back(node);
             break;
+            case CHARCONST:
+                child.setRule(tok.getLiteral());
+                child.setType(tok.getType());
+                child.setLineNo(tok.getLineNo());
+                child.addParentNode(&node);
+                node.setRule("CHARCONST");
+                node.addChild(child);
+                m_tokenStack.push_back(node);
+            case SQUOT: // ignore single and double quotes
+            case DQUOT:
             case SCOMM: // ignore comments
             case BCOMM:
-                break;
+            break;
             default:
                 node.setRule(tok.getLiteral());
                 node.setType(tok.getType());
