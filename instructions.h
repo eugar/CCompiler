@@ -45,8 +45,9 @@ public:
     Function(pnode funcRoot, SymbolTable symbolTable);
     void extractStatements(pnode root);
     std::vector<Statement> getStatementList(){return m_statementList;}
-
+    irInstruction funcHeader(){return m_funcHeader;}
 private:
+    irInstruction m_funcHeader;
     std::vector<Statement> m_statementList;
     SymbolTable m_symbolTable;
 };

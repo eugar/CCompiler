@@ -60,7 +60,7 @@ relOp -> >
 relOp -> >=
 relOp -> =
 relOp -> !=
-sumExpr -> sumExpr sumOp term
+sumExpr -> term sumOp sumExpr
 sumExpr -> term
 sumOp -> +
 sumOp -> -

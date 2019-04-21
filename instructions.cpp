@@ -11,6 +11,9 @@ using namespace std;
 
 Function::Function(pnode funcRoot, SymbolTable symbolTable)
 {
+    // ugly but it works ¯\_(ツ)_/¯
+    m_funcHeader.op = "FUNC";
+    m_funcHeader.res = funcRoot.children()[1].children()[0].rule();
     this->m_symbolTable = symbolTable;
     pnode compStmtRoot = funcRoot.children()[5].children()[1];
     // sends the root statement list of the compound statement.
