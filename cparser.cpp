@@ -40,11 +40,11 @@ size_t Parser::buildParseTree(ParseTree &parseTree, vector<Token> &tokenList)
         {
             return 0;
         }
-        cout << "step "<< i ;
+        /*cout << "step "<< i ;
         cout << "\t\tstate: " << m_stateStack.back();
         cout << "\tInput: " << m_tokenStack.begin()->rule() << endl;
         printStack();
-        cout << "\n";
+        cout << "\n";*/
         i++;
     }
     parseTree.newRoot(m_newRoot);
@@ -348,6 +348,7 @@ void Parser::convertTokenList(vector<Token> tokenList)
                 node.setRule("CHARCONST");
                 node.addChild(child);
                 m_tokenStack.push_back(node);
+            break;
             case SQUOT: // ignore single and double quotes
             case DQUOT:
             case SCOMM: // ignore comments
