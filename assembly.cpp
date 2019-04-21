@@ -84,7 +84,7 @@ string Assembly::createString(string argument)
         }
         else
         {
-            cout << "variable " + argument + " was not found while generating assembly";
+            cout << "variable " + argument + " was not found while generating assembly\n";
             exit(1);
         }
     }

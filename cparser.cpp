@@ -72,7 +72,8 @@ bool Parser::buildSymbolTable(SymbolTable &symbolTable, pnode parent)
             continue;
         }
         if (child.rule() == "decl" && child.children()[0].rule() == "varDecl") {
-            symbolTable.insert(findVarName(child.children()[0]), findType(child.children()[0]), findData(child.children()[0]));
+            symbolTable.insert(findVarName(child.children()[0]), findType(child.children()[0]), "0");
+            //symbolTable.insert(findVarName(child.children()[0]), findType(child.children()[0]), findData(child.children()[0]));
         }
         buildSymbolTable(symbolTable, child);
     }
@@ -89,7 +90,8 @@ void Parser::findVarDecls(SymbolTable &symbolTable, pnode parent)
         }
         if (child.rule() == "varDecl")
         {
-            symbolTable.insert(findVarName(child), findType(child), findData(child));
+            symbolTable.insert(findVarName(child), findType(child), "0");
+            //symbolTable.insert(findVarName(child), findType(child), findData(child));
             continue;
         }
         if (child.rule() == "selStmt")

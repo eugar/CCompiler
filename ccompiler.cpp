@@ -36,6 +36,7 @@ int main(int argc, char * const argv[])
     int irWrite = 0;
     int assemblyFlag = 0;
     int printIr = 0;
+    int symt = 0;
     string irInFile;
     string irOutFile;
     string assemblyOutFile;
@@ -51,6 +52,7 @@ HELP:
             << "Optional arguments:\n"
             << "-h displays this help menu\n"
             << "-s displays list of tokens\n"
+            << "-t displays the simple symbol table\n"
             << "-p displays parse tree\n"
             << "-r display the IR generated\n"
             << "-i [file] populate the IR from a file\n"
@@ -59,7 +61,7 @@ HELP:
         return 1;
     }
 
-    while ((c = getopt(argc, argv, "?:hspri:o:w:")) != -1)
+    while ((c = getopt(argc, argv, "?:hsptri:o:w:")) != -1)
     {
         switch (c)
         {
@@ -83,6 +85,9 @@ HELP:
             case 'w':
                 assemblyFlag = 1;
                 assemblyOutFile = optarg;
+                break;
+            case 't':
+                symt = 1;
                 break;
             case 'h':
                 goto HELP;
@@ -113,6 +118,10 @@ HELP:
     if (pTree)
     {
         parseTree.printTree();
+        cout << endl;
+    }
+
+    if (symt) {
         cout << "\n###### Symbol Table ######" << endl;
         symbolTable.printRecords(1);
         cout << endl;
@@ -130,6 +139,7 @@ HELP:
     }
 
     if (printIr) {
+        cout << endl;
         ir.printIR();
         cout << endl;
     }
