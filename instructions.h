@@ -82,15 +82,15 @@ private:
     void dfsStmt(pnode node);
     void dfsCompStmt(pnode node, std::pair<std::string, int> &varIter);
     void dfsExpr(pnode node, std::pair<std::string, int> &varIter);
-    void dfsSimpleExpr(pnode node, std::pair<std::string, int> &varIter);
-    void dfsAndExpr(pnode node, std::pair<std::string, int> &varIter);
-    void dfsUnaryRelExpr(pnode node, std::pair<std::string, int> &varIter);
-    void dfsRelExpr(pnode node, std::pair<std::string, int> &varIter);
-    void dfsSumExpr(pnode node, std::pair<std::string, int> &varIter);
-    void dfsTerm(pnode node, std::pair<std::string, int> &varIter);
-    void dfsUnaryExpr(pnode node, std::pair<string, int> &varIter);
-    void dfsImmutable(pnode node, std::pair<string, int> &varIter);
-    void dfsConstant(pnode node, std::pair<string, int> &varIter);
+    void dfsSimpleExpr(pnode node, std::pair<std::string, int> &varIter, irInstruction &term);
+    void dfsAndExpr(pnode node, std::pair<std::string, int> &varIter, irInstruction &term);
+    void dfsUnaryRelExpr(pnode node, std::pair<std::string, int> &varIter, irInstruction &term);
+    void dfsRelExpr(pnode node, std::pair<std::string, int> &varIter, irInstruction &term);
+    void dfsSumExpr(pnode node, std::pair<std::string, int> &varIter, irInstruction &term);
+    void dfsTerm(pnode node, std::pair<std::string, int> &varIter, irInstruction &term);
+    void dfsUnaryExpr(pnode node, std::pair<string, int> &varIter, irInstruction &term);
+    void dfsImmutable(pnode node, std::pair<string, int> &varIter, irInstruction &term);
+    void dfsConstant(pnode node, std::pair<string, int> &varIter, irInstruction &term);
     void dfsCall(pnode node, std::pair<string, int> &varIter);
     void dfsIfStmt(pnode node, std::pair<string, int> &varIter);
     void dfsElifStmt(pnode node, std::pair<string, int> &varIter);
@@ -98,11 +98,15 @@ private:
     void dfsArgs(pnode node, std::pair<string, int> &varIter);
     void dfsArgList(pnode node, std::pair<string, int> &varIter);
     void dfsVarDeclList(pnode node, std::pair<string, int> &varIter);
-    void dfsVarDeclInit(pnode node, std::pair<string, int> &varIter);
+    void dfsVarDeclInit(pnode node, std::pair<string, int> &varIter, irInstruction &term);
 
     void translateTerm(pnode node, std::pair<std::string, int> &varIter);
 
-    void processMutUnaryOp(pnode node, std::pair<std::string, int> &varIter);
+    void processMutUnaryOp(pnode node, std::pair<std::string, int> &varIter, irInstruction &term);
+
+    void getLeftMostLeaf(pnode node, std::string &rule);
+    void getLeftMostLeafNode(pnode node, pnode &leafNode);
+    void moveRight(pnode node, pnode &leafNode);
 
 
     std::vector<irInstruction> m_curTerms;
