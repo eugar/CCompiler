@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include "assembly.h"
+#include <algorithm>
 
 using namespace std;
 
