@@ -197,7 +197,7 @@ void Statement::parseRetStmt(pnode root, Statement &retStmt)
         if (child.rule() == "return")
         {
             // note a return statement will follow
-            inst.op = "RETURN";
+            inst.op = "RET";
         }
         else if (child.rule() == ";")
         {
