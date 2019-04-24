@@ -34,6 +34,66 @@ typedef struct irInstruction
     pnode *params;
     string arg2;
     string res;
+
+    void clear()
+    {
+        op.clear();
+        arg1.clear();
+        params = nullptr;
+        arg2.clear();
+        res.clear();
+    }
+    bool complete()
+    {
+        return !(op.empty() || arg1.empty() || arg2.empty() || res.empty());
+    }
+    bool needsArgs()
+    {
+        return !op.empty() && arg1.empty() && arg2.empty() && !res.empty();
+    }
+    bool needsArg2()
+    {
+        return !op.empty() && !arg1.empty() && arg2.empty() && !res.empty();
+    }
+    bool isNew()
+    {
+        return op.empty() && arg1.empty() && arg2.empty() && res.empty();
+    }
+    bool combineTerms(std::vector<irInstruction> &curTerms, irInstruction &term)
+    {
+        // find term that wasn't carried through
+        std::string prevArg;
+        for (auto ins = curTerms.end() - 1; ins >= curTerms.begin(); ins--)
+        {
+            if (term.arg1.empty())
+            {
+                term.arg1 = ins->res;
+                prevArg = ins->res;
+            }
+            if (prevArg == ins->res)
+            {
+                if (prevArg[0] == ins->arg2[0])
+                {
+                    prevArg = ins->arg2;
+                }
+                else if (prevArg[0] == ins->arg1[0])
+                {
+                    prevArg = ins->arg1;
+                }
+                else
+                {
+                    term.arg2 = (--ins)->res;
+                }
+            }
+
+            if (term.complete())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
 } irInstruction;
 
 class Statement;
@@ -57,7 +117,7 @@ class Statement
 {
 public:
 
-    Statement(pnode node, SymbolTable symbolTable)
+    Statement(pnode &node, SymbolTable symbolTable)
             : m_root(node),
             m_symbolTable(symbolTable)
     {
@@ -67,12 +127,12 @@ public:
     static bool rCompNode(pnode a, pnode b) {return a.rule() >= b.rule();}
     std::vector<irInstruction> getCurTerms(){return m_curTerms;}
 
-    virtual void parseExprStmt(pnode root, Statement &exprStmt);
-    virtual void parseSelStmt(pnode root, Statement &selStmt);
-    virtual void parseIterStmt(pnode root, Statement &iterStmt);
-    virtual void parseRetStmt(pnode root, Statement &retStmt);
-    virtual void parseBreakStmt(pnode root, Statement &breakStmt);
-    virtual void parseVarDecl(pnode root, Statement &varDecl);
+    virtual void parseExprStmt(pnode &root, Statement &exprStmt);
+    virtual void parseSelStmt(pnode &root, Statement &selStmt);
+    virtual void parseIterStmt(pnode &root, Statement &iterStmt);
+    virtual void parseRetStmt(pnode &root, Statement &retStmt);
+    virtual void parseBreakStmt(pnode &root, Statement &breakStmt);
+    virtual void parseVarDecl(pnode &root, Statement &varDecl);
 
     pnode m_root;
     std::vector<Statement> m_statements;
@@ -80,39 +140,43 @@ public:
 
 private:
     void dfsStmt(pnode node);
-    void dfsCompStmt(pnode node, std::pair<std::string, int> &varIter);
-    void dfsExpr(pnode node, std::pair<std::string, int> &varIter);
-    void dfsSimpleExpr(pnode node, std::pair<std::string, int> &varIter);
-    void dfsAndExpr(pnode node, std::pair<std::string, int> &varIter);
-    void dfsUnaryRelExpr(pnode node, std::pair<std::string, int> &varIter);
-    void dfsRelExpr(pnode node, std::pair<std::string, int> &varIter);
-    void dfsSumExpr(pnode node, std::pair<std::string, int> &varIter);
-    void dfsTerm(pnode node, std::pair<std::string, int> &varIter);
-    void dfsUnaryExpr(pnode node, std::pair<string, int> &varIter);
-    void dfsImmutable(pnode node, std::pair<string, int> &varIter);
-    void dfsConstant(pnode node, std::pair<string, int> &varIter);
-    void dfsCall(pnode node, std::pair<string, int> &varIter);
-    void dfsIfStmt(pnode node, std::pair<string, int> &varIter);
-    void dfsElifStmt(pnode node, std::pair<string, int> &varIter);
-    void dfsElseStmt(pnode node, std::pair<string, int> &varIter);
-    void dfsArgs(pnode node, std::pair<string, int> &varIter);
-    void dfsArgList(pnode node, std::pair<string, int> &varIter);
-    void dfsVarDeclList(pnode node, std::pair<string, int> &varIter);
-    void dfsVarDeclInit(pnode node, std::pair<string, int> &varIter);
+    void dfsCompStmt(pnode &node, std::pair<std::string, int> &varIter);
+    void dfsExpr(pnode &node, std::pair<std::string, int> &varIter);
+    void dfsSimpleExpr(pnode &node, std::pair<std::string, int> &varIter, irInstruction &term);
+    void dfsAndExpr(pnode &node, std::pair<std::string, int> &varIter, irInstruction &term);
+    void dfsUnaryRelExpr(pnode &node, std::pair<std::string, int> &varIter, irInstruction &term);
+    void dfsRelExpr(pnode &node, std::pair<std::string, int> &varIter, irInstruction &term);
+    void dfsSumExpr(pnode &node, std::pair<std::string, int> &varIter, irInstruction &term);
+    void dfsTerm(pnode &node, std::pair<std::string, int> &varIter, irInstruction &term);
+    void dfsUnaryExpr(pnode &node, std::pair<string, int> &varIter, irInstruction &term);
+    void dfsImmutable(pnode &node, std::pair<string, int> &varIter, irInstruction &term);
+    void dfsConstant(pnode &node, std::pair<string, int> &varIter, irInstruction &term);
+    void dfsCall(pnode &node, std::pair<string, int> &varIter);
+    void dfsIfStmt(pnode &node, std::pair<string, int> &varIter);
+    void dfsElifStmt(pnode &node, std::pair<string, int> &varIter);
+    void dfsElseStmt(pnode &node, std::pair<string, int> &varIter);
+    void dfsArgs(pnode &node, std::pair<string, int> &varIter);
+    void dfsArgList(pnode &node, std::pair<string, int> &varIter);
+    void dfsVarDeclList(pnode &node, std::pair<string, int> &varIter);
+    void dfsVarDeclInit(pnode &node, std::pair<string, int> &varIter, irInstruction &term);
 
-    void translateTerm(pnode node, std::pair<std::string, int> &varIter);
+    void translateTerm(pnode &node, std::pair<std::string, int> &varIter);
 
-    void processMutUnaryOp(pnode node, std::pair<std::string, int> &varIter);
+    void processMutUnaryOp(pnode &node, std::pair<std::string, int> &varIter, irInstruction &term);
 
+    void getLeftMostLeaf(pnode &node, std::string &rule);
+    void getLeftMostLeafNode(pnode &node, pnode &leafNode);
+    void moveRight(pnode &node, pnode &leafNode);
 
     std::vector<irInstruction> m_curTerms;
     SymbolTable m_symbolTable;
+    string m_curVar;
 };
 
 class ExpressionStatement : public Statement
 {
 public:
-    ExpressionStatement(pnode node, SymbolTable symbolTable)
+    ExpressionStatement(pnode &node, SymbolTable symbolTable)
     : Statement(node, symbolTable)
     {
         parseExprStmt(node, *this);
@@ -124,7 +188,7 @@ public:
 class SelectionStatement : public Statement
 {
 public:
-    SelectionStatement(pnode node, SymbolTable symbolTable)
+    SelectionStatement(pnode &node, SymbolTable symbolTable)
     : Statement(node, symbolTable)
     {
         parseSelStmt(node, *this);
@@ -136,7 +200,7 @@ public:
 class IterationStatement : public Statement
 {
 public:
-    IterationStatement(pnode node, SymbolTable symbolTable)
+    IterationStatement(pnode &node, SymbolTable symbolTable)
     : Statement(node, symbolTable)
     {
         parseIterStmt(node, *this);
@@ -147,7 +211,7 @@ public:
 class ReturnStatement : public Statement
 {
 public:
-    ReturnStatement(pnode node, SymbolTable symbolTable)
+    ReturnStatement(pnode &node, SymbolTable symbolTable)
     : Statement(node, symbolTable)
     {
         parseRetStmt(node, *this);
@@ -158,7 +222,7 @@ public:
 class BreakStatement : public Statement
 {
 public:
-    BreakStatement(pnode node, SymbolTable symbolTable)
+    BreakStatement(pnode &node, SymbolTable symbolTable)
     : Statement(node, symbolTable)
     {
         parseBreakStmt(node, *this);
@@ -169,7 +233,7 @@ public:
 class VariableDeclaration : public Statement
 {
 public:
-    VariableDeclaration(pnode node, SymbolTable symbolTable)
+    VariableDeclaration(pnode &node, SymbolTable symbolTable)
     : Statement(node, symbolTable)
     {
         parseVarDecl(node, *this);

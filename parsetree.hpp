@@ -13,8 +13,8 @@ using namespace std;
 typedef struct pnode
 {
 public:
-    pnode(){m_type = ERR;}
-    pnode(string rule){m_rule = rule; m_type = ERR;}
+    pnode(){m_type = ERR; m_visited = false;}
+    pnode(string rule){m_rule = rule; m_type = ERR; m_visited = false;}
     void addParentNode(pnode* parentNode = nullptr)
     {
         m_parentNode = parentNode;
@@ -22,15 +22,40 @@ public:
     pnode* parent() {return m_parentNode;}
     void setRule(string rule){m_rule = rule;}
     string rule(){return m_rule;}
-    vector<pnode> children(){return m_children;}
+    vector<pnode> &children(){return m_children;}
     void addChild(pnode child){m_children.push_back(child);}
     size_t childCount(){return m_children.size();}
     void setType(tokType type){m_type = type;}
     tokType type(){return m_type;}
     int lineNo(){return m_lineNo;}
     void setLineNo(int lineNo){m_lineNo = lineNo;}
+    bool &visited() { return m_visited; }
 
+    string ins()
+    {
+        if (rule() == "-")
+        {
+            return "SUB";
+        }
+        else if (m_rule == "+")
+        {
+            return "ADD";
+        }
+        else if (m_rule == "/")
+        {
+            return "DIV";
+        }
+        else if (m_rule == "*")
+        {
+            return "MUL";
+        }
+        else
+        {
+            return m_rule;
+        }
+    }
 private:
+    bool m_visited;
     struct pnode* m_parentNode;
     vector<pnode> m_children;
     string m_rule;
