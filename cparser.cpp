@@ -440,6 +440,7 @@ bool Parser::isType(pnode node)
         case SHORT:
         case FLOAT:
         case CHAR:
+        case VOID:
             return true;
         break;
         default:

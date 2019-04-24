@@ -8,6 +8,7 @@ typeSpec -> returnTypeSpec
 returnTypeSpec -> int
 returnTypeSpec -> char
 returnTypeSpec -> bool
+returnTypeSpec -> void
 params -> paramList
 params -> EMPTY
 paramList -> paramList , typeSpec ID

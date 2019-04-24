@@ -117,6 +117,9 @@ void Token::printToken()
         case NUMCONST:
             cout << "<" << token << ", number constant, (" << lineNo << ")>\n" << endl;
             break;
+        case CHARCONST:
+            cout << "<" << token << ", character constant, (" << lineNo << ")>\n" << endl;
+        break;
         case ID:
             cout << "<" << token << ", identifier, (" << lineNo << ")>\n" << endl;
             break;

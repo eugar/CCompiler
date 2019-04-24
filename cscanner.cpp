@@ -16,6 +16,7 @@ Scanner::Scanner()
     cinstructions.insert(pair<string, tokType>("short", SHORT));
     cinstructions.insert(pair<string, tokType>("float", FLOAT));
     cinstructions.insert(pair<string, tokType>("char", CHAR));
+    cinstructions.insert(pair<string, tokType>("void", VOID));
     cinstructions.insert(pair<string, tokType>("+", PLUS));
     cinstructions.insert(pair<string, tokType>("-", MINUS));
     cinstructions.insert(pair<string, tokType>("*", MUL));
