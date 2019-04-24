@@ -41,7 +41,7 @@ vector<reg> AssemblyContext::initRegList() {
 
 // add a new value to the stack
 void AssemblyContext::fillRegister(int regg, string name) {
-    cout << "filling register " << regg << " with " + name << endl;
+    //cout << "filling register " << regg << " with " + name << endl;
     this->context.registerList.at(regg - 8).name = name;
     this->context.registerList.at(regg - 8).isUsed = 1;
     this->context.registerList.at(regg - 8).age = 0;

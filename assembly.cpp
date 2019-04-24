@@ -116,7 +116,7 @@ reg Assembly::getOpenReg(string res) {
     {
         if (reg.name == res)
         {
-            cout << "returning " << reg.registerNum << " " << reg.name << endl;
+            //cout << "returning " << reg.registerNum << " " << reg.name << endl;
             return reg;
         }
     }
@@ -230,7 +230,7 @@ void Assembly::chooseInstruction(irInstruction ins)
     else if (ins.op == "COPY")
     {
         reg tmpReg = getOpenReg(ins.res);
-        writeInstruction("mov\t\t" + createString(ins.arg1) + ", %r" + to_string(tmpReg.registerNum));
+        writeInstruction("movl\t\t" + createString(ins.arg1) + ", %r" + to_string(tmpReg.registerNum));
         this->assemblyContext.fillRegister(tmpReg.registerNum, ins.res);
     }
     else if (ins.op == "RET")
