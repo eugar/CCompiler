@@ -411,7 +411,7 @@ void Statement::dfsRelExpr(pnode &node, std::pair<std::string, int> &varIter, ir
         if (child.rule() == "relOp")
         {
             // manage relOps
-            term.op = child.children()[0].rule();
+            term.op = child.children()[0].ins();
         }
         else
         {
@@ -456,7 +456,7 @@ void Statement::dfsSumExpr(pnode &node, std::pair<std::string, int> &varIter, ir
         else if (child.rule() == "sumOp")
         {
             // manage sumOps
-            term.op = child.children()[0].rule();
+            term.op = child.children()[0].ins();
         }
         else if (child.rule() == "term")
         {
@@ -522,7 +522,7 @@ void Statement::dfsTerm(pnode &node, std::pair<std::string, int> &varIter, irIns
         else if (child.rule() == "mulOp")
         {
             // manage mulOps
-            term.op = child.children()[0].rule();
+            term.op = child.children()[0].ins();
         }
         else if (child.rule() == "term")
         {
@@ -700,7 +700,7 @@ void Statement::dfsCall(pnode &node, std::pair<string, int> &varIter)
         if (child.rule() == "ID")
         {
             // manage variable name
-            m_curTerms.back().op = child.children()[0].rule();
+            m_curTerms.back().op = child.children()[0].ins();
         }
         else if (child.rule() == "args")
         {
@@ -780,7 +780,7 @@ void Statement::dfsVarDeclInit(pnode &node, std::pair<string, int> &varIter, irI
             //irInstruction newVarDecl;
             //newVarDecl.res = varIter.first + to_string(++(varIter.second));
             //m_curTerms.push_back(newVarDecl);
-            varIter.first = child.children()[0].rule();
+            varIter.first = child.children()[0].ins();
         }
         else if (child.rule() == "=")
         {

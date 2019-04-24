@@ -31,6 +31,29 @@ public:
     void setLineNo(int lineNo){m_lineNo = lineNo;}
     bool &visited() { return m_visited; }
 
+    string ins()
+    {
+        if (rule() == "-")
+        {
+            return "SUB";
+        }
+        else if (m_rule == "+")
+        {
+            return "ADD";
+        }
+        else if (m_rule == "/")
+        {
+            return "DIV";
+        }
+        else if (m_rule == "*")
+        {
+            return "MUL";
+        }
+        else
+        {
+            return m_rule;
+        }
+    }
 private:
     bool m_visited;
     struct pnode* m_parentNode;
