@@ -22,13 +22,13 @@ Assembly::Assembly(string filename) {
 }
 
 void Assembly::writeFunctionPrologue() {
-    writeInstruction("pushq\t%rbp");
-    writeInstruction("movq\t%rsp, %rbp");
-    writeInstruction("xorl\t%eax, %eax"); // zero out eax, the result register
+    writeInstruction("pushq\t\t%rbp");
+    writeInstruction("movq\t\t%rsp, %rbp");
+    writeInstruction("xorl\t\t%eax, %eax"); // zero out eax, the result register
 }
 
 void Assembly::writeFunctionEpilogue() {
-    writeInstruction("popq\t%rbp");
+    writeInstruction("popq\t\t%rbp");
     writeInstruction("ret");
 }
 
@@ -41,10 +41,10 @@ void Assembly::writeHeader() {
     out << "_start:" << endl;
     writeFunctionPrologue();
     out << "" << endl;
-    writeInstruction("call main"); // need to do a check to make sure that main exist
-    writeInstruction("movq\t%rax, %rbx");
-    writeInstruction("movq\t$60, %rax #sys_exit ");
-    writeInstruction("movq\t$0x0, %rdi");
+    writeInstruction("call\t\tmain"); // need to do a check to make sure that main exist
+    writeInstruction("movq\t\t%rax, %rbx");
+    writeInstruction("movq\t\t$60, %rax #sys_exit ");
+    writeInstruction("movq\t\t$0x0, %rdi");
     writeInstruction("syscall");
 }
 
@@ -161,37 +161,42 @@ void Assembly::writeInstruction(string line)
 //x86 instruction (AT&T syntax) and sends a string to writeInstruction()
 //to be formatted
 void Assembly::chooseInstruction(irInstruction ins)
-{ //todo: choose appropriate instructions, e.g., addq, addw, etc
+{
     if (ins.op == "NOT") // unary instructions
     {
         reg tmpReg = getOpenReg(ins.res); // need to change logic in this op
         writeInstruction(createString(ins.arg1));
         writeInstruction("not\t%eax");
-        writeInstruction("mov\t%eax, %r" + to_string(tmpReg.registerNum));
+        writeInstruction("movl\t%eax, %r" + to_string(tmpReg.registerNum));
     }
     else if (ins.op == "ADD" || ins.op == "SUB" || ins.op == "MUL" || ins.op == "DIV")
     {
-        writeInstruction("mov\t\t" + createString(ins.arg2) + ", %eax");
-        writeInstruction("mov\t\t" + createString(ins.arg1) + ", %ecx");
-
         if (ins.op == "ADD")
         {
-            writeInstruction("add\t\t%ecx, %eax");
+            writeInstruction("movl\t\t" + createString(ins.arg2) + ", %eax");
+            writeInstruction("movl\t\t" + createString(ins.arg1) + ", %ecx");
+            writeInstruction("addl\t\t%ecx, %eax");
         }
         else if (ins.op == "SUB")
         {
-            writeInstruction("sub\t\t%ecx, %eax");
+            writeInstruction("movl\t\t" + createString(ins.arg2) + ", %eax");
+            writeInstruction("movl\t\t" + createString(ins.arg1) + ", %ecx");
+            writeInstruction("subl\t\t%ecx, %eax");
         }
         else if (ins.op == "MUL")
         {
-            writeInstruction("mul\t\t%ecx, %eax");
+            writeInstruction("movl\t\t" + createString(ins.arg2) + ", %eax");
+            writeInstruction("movl\t\t" + createString(ins.arg1) + ", %ecx");
+            writeInstruction("imull\t\t%ecx, %eax");
         }
         else if (ins.op == "DIV")
         {
-
+            writeInstruction("movl\t\t" + createString(ins.arg2) + ", %eax");
+            writeInstruction("cdq");
+            writeInstruction("idivl\t\t" + createString(ins.arg1));
         }
         reg tmpReg = getOpenReg(ins.res);
-        writeInstruction("mov\t\t%eax, %r" + to_string(tmpReg.registerNum));
+        writeInstruction("movl\t\t%eax, %r" + to_string(tmpReg.registerNum));
         this->assemblyContext.fillRegister(tmpReg.registerNum, ins.res);
     }
     else if (ins.op == "EQ" || ins.op == "NOTEQ" || ins.op == "LSTH" || ins.op == "GRTH" || ins.op == "GREQ" || ins.op == "LSEQ") //binary instructions
