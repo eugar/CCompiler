@@ -15,5 +15,5 @@ int main ()
     int g = 6 / 3;        // x86 gen doesn't recognize DIV ?
     //g = 5;                // not working in the IR gen yet!!
 
-    return z+5*6;
+    return z;
 }
