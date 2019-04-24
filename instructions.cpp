@@ -14,7 +14,7 @@ Function::Function(pnode funcRoot, SymbolTable symbolTable)
     // ugly but it works ¯\_(ツ)_/¯
     m_funcHeader.op = "FUNC";
     m_funcHeader.res = funcRoot.children()[1].children()[0].rule();
-    this->m_symbolTable = symbolTable;
+    this->m_symbolTable = symbolTable.children().at(m_funcHeader.res);
     pnode compStmtRoot = funcRoot.children()[5].children()[1];
     // sends the root statement list of the compound statement.
     extractStatements(compStmtRoot);
@@ -193,6 +193,8 @@ void Statement::parseIterStmt(pnode &root, Statement &iterStmt)
 
 void Statement::parseRetStmt(pnode &root, Statement &retStmt)
 {
+    irInstruction ret;
+    ret.op = "RET";
     for (auto child : root.children())
     {
         if (child.rule() == "return")
@@ -208,8 +210,12 @@ void Statement::parseRetStmt(pnode &root, Statement &retStmt)
             std::pair<std::string, int> varIter;
             varIter.second = -1;
             dfsExpr(child, varIter);
+            if (!m_curTerms.empty()) {
+                ret.res = m_curTerms.back().res;
+            }
         }
     }
+    m_curTerms.push_back(ret);
 }
 void Statement::parseVarDecl(pnode &root, Statement &varDecl)
 {
@@ -592,6 +598,17 @@ void Statement::dfsUnaryExpr(pnode &node, std::pair<string, int> &varIter, irIns
         if (child.rule() == "mutable")
         {
             // manage mutable, get value from symbol table
+           /*irInstruction inst;
+           inst.op = "COPY";
+           inst.arg1 = child.children()[0].children()[0].rule();
+           if (m_symbolTable.lookup(inst.arg1) == NULL) {
+               cerr << "Symbol: " << inst.arg1 << " not found in scope: " << m_symbolTable.scope() << endl;
+               //exit(1);
+           }
+
+           inst.res = inst.arg1 + to_string(++(varIter.second));
+           m_curTerms.push_back(inst);
+           */
             if (term.arg1.empty())
             {
                 getLeftMostLeaf(child, term.arg1);
@@ -852,5 +869,3 @@ void Statement::moveRight(pnode &node, pnode &leafNode)
     }
     getLeftMostLeafNode(node.children()[node.children().size() - 1], leafNode);
 }
-
-
