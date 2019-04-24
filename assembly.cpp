@@ -27,7 +27,7 @@ void Assembly::writeFunctionPrologue() {
 }
 
 void Assembly::writeFunctionEpilogue() {
-    writeInstruction("popq\t %rbp");
+    writeInstruction("popq\t%rbp");
     writeInstruction("ret");
 }
 
@@ -234,7 +234,7 @@ void Assembly::chooseInstruction(irInstruction ins)
     else if (ins.op == "FUNC") // generate a label
     {
         //todo: need to insert logic to handle scoping
-        out << ins.arg1 << ":" << endl;
+        out << ins.res << ":" << endl;
         writeFunctionPrologue();
     }
     else if (ins.op == "LABEL")

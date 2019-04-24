@@ -190,23 +190,30 @@ void Statement::parseIterStmt(pnode root, Statement &iterStmt)
 
 void Statement::parseRetStmt(pnode root, Statement &retStmt)
 {
+    irInstruction inst;
+    cout << "return: " << root.rule() << endl;
     for (auto child : root.children())
     {
         if (child.rule() == "return")
         {
             // note a return statement will follow
+            inst.op = "RET";
         }
         else if (child.rule() == ";")
         {
-            return;
+
         }
         else
         {
             std::pair<std::string, int> varIter;
             varIter.second = -1;
             dfsExpr(child, varIter);
+            if (!m_curTerms.empty()) {
+                inst.res = m_curTerms.back().res;
+            }
         }
     }
+    m_curTerms.push_back(inst);
 }
 void Statement::parseVarDecl(pnode root, Statement &varDecl)
 {
@@ -235,15 +242,15 @@ void Statement::dfsExpr(pnode node, std::pair<std::string, int> &varIter)
         {
             // Use symbol table to place value of variable into expression.
             string mutName = child.children()[0].children()[0].rule();
-            //auto symbol = SymbolTable::symbolTable->lookup(mutName);
+            auto symbol = m_symbolTable.lookup(mutName);
 
             if (m_curTerms.back().arg1.empty())
             {
-                m_curTerms.back().arg1 = "dfsExpr";//= symbol->data;
+                m_curTerms.back().arg1 = symbol->data;
             }
             else
             {
-                m_curTerms.back().arg2 = "dfsExpr";//= symbol->data;
+                m_curTerms.back().arg2 = symbol->data;
             }
 
         }
@@ -372,41 +379,110 @@ void Statement::dfsRelExpr(pnode node, std::pair<std::string, int> &varIter)
 
 void Statement::dfsSumExpr(pnode node, std::pair<std::string, int> &varIter)
 {
+    irInstruction inst;
+
+    // if the sum expresion only has a term
+    // then inst does not get pushed
+    // and only dfsTerm gets called
+    if (node.children().size() < 3) {
+        dfsTerm(node.children()[0], varIter);
+        return;
+    }
+
+    // else go through all of its children
+    // and set inst and push it to m_curTerms
     for (auto child : node.children())
     {
         if (child.rule() == "sumOp")
         {
             // manage sumOps
+            inst.op = "ADD";
         }
         else if (child.rule() == "term")
         {
+            // after dfsTerm gets done, set
+            // the result to arg2
             dfsTerm(child, varIter);
+            if (!m_curTerms.empty()) {
+                inst.arg2 = m_curTerms.back().res;
+            }
         }
         else
         {
+            // after sum gets finshed, set
+            // the result to arg1
             dfsSumExpr(child, varIter);
+            if (!m_curTerms.empty()) {
+                inst.arg1 = m_curTerms.back().res;
+            }
         }
     }
+    // inst.res gets set to the last var iter
+    inst.res = varIter.first + to_string(++(varIter.second));
+    m_curTerms.push_back(inst);
 }
 
 void Statement::dfsTerm(pnode node, std::pair<std::string, int> &varIter)
 {
+    irInstruction inst;
 
+    // if node does not have more than
+    // 1 child, than term don't push inst
+    if (node.children().size() < 3)
+    {
+        dfsUnaryExpr(node.children()[0], varIter);
+        return;
+    }
+
+    // else go through all of its children
+    // and set inst and push it to m_curTerms
     for (auto child : node.children())
     {
         if (child.rule() == "mulOp")
         {
             // manage mulOps
+            if (child.children()[0].rule() == "*")
+            {
+                inst.op = "MUL";
+            }
+            else if (child.children()[0].rule() == "/")
+            {
+                inst.op = "DIV";
+            }
+            else if (child.children()[0].rule() == "%")
+            {
+                inst.op = "MOD";
+            }
+            else
+            {
+                cerr << "Not a known instruction: " << child.children()[0].rule() << endl;
+                exit(1);
+            }
         }
         else if (child.rule() == "unaryExpr")
         {
+            // after dfsTerm gets done, set
+            // the result to arg2
             dfsUnaryExpr(child, varIter);
+            if (!m_curTerms.empty())
+            {
+                inst.arg2 = m_curTerms.back().res;
+            }
         }
         else
         {
+            // after sum gets finshed, set
+            // the result to arg1
             dfsTerm(child, varIter);
+            if (!m_curTerms.empty())
+            {
+                inst.arg1 = m_curTerms.back().res;
+            }
         }
     }
+    // inst.res gets set to the last var iter
+    inst.res = varIter.first + to_string(++(varIter.second));
+    m_curTerms.push_back(inst);
 }
 
 void Statement::dfsUnaryExpr(pnode node, std::pair<string, int> &varIter)
@@ -416,6 +492,11 @@ void Statement::dfsUnaryExpr(pnode node, std::pair<string, int> &varIter)
         if (child.rule() == "mutable")
         {
             // manage mutable, get value from symbol table
+            irInstruction inst;
+            inst.op = "COPY";
+            inst.arg1 = child.children()[0].children()[0].rule();
+            inst.res = inst.arg1 + to_string(++(varIter.second));
+            m_curTerms.push_back(inst);
         }
         else if (child.rule() == "immutable")
         {
@@ -456,57 +537,27 @@ void Statement::dfsImmutable(pnode node, std::pair<string, int> &varIter)
 
 void Statement::dfsConstant(pnode node, std::pair<string, int> &varIter)
 {
-    for (auto child : node.children())
-    {
-        irInstruction inst;
-        inst.op = "COPY";
-        inst.res = "term" + to_string(++(varIter.second));
-        m_curTerms.push_back(inst);
-        if (child.rule () == "NUMCONST")
-        {
-            if (m_curTerms.back().arg1.empty())
-            {
-                m_curTerms.back().arg1 = child.children()[0].rule();
-            }
-            else
-            {
-                m_curTerms.back().arg2 = child.children()[0].rule();
-            }
-        }
-        else if (child.rule() == "CHARCONST")
-        {
-            if (m_curTerms.back().arg1.empty())
-            {
-                m_curTerms.back().arg1 = child.children()[0].rule();
-            }
-            else
-            {
-                m_curTerms.back().arg2 = child.children()[0].rule();
-            }
-        }
-        else if (child.rule() == "true")
-        {
-            if (m_curTerms.back().arg1.empty())
-            {
-                m_curTerms.back().arg1 = child.rule();
-            }
-            else
-            {
-                m_curTerms.back().arg2 = child.rule();
-            }
-        }
-        else if (child.rule() == "false")
-        {
-            if (m_curTerms.back().arg1.empty())
-            {
-                m_curTerms.back().arg1 = child.rule();
-            }
-            else
-            {
-                m_curTerms.back().arg2 = child.rule();
-            }
-        }
+    auto child = node.children()[0];
+
+    irInstruction inst;
+
+    // always set a copy to a register
+    // not the most optimal
+    inst.op = "COPY";
+
+    // if there is a variable that is being declared
+    // name the temp term the same
+    if (varIter.first != "") {
+        inst.res = varIter.first + to_string(++(varIter.second));
     }
+    // else just name it term
+    else
+    {
+        inst.res = "term" + to_string(++(varIter.second));
+    }
+
+    inst.arg1 = child.children()[0].rule();
+    m_curTerms.push_back(inst);
 }
 
 void Statement::dfsCall(pnode node, std::pair<string, int> &varIter)
@@ -516,7 +567,7 @@ void Statement::dfsCall(pnode node, std::pair<string, int> &varIter)
         if (child.rule() == "ID")
         {
             // manage variable name
-            m_curTerms.back().op = child.children()[0].rule();
+            // m_curTerms.back().op = child.children()[0].rule();
         }
         else if (child.rule() == "args")
         {
@@ -532,7 +583,7 @@ void Statement::dfsArgs(pnode node, std::pair<string, int> &varIter)
         if (child.rule() == "EMPTY")
         {
             // done here
-            m_curTerms.back().params = nullptr;
+            //m_curTerms.back().params = nullptr;
         }
         else
         {
@@ -556,7 +607,7 @@ void Statement::dfsArgList(pnode node, std::pair<string, int> &varIter)
         else if (child.rule() == "expr")
         {
 
-            m_curTerms.back().op = "push";
+            //m_curTerms.back().op = "push";
             dfsExpr(node, varIter);
         }
         else
@@ -587,24 +638,29 @@ void Statement::dfsVarDeclList(pnode node, std::pair<string, int> &varIter)
 
 void Statement::dfsVarDeclInit(pnode node, std::pair<string, int> &varIter)
 {
+    irInstruction newVarDecl;
     for (auto child : node.children())
     {
         if (child.rule() == "ID")
         {
             // get id
-            irInstruction newVarDecl;
-            newVarDecl.res = varIter.first + to_string(++(varIter.second));
-            m_curTerms.push_back(newVarDecl);
+            varIter.first = child.children()[0].rule();
+            newVarDecl.res = varIter.first;
         }
         else if (child.rule() == "=")
         {
             // Discard symbol
+            newVarDecl.op = "COPY";
         }
         else
         {
             dfsSimpleExpr(child, varIter);
+            if (!m_curTerms.empty()) {
+                newVarDecl.arg1 = m_curTerms.back().res;
+            }
         }
     }
+    m_curTerms.push_back(newVarDecl);
 }
 
 
