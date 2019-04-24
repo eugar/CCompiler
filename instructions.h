@@ -97,7 +97,7 @@ typedef struct irInstruction
 } irInstruction;
 
 class Statement;
-
+class VariableDeclaration;
 class Function
 {
 public:

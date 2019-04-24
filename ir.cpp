@@ -281,6 +281,7 @@ void ir::extractGlobals(pnode root)
             else if (decl.rule() == "varDecl")
             {
                 m_globals.push_back(decl);
+                return;
             }
         }
         else
@@ -295,6 +296,11 @@ void ir::getGlobals(pnode root)
     for (auto child : children)
     {
         if (child.rule() == "funcDecl")
+        {
+            m_globals.push_back(child);
+            return;
+        }
+        if (child.rule() == "varDecl")
         {
             m_globals.push_back(child);
             return;
@@ -326,7 +332,7 @@ void ir::readGlobals() //todo: use symbol table to turn all variable values into
        }
        else if (global.rule() == "varDecl")
        {
-
+           VariableDeclaration varDecl(global, m_symbolTable);
        }
     }
 }

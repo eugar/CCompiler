@@ -36,6 +36,7 @@ void Function::extractStatements(pnode root)
     }
 }
 
+
 void Statement::parseBreakStmt(pnode &root, Statement &breakStmt)
 {
     // this could be tricky?
@@ -784,11 +785,29 @@ void Statement::dfsVarDeclInit(pnode &node, std::pair<string, int> &varIter, irI
         }
         else if (child.rule() == "=")
         {
-            // Discard symbol
+
         }
         else
         {
             dfsSimpleExpr(child, varIter, term);
+            irInstruction var;
+            var.op   = "COPY";
+
+            if (m_curTerms.empty())
+            {
+                var.arg1 = term.arg1;
+                var.res  = varIter.first[0];
+                m_curTerms.push_back(var);
+            }
+            else
+            {
+                var.arg1 = m_curTerms.back().res;
+                if (m_curTerms.back().res != var.res)
+                {
+                    m_curTerms.push_back(var);
+                }
+            }
+
         }
     }
 }
@@ -833,3 +852,5 @@ void Statement::moveRight(pnode &node, pnode &leafNode)
     }
     getLeftMostLeafNode(node.children()[node.children().size() - 1], leafNode);
 }
+
+
