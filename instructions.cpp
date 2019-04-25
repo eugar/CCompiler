@@ -209,9 +209,18 @@ void Statement::parseRetStmt(pnode &root, Statement &retStmt)
         {
             std::pair<std::string, int> varIter;
             varIter.second = -1;
+            varIter.first = "ret";
             dfsExpr(child, varIter);
-            if (!m_curTerms.empty()) {
-                ret.res = m_curTerms.back().res;
+            ret.op   = "COPY";
+
+            if (!m_curTerms.empty())
+            {
+                ret.arg1 = m_curTerms.back().res;
+                ret.res  = varIter.first;
+                if (m_curTerms.back().res != ret.res)
+                {
+                    m_curTerms.push_back(ret);
+                }
             }
         }
     }
@@ -242,27 +251,22 @@ void Statement::dfsExpr(pnode &node, std::pair<std::string, int> &varIter)
     {
         dfsExpr(node.children()[node.childCount() - 1], varIter);
     }
+    irInstruction expr;
     for (auto child : node.children())
     {
         // the left hand side of an expression.
         if (child.rule() == "mutable")
         {
-            // Use symbol table to place value of variable into expression.
-            string mutName = child.children()[0].children()[0].rule();
-            //auto symbol = SymbolTable::symbolTable->lookup(mutName);
-/*
             if (expr.arg1.empty())
             {
-                //m_curTerms.back().arg1 = "dfsExpr";//= symbol->data;
-                expr.res = child.children()[0].rule();
+                getLeftMostLeaf(child, expr.arg1);
             }
             else
             {
-                expr.res = child.children()[0].rule();//= symbol->data;
+                getLeftMostLeaf(child, expr.arg2);
             }
-*/
         }
-        // not supported
+            // not supported
         else if (child.rule() == "mutUnaryOp")
         {
             // manage op
@@ -274,18 +278,37 @@ void Statement::dfsExpr(pnode &node, std::pair<std::string, int> &varIter)
         }
         else // simpleExpr
         {
+/*
+            dfsSimpleExpr(node, varIter, expr);
+            if (expr.complete())
+            {
+                m_curTerms.push_back(expr);
+            }
+            */
+            dfsSimpleExpr(child, varIter, expr);
+            irInstruction var;
+            var.op   = "COPY";
 
-            irInstruction newTerm;
-            dfsSimpleExpr(node, varIter, newTerm);
+            if (m_curTerms.empty())
+            {
+                var.arg1 = expr.arg1;
+                var.res  = varIter.first;
+                m_curTerms.push_back(var);
+            }
+            else
+            {
+                var.arg1 = m_curTerms.back().res;
+                var.res = varIter.first;
+                if (m_curTerms.back().res != var.res)
+                {
+                    m_curTerms.push_back(var);
+                }
+            }
         }
     }
-    // get result of the last term placed in
-    if (!m_curTerms.empty())
-    {
-        //expr.arg1 = m_curTerms.back().res;
-        //m_curTerms.push_back(expr);
-    }
 }
+    // get result of the last term placed in
+
 
 void Statement::processMutUnaryOp(pnode &node, std::pair<std::string, int> &varIter, irInstruction &term)
 {
@@ -597,18 +620,17 @@ void Statement::dfsUnaryExpr(pnode &node, std::pair<string, int> &varIter, irIns
     {
         if (child.rule() == "mutable")
         {
-            // manage mutable, get value from symbol table
-           /*irInstruction inst;
-           inst.op = "COPY";
-           inst.arg1 = child.children()[0].children()[0].rule();
-           if (m_symbolTable.lookup(inst.arg1) == NULL) {
-               cerr << "Symbol: " << inst.arg1 << " not found in scope: " << m_symbolTable.scope() << endl;
+
+            /*
+           term.op = "COPY";
+           term.arg1 = child.children()[0].children()[0].rule();
+           if (m_symbolTable.lookup(term.arg1) == NULL) {
+               cerr << "Symbol: " << term.arg1 << " not found in scope: " << m_symbolTable.scope() << endl;
                //exit(1);
            }
+            */
 
-           inst.res = inst.arg1 + to_string(++(varIter.second));
-           m_curTerms.push_back(inst);
-           */
+           //term.res = term.arg1 + to_string(++(varIter.second));
             if (term.arg1.empty())
             {
                 getLeftMostLeaf(child, term.arg1);
@@ -870,3 +892,10 @@ void Statement::moveRight(pnode &node, pnode &leafNode)
     }
     getLeftMostLeafNode(node.children()[node.children().size() - 1], leafNode);
 }
+
+void Statement::dfsMutable(pnode &node, std::pair<string, int> &varIter, irInstruction &term)
+{
+
+}
+
+

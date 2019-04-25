@@ -149,6 +149,7 @@ private:
     void dfsSumExpr(pnode &node, std::pair<std::string, int> &varIter, irInstruction &term);
     void dfsTerm(pnode &node, std::pair<std::string, int> &varIter, irInstruction &term);
     void dfsUnaryExpr(pnode &node, std::pair<string, int> &varIter, irInstruction &term);
+    void dfsMutable(pnode &node, std::pair<string, int> &varIter, irInstruction &term);
     void dfsImmutable(pnode &node, std::pair<string, int> &varIter, irInstruction &term);
     void dfsConstant(pnode &node, std::pair<string, int> &varIter, irInstruction &term);
     void dfsCall(pnode &node, std::pair<string, int> &varIter);

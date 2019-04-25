@@ -15,6 +15,13 @@ typedef struct pnode
 public:
     pnode(){m_type = ERR; m_visited = false;}
     pnode(string rule){m_rule = rule; m_type = ERR; m_visited = false;}
+    pnode(string rule, vector<pnode> &children, pnode* parent)
+    : m_rule(rule)
+    , m_type(ERR)
+    , m_visited(false)
+    , m_children(children)
+    , m_parentNode(parent)
+    {}
     void addParentNode(pnode* parentNode = nullptr)
     {
         m_parentNode = parentNode;
