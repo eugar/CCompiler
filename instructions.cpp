@@ -813,12 +813,13 @@ void Statement::dfsVarDeclInit(pnode &node, std::pair<string, int> &varIter, irI
             if (m_curTerms.empty())
             {
                 var.arg1 = term.arg1;
-                var.res  = varIter.first[0];
+                var.res  = varIter.first;
                 m_curTerms.push_back(var);
             }
             else
             {
                 var.arg1 = m_curTerms.back().res;
+                var.res = varIter.first;
                 if (m_curTerms.back().res != var.res)
                 {
                     m_curTerms.push_back(var);
