@@ -149,7 +149,6 @@ private:
     void dfsSumExpr(pnode &node, std::pair<std::string, int> &varIter, irInstruction &term);
     void dfsTerm(pnode &node, std::pair<std::string, int> &varIter, irInstruction &term);
     void dfsUnaryExpr(pnode &node, std::pair<string, int> &varIter, irInstruction &term);
-    void dfsMutable(pnode &node, std::pair<string, int> &varIter, irInstruction &term);
     void dfsImmutable(pnode &node, std::pair<string, int> &varIter, irInstruction &term);
     void dfsConstant(pnode &node, std::pair<string, int> &varIter, irInstruction &term);
     void dfsCall(pnode &node, std::pair<string, int> &varIter);
@@ -164,6 +163,7 @@ private:
     void translateTerm(pnode &node, std::pair<std::string, int> &varIter);
 
     void processMutUnaryOp(pnode &node, std::pair<std::string, int> &varIter, irInstruction &term);
+    void processMutBinaryOp(pnode &node, std::pair<std::string, int> &varIter, irInstruction &term);
 
     void getLeftMostLeaf(pnode &node, std::string &rule);
     void getLeftMostLeafNode(pnode &node, pnode &leafNode);

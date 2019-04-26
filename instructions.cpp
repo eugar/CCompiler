@@ -209,7 +209,7 @@ void Statement::parseRetStmt(pnode &root, Statement &retStmt)
         {
             std::pair<std::string, int> varIter;
             varIter.second = -1;
-            varIter.first = "ret";
+            varIter.first = "_ret";
             dfsExpr(child, varIter);
             ret.op   = "COPY";
 
@@ -221,6 +221,10 @@ void Statement::parseRetStmt(pnode &root, Statement &retStmt)
                 {
                     m_curTerms.push_back(ret);
                 }
+                irInstruction val;
+                val.op = "RET";
+                val.arg1 = varIter.first;
+                m_curTerms.push_back(val);
             }
         }
     }
@@ -246,17 +250,30 @@ void Statement::parseVarDecl(pnode &root, Statement &varDecl)
 
 void Statement::dfsExpr(pnode &node, std::pair<std::string, int> &varIter)
 {
+
     node.visited() = true;
     if (node.childCount() == 3 && !node.children()[node.childCount() - 1].visited())
     {
+        if (varIter.first.empty())
+        {
+            getLeftMostLeaf(node.children()[0], varIter.first);
+        }
         dfsExpr(node.children()[node.childCount() - 1], varIter);
     }
     irInstruction expr;
     for (auto child : node.children())
     {
+        if (child.visited())
+        {
+            continue;
+        }
         // the left hand side of an expression.
         if (child.rule() == "mutable")
         {
+            if (varIter.first.empty())
+            {
+                getLeftMostLeaf(child, varIter.first);
+            }
             if (expr.arg1.empty())
             {
                 getLeftMostLeaf(child, expr.arg1);
@@ -269,12 +286,11 @@ void Statement::dfsExpr(pnode &node, std::pair<std::string, int> &varIter)
             // not supported
         else if (child.rule() == "mutUnaryOp")
         {
-            // manage op
-            //processMutUnaryOp(child, varIter, expr);
+
         }
         else if (child.rule() == "mutBinOp")
         {
-            //expr.op = child.children()[0].rule();
+
         }
         else // simpleExpr
         {
@@ -474,13 +490,12 @@ void Statement::dfsSumExpr(pnode &node, std::pair<std::string, int> &varIter, ir
                 term.arg2 = m_curTerms.back().res;
                 term.res  = varIter.first + to_string(++(varIter.second));
                 m_curTerms.push_back(term);
-                term.clear();
             }
             else if (term.needsArgs() && term.combineTerms(m_curTerms, term))
             {
                 m_curTerms.push_back(term);
-                term.clear();
             }
+            term.clear();
         }
         // handle cases
         else if (child.rule() == "sumOp")
@@ -893,9 +908,37 @@ void Statement::moveRight(pnode &node, pnode &leafNode)
     getLeftMostLeafNode(node.children()[node.children().size() - 1], leafNode);
 }
 
-void Statement::dfsMutable(pnode &node, std::pair<string, int> &varIter, irInstruction &term)
-{
 
+void Statement::processMutBinaryOp(pnode &node, std::pair<std::string, int> &varIter, irInstruction &term)
+{
+    string op(node.children()[0].rule());
+    switch (op[0])
+    {
+        case '=': // assignment
+        {
+            // nothing to do for this
+        }
+        case '+': // +=
+        {
+            // needs implementation
+        }
+        case '-': // -=
+        {
+            // needs implementation
+        }
+        case '*': // *=
+        {
+            // needs implementation
+        }
+        case '/': // /=
+        {
+            // needs implementation
+        }
+        default:
+        {
+            // shouldnt ever happen since the parser will complain.
+        }
+    }
 }
 
 
