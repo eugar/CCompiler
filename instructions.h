@@ -139,7 +139,6 @@ public:
 
     pnode m_root;
     std::vector<Statement> m_statements;
-    std::list<irInstruction> m_instructions;
 
 private:
     void dfsStmt(pnode node);
@@ -174,7 +173,6 @@ private:
 
     std::vector<irInstruction> m_curTerms;
     SymbolTable m_symbolTable;
-    string m_curVar;
 };
 
 class ExpressionStatement : public Statement
@@ -233,6 +231,7 @@ public:
     }
     ~BreakStatement() = default;
 };
+
 
 class VariableDeclaration : public Statement
 {

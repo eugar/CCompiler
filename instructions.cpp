@@ -87,11 +87,17 @@ void Statement::dfsStmt(pnode node)
     {
         m_statements.push_back(VariableDeclaration(node.children()[0], m_symbolTable));
     }
+    else if (node.children()[0].rule() == "compStmt")
+    {
+        pair<string, int> varIter = make_pair("",-1);
+        dfsCompStmt(node.children()[0], varIter);
+    }
 }
 
 void Statement::dfsIfStmt(pnode &node, std::pair<string, int> &varIter)
 {
     irInstruction inst;
+    inst.block = "_ifEnd"+ to_string(++(varIter.second));
     for (auto child : node.children())
     {
         if (child.rule() == "if")
@@ -109,6 +115,10 @@ void Statement::dfsIfStmt(pnode &node, std::pair<string, int> &varIter)
         }
         else if (child.rule() == "stmt")
         {
+            irInstruction cmp;
+            cmp.op = "JMP";
+            cmp.res = inst.block;
+            m_curTerms.push_back(cmp);
             dfsStmt(child);
         }
         else if (child.rule() == "compStmt")
@@ -116,7 +126,7 @@ void Statement::dfsIfStmt(pnode &node, std::pair<string, int> &varIter)
             dfsCompStmt(child, varIter);
         }
     }
-    inst.block = "_ifEnd"+ to_string(++(varIter.second));
+
     m_curTerms.push_back(inst);
 }
 
@@ -151,9 +161,13 @@ void Statement::dfsCompStmt(pnode &node, std::pair<std::string, int> &varIter)
         {
             // discard symbol
         }
-        else
+        else if(child.rule() == "stmt")
         {
             dfsStmt(child);
+        }
+        else if (child.rule() == "stmtList")
+        {
+            dfsCompStmt(child, varIter);
         }
     }
 }
@@ -652,15 +666,11 @@ void Statement::dfsUnaryExpr(pnode &node, std::pair<string, int> &varIter, irIns
     {
         if (child.rule() == "mutable")
         {
-
-            /*
-           term.op = "COPY";
-           term.arg1 = child.children()[0].children()[0].rule();
-           if (m_symbolTable.lookup(term.arg1) == NULL) {
-               cerr << "Symbol: " << term.arg1 << " not found in scope: " << m_symbolTable.scope() << endl;
-               //exit(1);
+           string check = child.children()[0].children()[0].rule();
+           if (m_symbolTable.lookup(check) == NULL) {
+               cerr << "Symbol: " << check << " not found in scope: " << m_symbolTable.scope() << endl;
+               exit(1);
            }
-            */
 
            //term.res = term.arg1 + to_string(++(varIter.second));
             if (term.arg1.empty())
@@ -862,13 +872,14 @@ void Statement::dfsVarDeclInit(pnode &node, std::pair<string, int> &varIter, irI
         {
             dfsSimpleExpr(child, varIter, term);
             irInstruction var;
-            var.op   = "COPY";
+            var.op = "COPY";
 
             if (m_curTerms.empty())
             {
                 var.arg1 = term.arg1;
                 var.res  = varIter.first;
                 m_curTerms.push_back(var);
+
             }
             else
             {
