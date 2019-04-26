@@ -10,31 +10,27 @@
 
 using namespace std;
 
-typedef struct reg {
+typedef struct variableT {
     string name;
-    int registerNum;
-    int isUsed; // flag
-    int age; // used for LRU
-    int val; // might not be needed
-} reg;
+    int offset;
+} variableT;
 
-typedef struct regContext {
+typedef struct stackT {
     int stackOffset;
-    vector<reg> registerList;
+    vector<variableT> variables;
     int numLabels;
-} regContext;
+} stackT;
 
 class AssemblyContext {
 
 public:
     AssemblyContext();
 
-    void fillRegister(int tmpRegister, string name);
-    int getRegister(string name);
-    vector<reg> initRegList();
+    int getOffset(string name);
+    void setOffset(string name, int offset);
     void newScope();
 
-    regContext context;
+    stackT context;
 
 
 private:
