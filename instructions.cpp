@@ -69,7 +69,9 @@ void Statement::dfsStmt(pnode node)
     }
     else if (node.children()[0].rule() == "selStmt")
     {
-        m_statements.push_back(SelectionStatement(node.children()[0], m_symbolTable));
+        auto selStmt = SelectionStatement(node.children()[0], m_symbolTable);
+        m_statements.push_back(selStmt);
+        //m_curTerms.push_back(inst);
     }
     else if (node.children()[0].rule() == "iterStmt")
     {
@@ -96,8 +98,6 @@ void Statement::dfsStmt(pnode node)
 
 void Statement::dfsIfStmt(pnode &node, std::pair<string, int> &varIter)
 {
-    irInstruction inst;
-    inst.block = "_ifEnd"+ to_string(++(varIter.second));
     for (auto child : node.children())
     {
         if (child.rule() == "if")
@@ -115,10 +115,6 @@ void Statement::dfsIfStmt(pnode &node, std::pair<string, int> &varIter)
         }
         else if (child.rule() == "stmt")
         {
-            irInstruction cmp;
-            cmp.op = "JMP";
-            cmp.res = inst.block;
-            m_curTerms.push_back(cmp);
             dfsStmt(child);
         }
         else if (child.rule() == "compStmt")
@@ -126,8 +122,6 @@ void Statement::dfsIfStmt(pnode &node, std::pair<string, int> &varIter)
             dfsCompStmt(child, varIter);
         }
     }
-
-    m_curTerms.push_back(inst);
 }
 
 void Statement::dfsElseStmt(pnode &node, std::pair<string, int> &varIter)
@@ -155,11 +149,17 @@ void Statement::dfsElseStmt(pnode &node, std::pair<string, int> &varIter)
 
 void Statement::dfsCompStmt(pnode &node, std::pair<std::string, int> &varIter)
 {
+    irInstruction inst;
+    inst.block = "_ifEnd" + to_string(++(varIter.second));
+
     for (auto child : node.children())
     {
-        if (child.rule() == "{" || child.rule() == "}")
+        if (child.rule() == "{")
         {
             // discard symbol
+        }
+        else if (child.rule() == "}") {
+            m_curTerms.push_back(inst);
         }
         else if(child.rule() == "stmt")
         {
@@ -966,5 +966,17 @@ void Statement::processMutBinaryOp(pnode &node, std::pair<std::string, int> &var
         {
             // shouldnt ever happen since the parser will complain.
         }
+    }
+}
+
+void Statement::setInstructions(vector<irInstruction> &instructions)
+{
+    for(auto term : m_curTerms)
+    {
+        instructions.push_back(term);
+    }
+    for(auto statement : m_statements)
+    {
+        statement.setInstructions(instructions);
     }
 }

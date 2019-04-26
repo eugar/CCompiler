@@ -324,10 +324,7 @@ void ir::readGlobals() //todo: use symbol table to turn all variable values into
                //stmt.setInstructions(instructions);
                for(auto st : stmt.m_statements)
                {
-                   for(auto term : st.getCurTerms())
-                   {
-                       instructions.push_back(term);
-                   }
+                   st.setInstructions(instructions);
                }
            }
        }

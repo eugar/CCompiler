@@ -128,6 +128,9 @@ public:
     }
 
     static bool rCompNode(pnode a, pnode b) {return a.rule() >= b.rule();}
+
+    void setInstructions(vector<irInstruction> &instructions);
+
     std::vector<irInstruction> getCurTerms(){return m_curTerms;}
 
     virtual void parseExprStmt(pnode &root, Statement &exprStmt);
@@ -171,8 +174,10 @@ private:
     void getLeftMostLeafNode(pnode &node, pnode &leafNode);
     void moveRight(pnode &node, pnode &leafNode);
 
-    std::vector<irInstruction> m_curTerms;
     SymbolTable m_symbolTable;
+
+protected:
+    std::vector<irInstruction> m_curTerms;
 };
 
 class ExpressionStatement : public Statement
@@ -196,7 +201,7 @@ public:
         parseSelStmt(node, *this);
     }
     ~SelectionStatement() = default;
-
+    void pushEndSel(irInstruction inst){this->m_curTerms.push_back(inst);}
 };
 
 class IterationStatement : public Statement
