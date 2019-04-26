@@ -841,6 +841,10 @@ void Statement::dfsVarDeclInit(pnode &node, std::pair<string, int> &varIter, irI
         {
 
         }
+        else if (child.rule() == ";")
+        {
+
+        }
         else
         {
             dfsSimpleExpr(child, varIter, term);

@@ -43,9 +43,28 @@ typedef struct irInstruction
         arg2.clear();
         res.clear();
     }
+    // all cases of possible ops are NOT accounted for.
     bool complete()
     {
-        return !(op.empty() || arg1.empty() || arg2.empty() || res.empty());
+        // require op, arg1, arg2 and res
+        if (op == "SUB" || "ADD" || "MUL" || "DIV")
+        {
+            return !(op.empty() || arg1.empty() || arg2.empty() || res.empty());
+        }
+        // require op, arg1 and res
+        else if (op == "COPY")
+        {
+            return !(op.empty() || arg1.empty() || res.empty());
+        }
+        // require op and arg1
+        else if (op == "RET")
+        {
+            return !(op.empty() || arg1.empty());
+        }
+        else
+        {
+            return false;
+        }
     }
     bool needsArgs()
     {

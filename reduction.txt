@@ -43,8 +43,8 @@ expr -> simpleExpr
 mutBinOp -> =
 mutBinOp -> +=
 mutBinOp -> -=
-mutBinOp -> *
-mutBinOp -> /
+mutBinOp -> *=
+mutBinOp -> /=
 mutUnaryOp -> ++
 mutUnaryOp -> --
 simpleExpr -> simpleExpr || andExpr
