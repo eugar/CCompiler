@@ -56,6 +56,22 @@ public:
         {
             return "MUL";
         }
+        else if (m_rule == "<")
+        {
+            return "LSTH";
+        }
+        else if (m_rule == ">")
+        {
+            return "GRTH";
+        }
+        else if (m_rule == "<=")
+        {
+            return "GREQ";
+        }
+        else if (m_rule == ">=")
+        {
+            return "LSEQ";
+        }
         else
         {
             return m_rule;

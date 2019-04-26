@@ -67,7 +67,7 @@ void ir::writeToFile(string filename)
         cout << "Writing IR to file " << filename << endl;
         for (auto it : instructions)
         {
-         out << (it.op == "" ? "" : it.op + " ") << (it.arg1 == "" ? "" : it.arg1 + " ") << (it.arg2 == "" ? "" : it.arg2 + " ") << (it.res == "" ? "" : it.res + " ") << endl;
+            out << (it.block == "" ? ((it.op == "" ? "" : it.op + " ") + (it.arg1 == "" ? "" : it.arg1 + " ") + (it.arg2 == "" ? "" : it.arg2 + " ") + (it.res == "" ? "" : it.res + " ")) : it.block) << endl;
         }
         out.close();
     }
@@ -341,6 +341,6 @@ void ir::printIR()
 {
     for (auto it : instructions)
     {
-     cout << (it.op == "" ? "" : it.op + " ") << (it.arg1 == "" ? "" : it.arg1 + " ") << (it.arg2 == "" ? "" : it.arg2 + " ") << (it.res == "" ? "" : it.res + " ") << endl;
+     cout << (it.block == "" ? ((it.op == "" ? "" : it.op + " ") + (it.arg1 == "" ? "" : it.arg1 + " ") + (it.arg2 == "" ? "" : it.arg2 + " ") + (it.res == "" ? "" : it.res + " ")) : it.block) << endl;
     }
 }

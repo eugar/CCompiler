@@ -27,6 +27,7 @@ typedef struct irInstruction
     , params()
     , arg2()
     , res()
+    , block()
     {}
 
     string op;
@@ -34,6 +35,7 @@ typedef struct irInstruction
     pnode *params;
     string arg2;
     string res;
+    string block;
 
     void clear()
     {
@@ -42,6 +44,7 @@ typedef struct irInstruction
         params = nullptr;
         arg2.clear();
         res.clear();
+        block.clear();
     }
     bool complete()
     {

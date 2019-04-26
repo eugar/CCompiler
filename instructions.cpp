@@ -1,6 +1,6 @@
 //
 // Created by mmalett on 4/7/19.
-//
+// Co-written by Victor ¯\_(ツ)_/¯
 
 #include "instructions.h"
 
@@ -91,6 +91,7 @@ void Statement::dfsStmt(pnode node)
 
 void Statement::dfsIfStmt(pnode &node, std::pair<string, int> &varIter)
 {
+    irInstruction inst;
     for (auto child : node.children())
     {
         if (child.rule() == "if")
@@ -115,6 +116,8 @@ void Statement::dfsIfStmt(pnode &node, std::pair<string, int> &varIter)
             dfsCompStmt(child, varIter);
         }
     }
+    inst.block = "_ifEnd"+ to_string(++(varIter.second));
+    m_curTerms.push_back(inst);
 }
 
 void Statement::dfsElseStmt(pnode &node, std::pair<string, int> &varIter)
@@ -465,14 +468,28 @@ void Statement::dfsSumExpr(pnode &node, std::pair<std::string, int> &varIter, ir
     {
         if (term.isNew())
         {
-            term.res = varIter.first + to_string(++(varIter.second));
+            if (varIter.first == "")
+            {
+                term.res = "_term" + to_string(++(varIter.second));
+            }
+            else
+            {
+                term.res = varIter.first + to_string(++(varIter.second));
+            }
         }
         if (child.visited())
         {
             if (term.needsArg2() && !m_curTerms.empty())
             {
                 term.arg2 = m_curTerms.back().res;
-                term.res  = varIter.first + to_string(++(varIter.second));
+                if (varIter.first == "")
+                {
+                    term.res = "_term" + to_string(++(varIter.second));
+                }
+                else
+                {
+                    term.res = varIter.first + to_string(++(varIter.second));
+                }
                 m_curTerms.push_back(term);
                 term.clear();
             }
@@ -897,5 +914,3 @@ void Statement::dfsMutable(pnode &node, std::pair<string, int> &varIter, irInstr
 {
 
 }
-
-
