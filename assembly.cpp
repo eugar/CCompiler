@@ -9,8 +9,9 @@
 
 using namespace std;
 
-Assembly::Assembly(string filename) {
+Assembly::Assembly(vector<irInstruction> instructions, string filename) {
     this->out.open(filename);
+    this->instructions = instructions;
 
     if (!out.is_open())
     {
@@ -19,6 +20,7 @@ Assembly::Assembly(string filename) {
     }
 
     bbcount = 1;
+    insCount = 0;
 }
 
 void Assembly::writeFunctionPrologue() {
@@ -28,6 +30,7 @@ void Assembly::writeFunctionPrologue() {
 }
 
 void Assembly::writeFunctionEpilogue() {
+    writeInstruction("movq\t\t%rbp, %rsp");
     writeInstruction("popq\t\t%rbp");
     writeInstruction("ret");
 }
@@ -55,11 +58,7 @@ void Assembly::generateCode(vector<irInstruction> instructions)
     for (auto instruction : instructions)
     {
         insertBB(instruction);
-        updateRegAge();
-        /*for (auto reg : this->assemblyContext.context.registerList) // debugging
-        {
-            cout << reg.registerNum << ':' << reg.age << endl;
-        }*/
+        this->insCount++;
     }
 }
 
@@ -74,15 +73,55 @@ void Assembly::insertBB(irInstruction ins)
     chooseInstruction(ins);
 }
 
+int Assembly::getNextOffset(string argument) {
+    if (argument.find_first_not_of("0123456789") != std::string::npos) // a char was found, it is an id
+    {
+        //lookup in the table
+        int offset = this->assemblyContext.getOffset(argument);
+        if (offset != -1) // it was found
+        {
+            return offset;
+        }
+    }
+    this->assemblyContext.context.stackOffset -= 4;
+    return this->assemblyContext.context.stackOffset;
+}
+
+int Assembly::countLocalVars() {
+    int tmp = this->insCount + 1;
+
+    vector<irInstruction> localVars;
+
+    while (this->instructions.at(tmp).op != "RET" && tmp < this->instructions.size()) // possible off by one
+    {
+        string result = this->instructions.at(tmp).res;
+        if (!result.empty())
+        {
+            auto it = find_if(localVars.begin(), localVars.end(), [&result](const irInstruction & ins)
+            {
+                return ins.res == result;
+            });
+
+            if (it == localVars.end())
+            {
+                localVars.push_back(this->instructions.at(tmp));
+            }
+        }
+    tmp++;
+    }
+
+    return localVars.size() * 4; //assumes ints
+}
+
 string Assembly::createString(string argument)
 {
     if (argument.find_first_not_of("0123456789") != std::string::npos) // a char was found, it is an id
     {
         //lookup in the table
-        int regNum = this->assemblyContext.getRegister(argument);
-        if (regNum != -1) // it was found
+        int offset = this->assemblyContext.getOffset(argument);
+        if (offset != -1) // it was found
         {
-            return "%r" + to_string(regNum);
+            return to_string(offset) + "(%rbp)";
         }
         else
         {
@@ -92,61 +131,6 @@ string Assembly::createString(string argument)
     }
 
     return "$" + argument;
-}
-
-reg Assembly::evictReg()
-{
-    // find 'oldest' register
-    auto max = max_element(this->assemblyContext.context.registerList.begin(), this->assemblyContext.context.registerList.end(),
-            [](const reg &a, const reg &b)
-            {
-                return a.age < b.age;
-            } );
-
-    max->age = 0;
-    max->isUsed = 0;
-    max->name = "";
-    max->val = 0;
-
-    return *max;
-}
-
-reg Assembly::getOpenReg(string res) {
-    for (auto &reg : this->assemblyContext.context.registerList) // see if the result destination is already a register
-    {
-        if (reg.name == res)
-        {
-            //cout << "returning " << reg.registerNum << " " << reg.name << endl;
-            return reg;
-        }
-    }
-
-    for (auto &reg : this->assemblyContext.context.registerList) // otherwise, we need to iterate through the registers and get an open register
-    {
-        if (!reg.isUsed)
-        {
-            //cout << "found open reg " << reg.registerNum << endl;
-            return reg;
-        }
-    }
-
-    // if we reached this point, there are no more open registers. we must evict the LRU register.
-
-    reg openReg = evictReg();
-
-    return openReg;
-}
-
-// iterate through the list and increment the age of all registers
-void Assembly::updateRegAge()
-{
-    for (auto &reg : this->assemblyContext.context.registerList)
-    {
-        if (reg.isUsed)
-        {
-            reg.age += 1;
-        }
-    }
 }
 
 //this function takes in strings and formats them. After
@@ -164,10 +148,9 @@ void Assembly::chooseInstruction(irInstruction ins)
 {
     if (ins.op == "NOT") // unary instructions
     {
-        reg tmpReg = getOpenReg(ins.res); // need to change logic in this op
         writeInstruction(createString(ins.arg1));
-        writeInstruction("not\t%eax");
-        writeInstruction("movl\t%eax, %r" + to_string(tmpReg.registerNum));
+        writeInstruction("not\t%eax"); // need to change logic here
+        writeInstruction("movl\t%eax, %r" + to_string(getNextOffset(ins.res)));
     }
     else if (ins.op == "ADD" || ins.op == "SUB" || ins.op == "MUL" || ins.op == "DIV")
     {
@@ -195,9 +178,9 @@ void Assembly::chooseInstruction(irInstruction ins)
             writeInstruction("cdq");
             writeInstruction("idivl\t\t" + createString(ins.arg1));
         }
-        reg tmpReg = getOpenReg(ins.res);
-        writeInstruction("movl\t\t%eax, %r" + to_string(tmpReg.registerNum));
-        this->assemblyContext.fillRegister(tmpReg.registerNum, ins.res);
+        int tmp = getNextOffset(ins.res);
+        writeInstruction("movl\t\t%eax, " + to_string(tmp) + "(%rbp)");
+        this->assemblyContext.setOffset(ins.res, tmp);
     }
     else if (ins.op == "EQ" || ins.op == "NOTEQ" || ins.op == "LSTH" || ins.op == "GRTH" || ins.op == "GREQ" || ins.op == "LSEQ") //binary instructions
     {
@@ -229,22 +212,36 @@ void Assembly::chooseInstruction(irInstruction ins)
     }
     else if (ins.op == "COPY")
     {
-        reg tmpReg = getOpenReg(ins.res);
-        writeInstruction("movl\t\t" + createString(ins.arg1) + ", %r" + to_string(tmpReg.registerNum));
-        this->assemblyContext.fillRegister(tmpReg.registerNum, ins.res);
+        int offset = getNextOffset(ins.res);
+        writeInstruction("movl\t\t" + createString(ins.arg1) + ", " + to_string(offset) + "(%rbp)");
+        this->assemblyContext.setOffset(ins.res, offset);
     }
     else if (ins.op == "RET")
     {
-        writeFunctionEpilogue();
+        int tmp = this->assemblyContext.getOffset(ins.arg1);
+
+        if (tmp != -1)
+        {
+            writeInstruction("movl\t\t" + to_string(tmp) + "(%rbp), %eax"); // move the return value in to the return register
+            writeFunctionEpilogue();
+        }
+        else
+        {
+            cout << "return value not found" << endl;
+            exit(1);
+        }
     }
     else if (ins.op == "FUNC") // generate a label
     {
         //todo: need to insert logic to handle scoping
         out << ins.res << ":" << endl;
         writeFunctionPrologue();
+        writeInstruction("subl\t\t$" + to_string(countLocalVars()) + ", %rsp"); // make room for local vars in this stack frame
+        this->assemblyContext.newScope();
     }
     else if (ins.op == "LABEL")
     {
+        // same as above
         out << ins.arg1 << ":" << endl;
     }
 }
