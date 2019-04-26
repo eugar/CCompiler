@@ -129,7 +129,7 @@ public:
 
     static bool rCompNode(pnode a, pnode b) {return a.rule() >= b.rule();}
 
-    void setInstructions(vector<irInstruction> &instructions);
+    void setInstructions(vector<irInstruction> &instructions, int &numBlocks, string funcName);
 
     std::vector<irInstruction> getCurTerms(){return m_curTerms;}
 
@@ -139,6 +139,7 @@ public:
     virtual void parseRetStmt(pnode &root, Statement &retStmt);
     virtual void parseBreakStmt(pnode &root, Statement &breakStmt);
     virtual void parseVarDecl(pnode &root, Statement &varDecl);
+    virtual void parseCmpStmt(pnode &root, Statement &compStmt);
 
     pnode m_root;
     std::vector<Statement> m_statements;
@@ -173,6 +174,7 @@ private:
     void getLeftMostLeaf(pnode &node, std::string &rule);
     void getLeftMostLeafNode(pnode &node, pnode &leafNode);
     void moveRight(pnode &node, pnode &leafNode);
+    bool isBlock(irInstruction inst);
 
     SymbolTable m_symbolTable;
 
@@ -247,6 +249,17 @@ public:
         parseVarDecl(node, *this);
     }
     ~VariableDeclaration() = default;
+};
+
+class CompoundStatement : public Statement
+{
+public:
+    CompoundStatement(pnode &node, SymbolTable symbolTable)
+    : Statement(node, symbolTable)
+    {
+        parseCmpStmt(node, *this);
+    }
+    ~CompoundStatement() = default;
 };
 
 #endif //CCOMPILER_INSTRUCTIONS_H

@@ -319,12 +319,13 @@ void ir::readGlobals() //todo: use symbol table to turn all variable values into
            // pnode "global" is the start of a function
            Function function(global, m_symbolTable);
            instructions.push_back(function.funcHeader());
+           int numBlocks = 0;
            for(auto stmt : function.getStatementList())
            {
                //stmt.setInstructions(instructions);
                for(auto st : stmt.m_statements)
                {
-                   st.setInstructions(instructions);
+                   st.setInstructions(instructions, numBlocks, function.funcHeader().res);
                }
            }
        }
