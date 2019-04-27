@@ -51,6 +51,9 @@ void Statement::parseSelStmt(pnode &root, Statement &selStmt)
             std::pair<std::string, int> varIter;
             varIter.second = -1;
             dfsIfStmt(child, varIter);
+            irInstruction jmp;
+            jmp.op = "JMP";
+            m_curTerms.push_back(jmp);
         }
         else if (child.rule() == "elseStmt")
         {
@@ -314,13 +317,6 @@ void Statement::dfsExpr(pnode &node, std::pair<std::string, int> &varIter)
         }
         else // simpleExpr
         {
-/*
-            dfsSimpleExpr(node, varIter, expr);
-            if (expr.complete())
-            {
-                m_curTerms.push_back(expr);
-            }
-            */
             dfsSimpleExpr(child, varIter, expr);
             irInstruction var;
             var.op   = "COPY";
@@ -393,7 +389,14 @@ void Statement::dfsSimpleExpr(pnode &node, std::pair<std::string, int> &varIter,
     {
         if (term.isNew())
         {
-            term.res = varIter.first + to_string(++(varIter.second));
+            if (varIter.first == "")
+            {
+                term.res = "_term" + to_string(++(varIter.second));
+            }
+            else
+            {
+                term.res = varIter.first + to_string(++(varIter.second));
+            }
         }
 
         if (child.visited())
@@ -556,8 +559,14 @@ void Statement::dfsTerm(pnode &node, std::pair<std::string, int> &varIter, irIns
     {
         if (term.isNew())
         {
-            term.res = varIter.first + to_string(++(varIter.second));
-        }
+            if (varIter.first == "")
+            {
+                term.res = "_term" + to_string(++(varIter.second));
+            }
+            else
+            {
+                term.res = varIter.first + to_string(++(varIter.second));
+            }        }
         if (child.visited())
         {
             if (term.needsArg2() && !m_curTerms.empty())
@@ -592,8 +601,14 @@ void Statement::dfsTerm(pnode &node, std::pair<std::string, int> &varIter, irIns
             if (term.needsArg2() && !m_curTerms.empty())
             {
                 term.arg2 = m_curTerms.back().res;
-                term.res = varIter.first + to_string(++(varIter.second));
-                m_curTerms.push_back(term);
+                if (varIter.first == "")
+                {
+                    term.res = "_term" + to_string(++(varIter.second));
+                }
+                else
+                {
+                    term.res = varIter.first + to_string(++(varIter.second));
+                }                m_curTerms.push_back(term);
                 term.clear();
             }
             if (term.complete())
@@ -952,7 +967,7 @@ void Statement::setInstructions(vector<irInstruction> &instructions, int &numBlo
     irInstruction b_end;
     for(auto term : m_curTerms)
     {
-        if (isBlock(term) && term.res.empty())
+        if (isJmp(term))
         {
             numBlocks++;
             b_end.block = "_"+funcName+"Block" + to_string(numBlocks);
@@ -969,9 +984,9 @@ void Statement::setInstructions(vector<irInstruction> &instructions, int &numBlo
     }
 }
 
-bool Statement::isBlock(irInstruction inst)
+bool Statement::isJmp(irInstruction inst)
 {
-    if (inst.op == "GRTH" || inst.op == "LSTH" || inst.op == "GREQ" || inst.op == "LSEQ" )
+    if (inst.op == "JMP" )
     {
         return true;
     }

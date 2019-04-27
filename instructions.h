@@ -197,7 +197,7 @@ private:
     void getLeftMostLeaf(pnode &node, std::string &rule);
     void getLeftMostLeafNode(pnode &node, pnode &leafNode);
     void moveRight(pnode &node, pnode &leafNode);
-    bool isBlock(irInstruction inst);
+    bool isJmp(irInstruction inst);
 
     SymbolTable m_symbolTable;
 
