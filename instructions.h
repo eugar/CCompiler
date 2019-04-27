@@ -27,6 +27,7 @@ typedef struct irInstruction
     , params()
     , arg2()
     , res()
+    , block()
     {}
 
     string op;
@@ -34,6 +35,7 @@ typedef struct irInstruction
     pnode *params;
     string arg2;
     string res;
+    string block;
 
     void clear()
     {
@@ -42,6 +44,7 @@ typedef struct irInstruction
         params = nullptr;
         arg2.clear();
         res.clear();
+        block.clear();
     }
     // all cases of possible ops are NOT accounted for.
     bool complete()
@@ -144,6 +147,9 @@ public:
     }
 
     static bool rCompNode(pnode a, pnode b) {return a.rule() >= b.rule();}
+
+    void setInstructions(vector<irInstruction> &instructions, int &numBlocks, string funcName);
+
     std::vector<irInstruction> getCurTerms(){return m_curTerms;}
 
     virtual void parseExprStmt(pnode &root, Statement &exprStmt);
@@ -152,10 +158,10 @@ public:
     virtual void parseRetStmt(pnode &root, Statement &retStmt);
     virtual void parseBreakStmt(pnode &root, Statement &breakStmt);
     virtual void parseVarDecl(pnode &root, Statement &varDecl);
+    virtual void parseCmpStmt(pnode &root, Statement &compStmt);
 
     pnode m_root;
     std::vector<Statement> m_statements;
-    std::list<irInstruction> m_instructions;
 
 private:
     void dfsStmt(pnode node);
@@ -187,10 +193,12 @@ private:
     void getLeftMostLeaf(pnode &node, std::string &rule);
     void getLeftMostLeafNode(pnode &node, pnode &leafNode);
     void moveRight(pnode &node, pnode &leafNode);
+    bool isBlock(irInstruction inst);
 
-    std::vector<irInstruction> m_curTerms;
     SymbolTable m_symbolTable;
-    string m_curVar;
+
+protected:
+    std::vector<irInstruction> m_curTerms;
 };
 
 class ExpressionStatement : public Statement
@@ -214,7 +222,7 @@ public:
         parseSelStmt(node, *this);
     }
     ~SelectionStatement() = default;
-
+    void pushEndSel(irInstruction inst){this->m_curTerms.push_back(inst);}
 };
 
 class IterationStatement : public Statement
@@ -250,6 +258,7 @@ public:
     ~BreakStatement() = default;
 };
 
+
 class VariableDeclaration : public Statement
 {
 public:
@@ -259,6 +268,17 @@ public:
         parseVarDecl(node, *this);
     }
     ~VariableDeclaration() = default;
+};
+
+class CompoundStatement : public Statement
+{
+public:
+    CompoundStatement(pnode &node, SymbolTable symbolTable)
+    : Statement(node, symbolTable)
+    {
+        parseCmpStmt(node, *this);
+    }
+    ~CompoundStatement() = default;
 };
 
 #endif //CCOMPILER_INSTRUCTIONS_H

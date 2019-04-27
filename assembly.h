@@ -14,7 +14,7 @@ using namespace std;
 class Assembly {
 
 public:
-    Assembly(string filename = "out.s");
+    Assembly(vector<irInstruction> instructions, string filename = "out.s");
 
     void generateCode(vector<irInstruction> instructions);
     void insertBB(irInstruction ins);
@@ -24,15 +24,16 @@ public:
     void writeHeader();
     void writeFunctionPrologue();
     void writeFunctionEpilogue();
-    reg getOpenReg(string res);
-    void updateRegAge();
-    reg evictReg();
+    int getNextOffset(string argument);
+    int countLocalVars();
     string createString(string argument);
 
 private:
     ofstream out;
     int bbcount;
+    int insCount;
     AssemblyContext assemblyContext;
+    vector<irInstruction> instructions;
 };
 
 

@@ -144,19 +144,20 @@ HELP:
         cout << endl;
     }
 
-    Assembly a;
-
     if (assemblyFlag)
     { //todo: check to make sure the user-entered filename contains .s ??
-        a = Assembly(assemblyOutFile);
+        Assembly a = Assembly(ir.instructions, assemblyOutFile);
+        a.generateCode(ir.instructions);
+        a.closeOutput();
     }
     else
     {
-        a = Assembly();
+        Assembly a = Assembly(ir.instructions);
+        a.generateCode(ir.instructions);
+        a.closeOutput();
     }
 
-    a.generateCode(ir.instructions);
-    a.closeOutput();
+
 
     return 0;
 }

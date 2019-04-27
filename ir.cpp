@@ -67,7 +67,7 @@ void ir::writeToFile(string filename)
         cout << "Writing IR to file " << filename << endl;
         for (auto it : instructions)
         {
-         out << (it.op == "" ? "" : it.op + " ") << (it.arg1 == "" ? "" : it.arg1 + " ") << (it.arg2 == "" ? "" : it.arg2 + " ") << (it.res == "" ? "" : it.res + " ") << endl;
+            out << (it.block == "" ? ((it.op == "" ? "" : it.op + " ") + (it.arg1 == "" ? "" : it.arg1 + " ") + (it.arg2 == "" ? "" : it.arg2 + " ") + (it.res == "" ? "" : it.res + " ")) : it.block) << endl;
         }
         out.close();
     }
@@ -319,15 +319,14 @@ void ir::readGlobals() //todo: use symbol table to turn all variable values into
            // pnode "global" is the start of a function
            Function function(global, m_symbolTable);
            instructions.push_back(function.funcHeader());
+           int numBlocks = 0;
            for(auto stmt : function.getStatementList())
            {
+               //stmt.setInstructions(instructions);
                for(auto st : stmt.m_statements)
                {
-                   for(auto term : st.getCurTerms())
-                   {
-                       instructions.push_back(term);
-                   }
-                }
+                   st.setInstructions(instructions, numBlocks, function.funcHeader().res);
+               }
            }
        }
        else if (global.rule() == "varDecl")
@@ -341,6 +340,7 @@ void ir::printIR()
 {
     for (auto it : instructions)
     {
-     cout << (it.op == "" ? "" : it.op + " ") << (it.arg1 == "" ? "" : it.arg1 + " ") << (it.arg2 == "" ? "" : it.arg2 + " ") << (it.res == "" ? "" : it.res + " ") << endl;
+     cout << (it.block == "" ? ((it.op == "" ? "" : it.op + " ") + (it.arg1 == "" ? "" : it.arg1 + " ") + (it.arg2 == "" ? "" : it.arg2 + " ") + (it.res == "" ? "" : it.res + " ")) : it.block) << endl;
+     /*cout << (it.op == "" ? "" : it.op + " ") << (it.arg1 == "" ? "" : it.arg1 + " ") << (it.arg2 == "" ? "" : it.arg2 + " ") << (it.res == "" ? "" : it.res + " ") << endl;*/
     }
 }
