@@ -50,12 +50,12 @@ typedef struct irInstruction
     bool complete()
     {
         // require op, arg1, arg2 and res
-        if (op == "SUB" || "ADD" || "MUL" || "DIV")
+        if (op == "SUB" || "ADD" || "MUL" || "DIV" || "GRTH" || "LSTH" || "GREQ" || "LSEQ" || "EQ")
         {
             return !(op.empty() || arg1.empty() || arg2.empty() || res.empty());
         }
         // require op, arg1 and res
-        else if (op == "COPY")
+        else if (op == "COPY" || "NOT")
         {
             return !(op.empty() || arg1.empty() || res.empty());
         }
@@ -68,6 +68,10 @@ typedef struct irInstruction
         {
             return false;
         }
+    }
+    bool isMath()
+    {
+        return op == "ADD" || op == "SUB" || op == "MUL" || op == "DIV";
     }
     bool needsArgs()
     {

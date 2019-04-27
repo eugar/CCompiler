@@ -56,9 +56,17 @@ public:
         {
             return "MUL";
         }
-        else if (m_rule == "<")
+        else if (m_rule =="||")
         {
-            return "LSTH";
+            return "OR";
+        }
+        else if (m_rule == "&&")
+        {
+            return "AND";
+        }
+        else if (m_rule == "!")
+        {
+            return "NOT";
         }
         else if (m_rule == ">")
         {
@@ -71,6 +79,14 @@ public:
         else if (m_rule == ">=")
         {
             return "LSEQ";
+        }
+        else if (m_rule == "<")
+        {
+            return "LSTH";
+        }
+        else if (m_rule == "==")
+        {
+            return "EQ";
         }
         else
         {

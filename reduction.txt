@@ -47,10 +47,10 @@ mutBinOp -> *=
 mutBinOp -> /=
 mutUnaryOp -> ++
 mutUnaryOp -> --
-simpleExpr -> simpleExpr || andExpr
-simpleExpr -> andExpr
-andExpr -> andExpr && unaryRelExpr
-andExpr -> unaryRelExpr
+simpleExpr -> simpleExpr binLogOp unaryRelExpr
+simpleExpr -> unaryRelExpr
+binLogOp -> &&
+binLogOp -> ||
 unaryRelExpr -> ! unaryRelExpr
 unaryRelExpr -> relExpr
 relExpr -> sumExpr relOp sumExpr
