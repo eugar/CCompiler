@@ -259,8 +259,8 @@ void Parser::reduce(ParseTree &parseTree, act redAction)
         {
             //m_newRoot = m_grammarRed.at(m_nodeStack[0].rule());
             m_newRoot = m_reduceMap.at(redAction.second);
-            m_newRoot.addChild(m_nodeStack[0]);
             m_nodeStack[0].addParentNode(&m_newRoot);
+            m_newRoot.addChild(m_nodeStack[0]);
             //cout << "reducing: " << m_nodeStack[0].rule() << " to: " << m_newRoot.rule() << endl;
             replaceStack(parseTree, 0);
             return;
@@ -302,8 +302,8 @@ void Parser::reduce(ParseTree &parseTree, act redAction)
     }
     for(auto child : tempNodes)
     {
-        m_newRoot.addChild(child);
         child.addParentNode(&m_newRoot);
+        m_newRoot.addChild(child);
     }
     replaceStack(parseTree, x);
 }
