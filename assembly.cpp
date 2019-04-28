@@ -36,7 +36,14 @@ void Assembly::writeFunctionEpilogue() {
 }
 
 void Assembly::writeHeader() {
-    out << ".globl _main" << endl;
+    if (TARGET_OS_MAC) // kinda hacky, might change this later
+    {
+        out << ".globl _main" << endl;
+    }
+    else
+    {
+        out << ".globl main" << endl;
+    }
 }
 
 void Assembly::generateCode(vector<irInstruction> instructions)
@@ -227,7 +234,13 @@ void Assembly::chooseInstruction(irInstruction ins) {
     }
     else if (ins.op == "FUNC") // generate a label
     {
-        //todo: need to insert logic to handle scoping
+        if (ins.res == "main")
+        {
+            if (TARGET_OS_MAC == 1)
+            {
+                ins.res = "_main";
+            }
+        }
         out << ins.res << ":" << endl;
         writeFunctionPrologue();
         writeInstruction("subq\t\t$" + to_string(countLocalVars()) + ", %rsp"); // make room for local vars in this stack frame
