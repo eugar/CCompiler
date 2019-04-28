@@ -93,9 +93,19 @@ int Assembly::countLocalVars() {
 
     while (this->instructions.at(tmp).op != "FUNC" && tmp < this->instructions.size() - 1)
     {
+
         string result = this->instructions.at(tmp).res;
         if (!result.empty())
         {
+            if (this->instructions.at(tmp).op == "AND")
+            {
+                this->andFlag++;
+            }
+            else if (this->instructions.at(tmp).op == "OR")
+            {
+                this->orFlag++;
+            }
+            
             auto it = find_if(localVars.begin(), localVars.end(), [&result](const irInstruction & ins)
             {
                 return ins.res == result;
@@ -110,14 +120,6 @@ int Assembly::countLocalVars() {
                 }
                 else if (this->instructions.at(tmp).op == "LSTH" || this->instructions.at(tmp).op == "GRTH" || this->instructions.at(tmp).op == "AND" || this->instructions.at(tmp).op == "OR")
                 {
-                    if (this->instructions.at(tmp).op == "AND")
-                    {
-                        this->andFlag++;
-                    }
-                    else if (this->instructions.at(tmp).op == "OR")
-                    {
-                        this->orFlag++;
-                    }
                     size += 1;
                 }
             }
@@ -132,7 +134,7 @@ void Assembly::getGotoString()
 {
     int tmp = this->insCount;
 
-    while (this->instructions.at(tmp).op != "JMP" && tmp < this->instructions.size())
+    while (this->instructions.at(tmp).op != "JMP" && tmp < this->instructions.size() - 1)
     {
         tmp++;
     }
@@ -278,9 +280,9 @@ void Assembly::chooseInstruction(irInstruction ins) {
         writeInstruction("movb\t\t" + createString(ins.arg2) + ", %bh");
         writeInstruction("and\t\t%bh, %bl");
 
-        if (andFlag)
+        if (this->andFlag || this->orFlag)
         {
-            int offset = getNextOffset(ins.res, 1);
+            int offset = getNextOffset(ins.res, 1); // save for later
             writeInstruction("movb\t\t%bl, " + to_string(offset) + "(%rbp)");
             this->assemblyContext.setOffset(ins.res, offset);
         }
@@ -291,21 +293,29 @@ void Assembly::chooseInstruction(irInstruction ins) {
     }
     else if (ins.op == "OR")
     {
+        cout << "or flag: " << orFlag << endl;
         this->orFlag--;
-        if (this->orFlag)
-        {
 
+        writeInstruction("movb\t\t" + createString(ins.arg1) + ", %bl");
+        writeInstruction("movb\t\t" + createString(ins.arg2) + ", %bh");
+        writeInstruction("or\t\t%bh, %bl");
+
+        if (this->orFlag || this->andFlag)
+        {
+            int offset = getNextOffset(ins.res, 1); // save for later
+            writeInstruction("movb\t\t%bl, " + to_string(offset) + "(%rbp)");
+            this->assemblyContext.setOffset(ins.res, offset);
         }
         else
         {
-
+            writeInstruction("je\t\t" + gotoString);
         }
     }
     else if (ins.op == "COPY")
     {
         int offset = getNextOffset(ins.res, 4);
-        writeInstruction("movl\t\t" + createString(ins.arg1) + ", %eax #COPY");
-        writeInstruction("movl\t\t%eax," + to_string(offset) + "(%rbp) #COPYcont");
+        writeInstruction("movl\t\t" + createString(ins.arg1) + ", %eax");
+        writeInstruction("movl\t\t%eax," + to_string(offset) + "(%rbp)");
         this->assemblyContext.setOffset(ins.res, offset);
     }
     else if (ins.op == "RET")
