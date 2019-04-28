@@ -124,7 +124,6 @@ string Assembly::createString(string argument)
             exit(1);
         }
     }
-
     return "$" + argument;
 }
 

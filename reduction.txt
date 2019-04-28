@@ -74,7 +74,7 @@ unaryExpr -> unaryOp mutable
 unaryExpr -> immutable
 unaryExpr -> mutable
 unaryOp -> -
-unaryOp -> &
+unaryOp -> !
 mutable -> ID
 immutable -> ( expr )
 immutable -> call
@@ -89,7 +89,8 @@ constant -> CHARCONST
 constant -> true
 constant -> false
 varDecl -> typeSpec varDeclList
-varDeclList -> varDeclList , varDeclInit
+varDeclList -> varDeclList varDeclInit
 varDeclList -> varDeclInit
+varDeclInit -> ID ,
 varDeclInit -> ID ;
 varDeclInit -> ID = simpleExpr ;
