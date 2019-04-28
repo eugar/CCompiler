@@ -19,7 +19,7 @@ Assembly::Assembly(vector<irInstruction> instructions, string filename) {
         exit(1);
     }
 
-    bbcount = 1;
+    bbcount = 0;
     insCount = 0;
 }
 
@@ -36,19 +36,7 @@ void Assembly::writeFunctionEpilogue() {
 }
 
 void Assembly::writeHeader() {
-    out << ".section .data" << endl;
-    out << ".section .bss" << endl;
-    out << ".section .text" << endl;
-    out << ".globl _start" << endl;
-    out << "#.bb0:" << endl;
-    out << "_start:" << endl;
-    writeFunctionPrologue();
-    out << "" << endl;
-    writeInstruction("call\t\tmain"); // need to do a check to make sure that main exist
-    writeInstruction("movq\t\t%rax, %rbx");
-    writeInstruction("movq\t\t$60, %rax #sys_exit ");
-    writeInstruction("movq\t\t$0x0, %rdi");
-    writeInstruction("syscall");
+    out << ".globl _main" << endl;
 }
 
 void Assembly::generateCode(vector<irInstruction> instructions)
@@ -144,12 +132,16 @@ void Assembly::writeInstruction(string line)
 //this function takes in an irInstruction and chooses the correct
 //x86 instruction (AT&T syntax) and sends a string to writeInstruction()
 //to be formatted
-void Assembly::chooseInstruction(irInstruction ins)
-{
+void Assembly::chooseInstruction(irInstruction ins) {
+    if (!ins.block.empty())
+    {
+        out << ins.block << ":" << endl;
+    }
     if (ins.op == "NOT") // unary instructions
     {
         writeInstruction(createString(ins.arg1));
         writeInstruction("not\t%eax"); // need to change logic here
+        //todo: update this
         writeInstruction("movl\t%eax, %r" + to_string(getNextOffset(ins.res)));
     }
     else if (ins.op == "ADD" || ins.op == "SUB" || ins.op == "MUL" || ins.op == "DIV")
@@ -176,7 +168,8 @@ void Assembly::chooseInstruction(irInstruction ins)
         {
             writeInstruction("movl\t\t" + createString(ins.arg2) + ", %eax");
             writeInstruction("cdq");
-            writeInstruction("idivl\t\t" + createString(ins.arg1));
+            writeInstruction("movl\t\t" + createString(ins.arg1) + ", %edx");
+            writeInstruction("idivl\t\t%edx");
         }
         int tmp = getNextOffset(ins.res);
         writeInstruction("movl\t\t%eax, " + to_string(tmp) + "(%rbp)");
@@ -213,7 +206,8 @@ void Assembly::chooseInstruction(irInstruction ins)
     else if (ins.op == "COPY")
     {
         int offset = getNextOffset(ins.res);
-        writeInstruction("movl\t\t" + createString(ins.arg1) + ", " + to_string(offset) + "(%rbp)");
+        writeInstruction("movl\t\t" + createString(ins.arg1) + ", %eax");
+        writeInstruction("movl\t\t%eax," + to_string(offset) + "(%rbp)");
         this->assemblyContext.setOffset(ins.res, offset);
     }
     else if (ins.op == "RET")
@@ -236,7 +230,7 @@ void Assembly::chooseInstruction(irInstruction ins)
         //todo: need to insert logic to handle scoping
         out << ins.res << ":" << endl;
         writeFunctionPrologue();
-        writeInstruction("subl\t\t$" + to_string(countLocalVars()) + ", %rsp"); // make room for local vars in this stack frame
+        writeInstruction("subq\t\t$" + to_string(countLocalVars()) + ", %rsp"); // make room for local vars in this stack frame
         this->assemblyContext.newScope();
     }
     else if (ins.op == "LABEL")
