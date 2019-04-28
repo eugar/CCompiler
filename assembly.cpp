@@ -21,6 +21,11 @@ Assembly::Assembly(vector<irInstruction> instructions, string filename) {
 
     bbcount = 0;
     insCount = 0;
+    elseCount = 0;
+    endCount = 0;
+    gotoString = "";
+    andFlag = 0;
+    orFlag = 0;
 }
 
 void Assembly::writeFunctionPrologue() {
@@ -36,14 +41,7 @@ void Assembly::writeFunctionEpilogue() {
 }
 
 void Assembly::writeHeader() {
-    if (TARGET_OS_MAC) // kinda hacky, might change this later
-    {
-        out << ".globl _main" << endl;
-    }
-    else
-    {
-        out << ".globl main" << endl;
-    }
+    out << ".globl _main" << endl;
 }
 
 void Assembly::generateCode(vector<irInstruction> instructions)
@@ -52,6 +50,10 @@ void Assembly::generateCode(vector<irInstruction> instructions)
 
     for (auto instruction : instructions)
     {
+        if (instruction.op == "GRTH" || instruction.op == "LSTH")
+        {
+            getGotoString();
+        }
         insertBB(instruction);
         this->insCount++;
     }
@@ -68,7 +70,7 @@ void Assembly::insertBB(irInstruction ins)
     chooseInstruction(ins);
 }
 
-int Assembly::getNextOffset(string argument) {
+int Assembly::getNextOffset(string argument, int type) {
     if (argument.find_first_not_of("0123456789") != std::string::npos) // a char was found, it is an id
     {
         //lookup in the table
@@ -78,16 +80,18 @@ int Assembly::getNextOffset(string argument) {
             return offset;
         }
     }
-    this->assemblyContext.context.stackOffset -= 4;
+
+    this->assemblyContext.context.stackOffset -= type;
+
+
     return this->assemblyContext.context.stackOffset;
 }
 
 int Assembly::countLocalVars() {
     int tmp = this->insCount + 1;
+    int size = 0;
 
-    vector<irInstruction> localVars;
-
-    while (this->instructions.at(tmp).op != "RET" && tmp < this->instructions.size()) // possible off by one
+    while (this->instructions.at(tmp).op != "FUNC" && tmp < this->instructions.size() - 1)
     {
         string result = this->instructions.at(tmp).res;
         if (!result.empty())
@@ -100,13 +104,42 @@ int Assembly::countLocalVars() {
             if (it == localVars.end())
             {
                 localVars.push_back(this->instructions.at(tmp));
+                if (this->instructions.at(tmp).op == "ADD" || this->instructions.at(tmp).op == "SUB" || this->instructions.at(tmp).op == "MUL" || this->instructions.at(tmp).op == "COPY" || this->instructions.at(tmp).op == "DIV")
+                {
+                    size += 4;
+                }
+                else if (this->instructions.at(tmp).op == "LSTH" || this->instructions.at(tmp).op == "GRTH" || this->instructions.at(tmp).op == "AND" || this->instructions.at(tmp).op == "OR")
+                {
+                    if (this->instructions.at(tmp).op == "AND")
+                    {
+                        this->andFlag++;
+                    }
+                    else if (this->instructions.at(tmp).op == "OR")
+                    {
+                        this->orFlag++;
+                    }
+                    size += 1;
+                }
             }
         }
     tmp++;
     }
 
-    return localVars.size() * 4; //assumes ints
+    return size;
 }
+
+void Assembly::getGotoString()
+{
+    int tmp = this->insCount;
+
+    while (this->instructions.at(tmp).op != "JMP" && tmp < this->instructions.size())
+    {
+        tmp++;
+    }
+
+    this->gotoString = this->instructions.at(tmp).res;
+}
+
 
 string Assembly::createString(string argument)
 {
@@ -149,7 +182,7 @@ void Assembly::chooseInstruction(irInstruction ins) {
         writeInstruction(createString(ins.arg1));
         writeInstruction("not\t%eax"); // need to change logic here
         //todo: update this
-        writeInstruction("movl\t%eax, %r" + to_string(getNextOffset(ins.res)));
+        writeInstruction("movl\t%eax, %r" + to_string(getNextOffset(ins.res, 4)));
     }
     else if (ins.op == "ADD" || ins.op == "SUB" || ins.op == "MUL" || ins.op == "DIV")
     {
@@ -178,7 +211,7 @@ void Assembly::chooseInstruction(irInstruction ins) {
             writeInstruction("movl\t\t" + createString(ins.arg1) + ", %edx");
             writeInstruction("idivl\t\t%edx");
         }
-        int tmp = getNextOffset(ins.res);
+        int tmp = getNextOffset(ins.res, 4);
         writeInstruction("movl\t\t%eax, " + to_string(tmp) + "(%rbp)");
         this->assemblyContext.setOffset(ins.res, tmp);
     }
@@ -194,11 +227,37 @@ void Assembly::chooseInstruction(irInstruction ins) {
         }
         else if (ins.op == "LSTH")
         {
-
+            writeInstruction("movl\t\t" + createString(ins.arg2) + ", %eax");
+            writeInstruction("movl\t\t" + createString(ins.arg1) + ", %edx");
+            writeInstruction("cmpl\t\t%edx, %eax");
+            if (this->andFlag || this->orFlag) // save for later
+            {
+                writeInstruction("setl\t\t%bl");
+                int tmp = getNextOffset(ins.res, 1);
+                writeInstruction("movb\t\t%bl, " + to_string(tmp) + "(%rbp)");
+                this->assemblyContext.setOffset(ins.res, tmp);
+            }
+            else
+            {
+                writeInstruction("jge\t\t" + this->gotoString);
+            }
         }
         else if (ins.op == "GRTH")
         {
-
+            writeInstruction("movl\t\t" + createString(ins.arg2) + ", %eax");
+            writeInstruction("movl\t\t" + createString(ins.arg1) + ", %edx");
+            writeInstruction("cmpl\t\t%edx, %eax");
+            if (this->andFlag || this->orFlag) // save for later
+            {
+                writeInstruction("setg\t\t%bl");
+                int tmp = getNextOffset(ins.res, 1);
+                writeInstruction("movb\t\t%bl, " + to_string(tmp) + "(%rbp)");
+                this->assemblyContext.setOffset(ins.res, tmp);
+            }
+            else
+            {
+                writeInstruction("jle\t\t" + this->gotoString);
+            }
         }
         else if (ins.op == "GREQ")
         {
@@ -209,12 +268,44 @@ void Assembly::chooseInstruction(irInstruction ins) {
 
         }
 
+
+    }
+    else if (ins.op == "AND")
+    {
+        this->andFlag--;
+
+        writeInstruction("movb\t\t" + createString(ins.arg1) + ", %bl");
+        writeInstruction("movb\t\t" + createString(ins.arg2) + ", %bh");
+        writeInstruction("and\t\t%bh, %bl");
+
+        if (andFlag)
+        {
+            int offset = getNextOffset(ins.res, 1);
+            writeInstruction("movb\t\t%bl, " + to_string(offset) + "(%rbp)");
+            this->assemblyContext.setOffset(ins.res, offset);
+        }
+        else
+        {
+            writeInstruction("je\t\t" + gotoString);
+        }
+    }
+    else if (ins.op == "OR")
+    {
+        this->orFlag--;
+        if (this->orFlag)
+        {
+
+        }
+        else
+        {
+
+        }
     }
     else if (ins.op == "COPY")
     {
-        int offset = getNextOffset(ins.res);
-        writeInstruction("movl\t\t" + createString(ins.arg1) + ", %eax");
-        writeInstruction("movl\t\t%eax," + to_string(offset) + "(%rbp)");
+        int offset = getNextOffset(ins.res, 4);
+        writeInstruction("movl\t\t" + createString(ins.arg1) + ", %eax #COPY");
+        writeInstruction("movl\t\t%eax," + to_string(offset) + "(%rbp) #COPYcont");
         this->assemblyContext.setOffset(ins.res, offset);
     }
     else if (ins.op == "RET")
@@ -234,12 +325,10 @@ void Assembly::chooseInstruction(irInstruction ins) {
     }
     else if (ins.op == "FUNC") // generate a label
     {
+        this->localVars.clear();
         if (ins.res == "main")
         {
-            if (TARGET_OS_MAC == 1)
-            {
-                ins.res = "_main";
-            }
+            ins.res = "_main";
         }
         out << ins.res << ":" << endl;
         writeFunctionPrologue();
@@ -248,7 +337,12 @@ void Assembly::chooseInstruction(irInstruction ins) {
     }
     else if (ins.op == "LABEL")
     {
-        // same as above
         out << ins.arg1 << ":" << endl;
+        writeFunctionPrologue();
+        writeInstruction("subq\t\t$" + to_string(countLocalVars()) + ", %rsp"); // make room for local vars in this stack frame
+        this->assemblyContext.newScope();
+    }
+    else if (!ins.block.empty())
+    {
     }
 }
