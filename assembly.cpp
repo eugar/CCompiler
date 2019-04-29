@@ -6,7 +6,7 @@
 #include <algorithm>
 #include "assembly.h"
 #include <algorithm>
-
+#define TARGET_OS_MAC 0
 using namespace std;
 
 Assembly::Assembly(vector<irInstruction> instructions, string filename) {

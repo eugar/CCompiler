@@ -88,9 +88,9 @@ constant -> NUMCONST
 constant -> CHARCONST
 constant -> true
 constant -> false
-varDecl -> typeSpec varDeclList
-varDeclList -> varDeclList varDeclInit
-varDeclList -> varDeclInit
-varDeclInit -> ID ,
-varDeclInit -> ID ;
-varDeclInit -> ID = simpleExpr ;
+varDecl -> paramList , varDeclList
+varDecl -> paramList = expr , varDeclList
+varDeclList -> varDeclId , varDeclList
+varDeclList -> varDeclId ;
+varDeclId -> ID = expr
+varDeclId -> ID
