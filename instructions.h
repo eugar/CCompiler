@@ -297,7 +297,7 @@ public:
     : Statement(node, symbolTable)
     {
         m_type = selStmt;
-        m_endLabel = "_blockEnd" + to_string(rand()%100);
+        m_endLabel = "_blk" + to_string(rand()%1000) +"end" + to_string(rand()%1000);
         parseCmpStmt(node, *this, selStmt);
     }
     ~CompoundStatement() = default;
