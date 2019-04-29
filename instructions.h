@@ -59,7 +59,7 @@ typedef struct irInstruction
         if (op == "SUB" || op == "ADD" || op == "MUL"
         || op == "DIV" || op == "GRTH" || op == "LSTH"
         || op == "GREQ" || op == "LSEQ" || op == "EQ"
-        || op == "OR" || op == "AND")
+        || op == "OR" || op == "AND" || op == "NOTEQ")
         {
             return !(op.empty() || arg1.empty() || arg2.empty() || res.empty());
         }

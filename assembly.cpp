@@ -48,7 +48,8 @@ void Assembly::generateCode(vector<irInstruction> instructions)
 
     for (auto instruction : instructions)
     {
-        if (instruction.op == "GRTH" || instruction.op == "LSTH")
+        if (instruction.op == "GRTH" || instruction.op == "LSTH" || instruction.op == "GREQ" || instruction.op == "LSEQ"
+        || instruction.op == "EQ" || instruction.op == "NOTEQ")
         {
             getGotoString();
         }
@@ -132,7 +133,7 @@ void Assembly::getGotoString()
 {
     int tmp = this->insCount;
 
-    while (this->instructions.at(tmp).op != "JMP" && tmp < this->instructions.size() - 1)
+    while (this->instructions.at(tmp).op != "CJMP" && tmp < this->instructions.size() - 1)
     {
         tmp++;
     }
@@ -395,6 +396,10 @@ void Assembly::chooseInstruction(irInstruction ins) {
         writeFunctionPrologue();
         writeInstruction("subq\t\t$" + to_string(countLocalVars()) + ", %rsp"); // make room for local vars in this stack frame
         this->assemblyContext.newScope();
+    }
+    else if(ins.op == "JMP")
+    {
+        writeInstruction("jmp\t\t" + ins.res);
     }
     else if (ins.op == "LABEL")
     {

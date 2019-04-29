@@ -72,11 +72,11 @@ public:
         {
             return "GRTH";
         }
-        else if (m_rule == "<=")
+        else if (m_rule == ">=")
         {
             return "GREQ";
         }
-        else if (m_rule == ">=")
+        else if (m_rule == "<=")
         {
             return "LSEQ";
         }
@@ -87,6 +87,10 @@ public:
         else if (m_rule == "==")
         {
             return "EQ";
+        }
+        else if (m_rule == "!=")
+        {
+            return "NOTEQ";
         }
         else
         {

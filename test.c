@@ -11,14 +11,18 @@ int main ()
 
     int b = 3 - 1;
 
-    if (b < 10)
+    if (b < 10 && 5 < 6 && 9 < 10)
     {
+        if (5 <= 6 && 10 >= 11)
+        {
+            return 5;
+        }
+        else
+        {
+            return 6;
+        }
         return 10;
     }
-
-    int g = 6 / 3 + 5 * 3;
-    g = 5;
-    z = g;
 
     return z;
 }
