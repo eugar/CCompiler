@@ -281,11 +281,11 @@ void Statement::parseVarDecl(pnode &root, Statement &varDecl)
 void Statement::parseCmpStmt(pnode &root, Statement &cmpStmt, stmt_type selStmt)
 {
     irInstruction jmp;
-    jmp.op = "JMP";
-    jmp.res = this->m_endLabel;
     switch (selStmt)
     {
         case IFCMP:
+            jmp.op = "CJMP";
+            jmp.res = this->m_endLabel;
             m_curTerms.push_back(jmp);
         break;
         case ELSECMP:
