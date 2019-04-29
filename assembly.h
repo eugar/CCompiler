@@ -33,8 +33,6 @@ private:
     ofstream out;
     int bbcount;
     int insCount;
-    int elseCount;
-    int endCount;
     int andFlag;
     int orFlag;
     vector<irInstruction> localVars;
