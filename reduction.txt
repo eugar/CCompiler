@@ -88,9 +88,10 @@ constant -> NUMCONST
 constant -> CHARCONST
 constant -> true
 constant -> false
-varDecl -> paramList , varDeclList
-varDecl -> paramList = expr , varDeclList
-varDeclList -> varDeclId , varDeclList
-varDeclList -> varDeclId ;
-varDeclId -> ID = expr
-varDeclId -> ID
+varDecl -> typeSpec varDeclList ;
+varDecl -> typeSpec varDeclInit ;
+varDeclList -> varDeclList varDeclInit
+varDeclList -> ID ,
+varDeclList -> ID = expr ,
+varDeclInit -> ID
+varDeclInit -> ID = expr
