@@ -248,6 +248,7 @@ void Statement::parseRetStmt(pnode &root, Statement &retStmt)
 }
 void Statement::parseVarDecl(pnode &root, Statement &varDecl)
 {
+    string lastVar;
     for (auto child : root.children())
     {
         if (child.rule() == "typeSpec")
@@ -255,11 +256,24 @@ void Statement::parseVarDecl(pnode &root, Statement &varDecl)
             // currently only goes to return type spec and that goes to terminals
             // so assign whatever terminals
         }
+        else if (child.rule() == ";")
+        {
+            m_curTerms.back().res = lastVar;
+        }
         else if (child.rule() == "varDeclList")
         {
             std::pair<std::string, int> varIter;
             varIter.second = -1;
             dfsVarDeclList(child, varIter);
+            lastVar = varIter.first;
+        }
+        else if (child.rule() == "varDeclInit")
+        {
+            std::pair<std::string, int> varIter;
+            varIter.second = -1;
+            irInstruction newTerm;
+            dfsVarDeclInit(child, varIter, newTerm);
+            lastVar = varIter.first;
         }
     }
 }
@@ -635,33 +649,6 @@ void Statement::dfsTerm(pnode &node, std::pair<std::string, int> &varIter, irIns
             }
         }
     }
-
-/*
-    for (auto child : node.children())
-    {
-        if (child.rule() == "mulOp")
-        {
-            // manage mulOps
-            term.op = child.children()[0].rule();
-        }
-        else if (child.rule() == "unaryExpr")
-        {
-            dfsUnaryExpr(child, varIter, term);
-        }
-        else
-        {
-            irInstruction newTerm;
-            dfsTerm(child, varIter, newTerm);
-            m_curTerms.push_back(newTerm);
-        }
-    }
-    */
-    /*
-    if (!m_curTerms.empty())
-    {
-        term.arg2 = m_curTerms.back().res;
-    }
-     */
 }
 
 void Statement::dfsUnaryExpr(pnode &node, std::pair<string, int> &varIter, irInstruction &term)
@@ -675,7 +662,7 @@ void Statement::dfsUnaryExpr(pnode &node, std::pair<string, int> &varIter, irIns
            string check = child.children()[0].children()[0].rule();
            if (m_symbolTable.lookup(check) == NULL) {
                cerr << "Symbol: " << check << " not found in scope: " << m_symbolTable.scope() << endl;
-               exit(1);
+               //exit(1);
            }
 
            //term.res = term.arg1 + to_string(++(varIter.second));
@@ -849,11 +836,28 @@ void Statement::dfsVarDeclList(pnode &node, std::pair<string, int> &varIter)
         }
         else if (child.rule() == ",")
         {
+            m_curTerms.back().res = varIter.first;
+        }
+        else if (child.rule() == "ID")
+        {
+
+            varIter.first = child.children()[0].ins();
+        }
+        else if (child.rule() == "=")
+        {
             // discard symbol
         }
-        else
+        else if (child.rule() == "simpleExpr")
         {
-            dfsVarDeclList(node, varIter);
+            irInstruction expr;
+            dfsSimpleExpr(child, varIter, expr);
+            expr.op = "COPY";
+            m_curTerms.push_back(expr);
+        }
+        else if (child.rule() == "varDeclList")
+        {
+            pair<string, int> varIter;
+            dfsVarDeclList(child, varIter);
         }
     }
 }
@@ -864,27 +868,20 @@ void Statement::dfsVarDeclInit(pnode &node, std::pair<string, int> &varIter, irI
     {
         if (child.rule() == "ID")
         {
-            // get id
-            //irInstruction newVarDecl;
-            //newVarDecl.res = varIter.first + to_string(++(varIter.second));
-            //m_curTerms.push_back(newVarDecl);
+            // begin the variable name
             varIter.first = child.children()[0].ins();
-        }
-        else if (child.rule() == "=")
-        {
 
         }
-        else if (child.rule() == ";")
-        {
-
-        }
-        else
+        else if (child.rule() == "simpleExpr")
         {
             dfsSimpleExpr(child, varIter, term);
             irInstruction var;
-            var.op = "COPY";
-
-            if (m_curTerms.empty())
+            term.op = var.op = "COPY";
+            if (term.complete())
+            {
+                m_curTerms.push_back(term);
+            }
+            else if (m_curTerms.empty())
             {
                 var.arg1 = term.arg1;
                 var.res  = varIter.first;

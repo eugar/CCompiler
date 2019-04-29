@@ -5,10 +5,6 @@
 #ifndef CCOMPILER_ASSEMBLYCONTEXT_H
 #define CCOMPILER_ASSEMBLYCONTEXT_H
 
-#ifdef __APPLE__
-#define TARGET_OS_MAC 1
-#endif
-
 #include <string>
 #include <vector>
 

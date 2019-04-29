@@ -59,7 +59,7 @@ relOp -> <=
 relOp -> <
 relOp -> >
 relOp -> >=
-relOp -> =
+relOp -> ==
 relOp -> !=
 sumExpr -> sumExpr sumOp term
 sumExpr -> term
@@ -74,7 +74,7 @@ unaryExpr -> unaryOp mutable
 unaryExpr -> immutable
 unaryExpr -> mutable
 unaryOp -> -
-unaryOp -> &
+unaryOp -> !
 mutable -> ID
 immutable -> ( expr )
 immutable -> call
@@ -88,8 +88,10 @@ constant -> NUMCONST
 constant -> CHARCONST
 constant -> true
 constant -> false
-varDecl -> typeSpec varDeclList
-varDeclList -> varDeclList , varDeclInit
-varDeclList -> varDeclInit
-varDeclInit -> ID ;
-varDeclInit -> ID = simpleExpr ;
+varDecl -> typeSpec varDeclList ;
+varDecl -> typeSpec varDeclInit ;
+varDeclList -> varDeclList varDeclInit
+varDeclList -> ID ,
+varDeclList -> ID = simpleExpr ,
+varDeclInit -> ID
+varDeclInit -> ID = simpleExpr
