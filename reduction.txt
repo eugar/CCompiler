@@ -92,6 +92,6 @@ varDecl -> typeSpec varDeclList ;
 varDecl -> typeSpec varDeclInit ;
 varDeclList -> varDeclList varDeclInit
 varDeclList -> ID ,
-varDeclList -> ID = expr ,
+varDeclList -> ID = simpleExpr ,
 varDeclInit -> ID
-varDeclInit -> ID = expr
+varDeclInit -> ID = simpleExpr

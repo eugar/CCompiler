@@ -249,6 +249,7 @@ void Statement::parseRetStmt(pnode &root, Statement &retStmt)
 }
 void Statement::parseVarDecl(pnode &root, Statement &varDecl)
 {
+    string lastVar;
     for (auto child : root.children())
     {
         if (child.rule() == "typeSpec")
@@ -256,11 +257,24 @@ void Statement::parseVarDecl(pnode &root, Statement &varDecl)
             // currently only goes to return type spec and that goes to terminals
             // so assign whatever terminals
         }
+        else if (child.rule() == ";")
+        {
+            m_curTerms.back().res = lastVar;
+        }
         else if (child.rule() == "varDeclList")
         {
             std::pair<std::string, int> varIter;
             varIter.second = -1;
             dfsVarDeclList(child, varIter);
+            lastVar = varIter.first;
+        }
+        else if (child.rule() == "varDeclInit")
+        {
+            std::pair<std::string, int> varIter;
+            varIter.second = -1;
+            irInstruction newTerm;
+            dfsVarDeclInit(child, varIter, newTerm);
+            lastVar = varIter.first;
         }
     }
 }
@@ -805,10 +819,27 @@ void Statement::dfsVarDeclList(pnode &node, std::pair<string, int> &varIter)
         }
         else if (child.rule() == ",")
         {
+            m_curTerms.back().res = varIter.first;
+        }
+        else if (child.rule() == "ID")
+        {
+
+            varIter.first = child.children()[0].ins();
+        }
+        else if (child.rule() == "=")
+        {
             // discard symbol
         }
-        else
+        else if (child.rule() == "simpleExpr")
         {
+            irInstruction expr;
+            dfsSimpleExpr(child, varIter, expr);
+            expr.op = "COPY";
+            m_curTerms.push_back(expr);
+        }
+        else if (child.rule() == "varDeclList")
+        {
+            pair<string, int> varIter;
             dfsVarDeclList(child, varIter);
         }
     }
@@ -820,36 +851,20 @@ void Statement::dfsVarDeclInit(pnode &node, std::pair<string, int> &varIter, irI
     {
         if (child.rule() == "ID")
         {
-            // get id
-            //irInstruction newVarDecl;
-            //newVarDecl.res = varIter.first + to_string(++(varIter.second));
-            //m_curTerms.push_back(newVarDecl);
+            // begin the variable name
             varIter.first = child.children()[0].ins();
-            if (node.children()[0].rule() == ",")
-            {
-                while (child.rule() != "varDeclList" && child.childCount() != 2)
-                {
-                    child = *child.parent();
-                }
-                std::pair<string, int> varIter;
-                dfsVarDeclList(child.children()[1], varIter);
-            }
-        }
-        else if (child.rule() == "=")
-        {
-
-        }
-        else if (child.rule() == ";")
-        {
 
         }
         else if (child.rule() == "simpleExpr")
         {
             dfsSimpleExpr(child, varIter, term);
             irInstruction var;
-            var.op = "COPY";
-
-            if (m_curTerms.empty())
+            term.op = var.op = "COPY";
+            if (term.complete())
+            {
+                m_curTerms.push_back(term);
+            }
+            else if (m_curTerms.empty())
             {
                 var.arg1 = term.arg1;
                 var.res  = varIter.first;
