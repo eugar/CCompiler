@@ -24,7 +24,8 @@ public:
     void writeHeader();
     void writeFunctionPrologue();
     void writeFunctionEpilogue();
-    int getNextOffset(string argument);
+    void getGotoString();
+    int getNextOffset(string argument, int type);
     int countLocalVars();
     string createString(string argument);
 
@@ -32,6 +33,12 @@ private:
     ofstream out;
     int bbcount;
     int insCount;
+    int elseCount;
+    int endCount;
+    int andFlag;
+    int orFlag;
+    vector<irInstruction> localVars;
+    string gotoString;
     AssemblyContext assemblyContext;
     vector<irInstruction> instructions;
 };
