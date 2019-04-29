@@ -21,8 +21,6 @@ Assembly::Assembly(vector<irInstruction> instructions, string filename) {
 
     bbcount = 0;
     insCount = 0;
-    elseCount = 0;
-    endCount = 0;
     gotoString = "";
     andFlag = 0;
     orFlag = 0;
@@ -105,7 +103,7 @@ int Assembly::countLocalVars() {
             {
                 this->orFlag++;
             }
-            
+
             auto it = find_if(localVars.begin(), localVars.end(), [&result](const irInstruction & ins)
             {
                 return ins.res == result;
@@ -206,7 +204,7 @@ void Assembly::chooseInstruction(irInstruction ins) {
             writeInstruction("imull\t\t%ecx, %eax");
         }
         else if (ins.op == "DIV")
-        {
+        { //todo: fix division bug
             writeInstruction("movl\t\t" + createString(ins.arg2) + ", %eax");
             writeInstruction("cdq");
             writeInstruction("movl\t\t" + createString(ins.arg1) + ", %edx");
@@ -220,10 +218,37 @@ void Assembly::chooseInstruction(irInstruction ins) {
     {
         if (ins.op == "EQ")
         {
-
+            writeInstruction("movl\t\t" + createString(ins.arg2) + ", %eax");
+            writeInstruction("movl\t\t" + createString(ins.arg1) + ", %edx");
+            writeInstruction("cmpl\t\t%edx, %eax");
+            if (this->andFlag || this->orFlag) // save for later
+            {
+                writeInstruction("sete\t\t%bl");
+                int tmp = getNextOffset(ins.res, 1);
+                writeInstruction("movb\t\t%bl, " + to_string(tmp) + "(%rbp)");
+                this->assemblyContext.setOffset(ins.res, tmp);
+            }
+            else
+            {
+                writeInstruction("jne\t\t" + this->gotoString);
+            }
         }
         else if (ins.op == "NOTEQ")
         {
+            writeInstruction("movl\t\t" + createString(ins.arg2) + ", %eax");
+            writeInstruction("movl\t\t" + createString(ins.arg1) + ", %edx");
+            writeInstruction("cmpl\t\t%edx, %eax");
+            if (this->andFlag || this->orFlag) // save for later
+            {
+                writeInstruction("setne\t\t%bl");
+                int tmp = getNextOffset(ins.res, 1);
+                writeInstruction("movb\t\t%bl, " + to_string(tmp) + "(%rbp)");
+                this->assemblyContext.setOffset(ins.res, tmp);
+            }
+            else
+            {
+                writeInstruction("je\t\t" + this->gotoString);
+            }
 
         }
         else if (ins.op == "LSTH")
@@ -262,10 +287,38 @@ void Assembly::chooseInstruction(irInstruction ins) {
         }
         else if (ins.op == "GREQ")
         {
+            writeInstruction("movl\t\t" + createString(ins.arg2) + ", %eax");
+            writeInstruction("movl\t\t" + createString(ins.arg1) + ", %edx");
+            writeInstruction("cmpl\t\t%edx, %eax");
+            if (this->andFlag || this->orFlag) // save for later
+            {
+                writeInstruction("setge\t\t%bl");
+                int tmp = getNextOffset(ins.res, 1);
+                writeInstruction("movb\t\t%bl, " + to_string(tmp) + "(%rbp)");
+                this->assemblyContext.setOffset(ins.res, tmp);
+            }
+            else
+            {
+                writeInstruction("jl\t\t" + this->gotoString);
+            }
 
         }
         else if (ins.op == "LSEQ")
         {
+            writeInstruction("movl\t\t" + createString(ins.arg2) + ", %eax");
+            writeInstruction("movl\t\t" + createString(ins.arg1) + ", %edx");
+            writeInstruction("cmpl\t\t%edx, %eax");
+            if (this->andFlag || this->orFlag) // save for later
+            {
+                writeInstruction("setle\t\t%bl");
+                int tmp = getNextOffset(ins.res, 1);
+                writeInstruction("movb\t\t%bl, " + to_string(tmp) + "(%rbp)");
+                this->assemblyContext.setOffset(ins.res, tmp);
+            }
+            else
+            {
+                writeInstruction("jg\t\t" + this->gotoString);
+            }
 
         }
 
@@ -292,7 +345,6 @@ void Assembly::chooseInstruction(irInstruction ins) {
     }
     else if (ins.op == "OR")
     {
-        cout << "or flag: " << orFlag << endl;
         this->orFlag--;
 
         writeInstruction("movb\t\t" + createString(ins.arg1) + ", %bl");
