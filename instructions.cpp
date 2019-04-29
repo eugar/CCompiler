@@ -51,9 +51,6 @@ void Statement::parseSelStmt(pnode &root, Statement &selStmt)
             std::pair<std::string, int> varIter;
             varIter.second = -1;
             dfsIfStmt(child, varIter);
-            irInstruction jmp;
-            jmp.op = "JMP";
-            m_curTerms.push_back(jmp);
         }
         else if (child.rule() == "elseStmt")
         {
@@ -94,13 +91,12 @@ void Statement::dfsStmt(pnode node)
     }
     else if (node.children()[0].rule() == "compStmt")
     {
-        m_statements.push_back(CompoundStatement(node.children()[0], m_symbolTable));
+        m_statements.push_back(CompoundStatement(node.children()[0], m_symbolTable, OTHER));
     }
 }
 
 void Statement::dfsIfStmt(pnode &node, std::pair<string, int> &varIter)
 {
-
     for (auto child : node.children())
     {
         if (child.rule() == "if")
@@ -118,11 +114,12 @@ void Statement::dfsIfStmt(pnode &node, std::pair<string, int> &varIter)
         }
         else if (child.rule() == "stmt")
         {
-            dfsStmt(child);
+            //dfsStmt(child);
+            dfsIfStmt(child, varIter);
         }
         else if (child.rule() == "compStmt")
         {
-            dfsCompStmt(child, varIter);
+            m_statements.push_back(CompoundStatement(child, m_symbolTable, IFCMP));
         }
     }
 }
@@ -137,11 +134,12 @@ void Statement::dfsElseStmt(pnode &node, std::pair<string, int> &varIter)
         }
         else if (child.rule() == "stmt")
         {
-            dfsStmt(child);
+            dfsElseStmt(child, varIter);
         }
         else if (child.rule() == "compStmt")
         {
-            dfsCompStmt(child, varIter);
+            m_statements.push_back(CompoundStatement(child, m_symbolTable, ELSECMP));
+            //parseCmpStmt(child, *this, ELSECMP);
         }
         else
         {
@@ -158,7 +156,8 @@ void Statement::dfsCompStmt(pnode &node, std::pair<std::string, int> &varIter)
         {
             // discard symbol
         }
-        else if (child.rule() == "}") {
+        else if (child.rule() == "}")
+        {
 
         }
         else if(child.rule() == "stmt")
@@ -265,8 +264,26 @@ void Statement::parseVarDecl(pnode &root, Statement &varDecl)
     }
 }
 
-void Statement::parseCmpStmt(pnode &root, Statement &cmpStmt)
+void Statement::parseCmpStmt(pnode &root, Statement &cmpStmt, stmt_type selStmt)
 {
+    irInstruction jmp;
+    jmp.op = "JMP";
+    jmp.res = this->m_endLabel;
+    switch (selStmt)
+    {
+        case IFCMP:
+            m_curTerms.push_back(jmp);
+        break;
+        case ELSECMP:
+            //m_curTerms.push_back(jmp);
+        break;
+        case ELIFCMP:
+        break;
+        case ITERCMP:
+        break;
+        case OTHER:
+            break;
+    }
     pair<string, int> varIter = make_pair("",-1);
     dfsCompStmt(root, varIter);
 }
@@ -964,30 +981,31 @@ void Statement::processMutBinaryOp(pnode &node, std::pair<std::string, int> &var
 
 void Statement::setInstructions(vector<irInstruction> &instructions, int &numBlocks, string funcName)
 {
-    irInstruction b_end;
     for(auto term : m_curTerms)
     {
-        if (isJmp(term))
-        {
-            numBlocks++;
-            b_end.block = "_"+funcName+"Block" + to_string(numBlocks);
-            term.res = b_end.block;
-        }
         instructions.push_back(term);
     }
-    for(auto statement : m_statements)
+    for(int i = 0; i < m_statements.size(); i++)
     {
-        statement.setInstructions(instructions, numBlocks, funcName);
-    }
-    if (!b_end.block.empty()) {
-        instructions.push_back(b_end);
+        m_statements[i].setInstructions(instructions, numBlocks, funcName);
+        if (is_If(m_statements[i]) && m_statements[i+1].m_type == ELSECMP) {
+            irInstruction jmp;
+            jmp.op = "JMP";
+            jmp.res = m_statements[i+1].m_endLabel;
+            instructions.push_back(jmp);
+        }
+        if (is_If(m_statements[i]) || m_statements[i].m_type == ELSECMP)
+        {
+            irInstruction b_end;
+            b_end.block = m_statements[i].m_endLabel;
+            instructions.push_back(b_end);
+        }
     }
 }
 
-bool Statement::isJmp(irInstruction inst)
+bool Statement::is_If(Statement stmt)
 {
-    if (inst.op == "JMP" )
-    {
+    if (stmt.m_type == IFCMP || stmt.m_type == ELIFCMP) {
         return true;
     }
     return false;

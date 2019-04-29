@@ -18,6 +18,12 @@
 
 //#include "ir.h"
 
+// determines what type of compound statement
+// used for parsetree -> IR generation
+typedef enum {
+    IFCMP, ELSECMP, ELIFCMP, ITERCMP, OTHER
+} stmt_type;
+
 typedef struct irInstruction
 {
     // default constructor that zeroes out all values.
@@ -162,7 +168,7 @@ public:
     virtual void parseRetStmt(pnode &root, Statement &retStmt);
     virtual void parseBreakStmt(pnode &root, Statement &breakStmt);
     virtual void parseVarDecl(pnode &root, Statement &varDecl);
-    virtual void parseCmpStmt(pnode &root, Statement &compStmt);
+    virtual void parseCmpStmt(pnode &root, Statement &compStmt, stmt_type selStmt);
 
     pnode m_root;
     std::vector<Statement> m_statements;
@@ -197,12 +203,14 @@ private:
     void getLeftMostLeaf(pnode &node, std::string &rule);
     void getLeftMostLeafNode(pnode &node, pnode &leafNode);
     void moveRight(pnode &node, pnode &leafNode);
-    bool isJmp(irInstruction inst);
+    bool inline is_If(Statement stmt);
 
     SymbolTable m_symbolTable;
 
 protected:
     std::vector<irInstruction> m_curTerms;
+    stmt_type m_type;
+    string m_endLabel;
 };
 
 class ExpressionStatement : public Statement
@@ -212,6 +220,7 @@ public:
     : Statement(node, symbolTable)
     {
         parseExprStmt(node, *this);
+        m_type = OTHER;
     }
     ~ExpressionStatement() = default;
 
@@ -224,6 +233,7 @@ public:
     : Statement(node, symbolTable)
     {
         parseSelStmt(node, *this);
+        m_type = OTHER;
     }
     ~SelectionStatement() = default;
     void pushEndSel(irInstruction inst){this->m_curTerms.push_back(inst);}
@@ -236,6 +246,7 @@ public:
     : Statement(node, symbolTable)
     {
         parseIterStmt(node, *this);
+        m_type = ITERCMP;
     }
     ~IterationStatement() = default;
 };
@@ -247,6 +258,7 @@ public:
     : Statement(node, symbolTable)
     {
         parseRetStmt(node, *this);
+        m_type = OTHER;
     }
     ~ReturnStatement() = default;
 };
@@ -258,6 +270,7 @@ public:
     : Statement(node, symbolTable)
     {
         parseBreakStmt(node, *this);
+        m_type = OTHER;
     }
     ~BreakStatement() = default;
 };
@@ -270,6 +283,7 @@ public:
     : Statement(node, symbolTable)
     {
         parseVarDecl(node, *this);
+        m_type = OTHER;
     }
     ~VariableDeclaration() = default;
 };
@@ -277,10 +291,12 @@ public:
 class CompoundStatement : public Statement
 {
 public:
-    CompoundStatement(pnode &node, SymbolTable symbolTable)
+    CompoundStatement(pnode &node, SymbolTable symbolTable, stmt_type selStmt)
     : Statement(node, symbolTable)
     {
-        parseCmpStmt(node, *this);
+        m_type = selStmt;
+        m_endLabel = "_blockEnd" + to_string(rand()%100);
+        parseCmpStmt(node, *this, selStmt);
     }
     ~CompoundStatement() = default;
 };

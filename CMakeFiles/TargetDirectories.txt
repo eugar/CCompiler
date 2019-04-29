@@ -1,0 +1,3 @@
+/Volumes/STORAGE/Compilers/CCompiler/CMakeFiles/rebuild_cache.dir
+/Volumes/STORAGE/Compilers/CCompiler/CMakeFiles/edit_cache.dir
+/Volumes/STORAGE/Compilers/CCompiler/CMakeFiles/CCompiler.dir

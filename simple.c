@@ -1,19 +1,32 @@
-int a = 5;
-
-/*char fun()
+/*int func()
 {
-    int v = 10 + 9;
+    int a = 10;
 
-    return v;
+    if (8 < 9) {
+        a = 0;
+    }
+    b = a;
+    return a;
 }*/
 
 int main ()
 {
-    int z = 7 + 2 * 6;
-    //int b = 2 * 3 + 4;
-    //char a = 'v';         // x86 gen doesn't recognize chars ?
-    int g = 6 / 3;        // x86 gen doesn't recognize DIV ?
-    //g = 5;                // not working in the IR gen yet!!
+    int a = 5;
+    int t = 0;
 
-    return z;
+    if (a < t)
+    {
+        a = 0;
+    }
+
+    if (t > a) {
+        a =10;
+    }
+    else
+    {
+        a = 10;
+    }
+    int b = 10;
+
+    return 5;
 }
