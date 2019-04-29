@@ -58,7 +58,8 @@ typedef struct irInstruction
         // require op, arg1, arg2 and res
         if (op == "SUB" || op == "ADD" || op == "MUL"
         || op == "DIV" || op == "GRTH" || op == "LSTH"
-        || op == "GREQ" || op == "LSEQ" || op == "EQ")
+        || op == "GREQ" || op == "LSEQ" || op == "EQ"
+        || op == "OR" || op == "AND")
         {
             return !(op.empty() || arg1.empty() || arg2.empty() || res.empty());
         }
