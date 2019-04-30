@@ -206,10 +206,10 @@ void Assembly::chooseInstruction(irInstruction ins) {
         }
         else if (ins.op == "DIV")
         { //todo: fix division bug
-            writeInstruction("movl\t\t" + createString(ins.arg2) + ", %eax");
-            writeInstruction("cdq");
-            writeInstruction("movl\t\t" + createString(ins.arg1) + ", %edx");
-            writeInstruction("idivl\t\t%edx");
+            writeInstruction("movl\t\t" + createString(ins.arg1) + ", %eax");
+            writeInstruction("movl\t\t" + createString(ins.arg2) + ", %ecx");
+            writeInstruction("movl\t\t$0, %edx");
+            writeInstruction("divl\t\t%ecx");
         }
         int tmp = getNextOffset(ins.res, 4);
         writeInstruction("movl\t\t%eax, " + to_string(tmp) + "(%rbp)");
