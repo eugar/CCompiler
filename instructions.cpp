@@ -190,19 +190,41 @@ void Statement::parseExprStmt(pnode &root, Statement &exprStmt)
 
 void Statement::parseIterStmt(pnode &root, Statement &iterStmt)
 {
-    for (auto child : root.children())
+    irInstruction inst;
+    inst.block = m_startLabel;
+    m_curTerms.push_back(inst);
+
+    pair<string, int> varIter = make_pair("",-1);
+    dfsIterStmt(root, varIter);
+}
+
+void Statement::dfsIterStmt(pnode &node, std::pair<std::string, int> &varIter)
+{
+    for (auto child : node.children())
     {
         if (child.rule() == "while")
         {
             // note that we need to make a loop with what follows.
         }
+        else if (child.rule() == "simpleExpr")
+        {
+            irInstruction newTerm;
+            dfsSimpleExpr(child, varIter, newTerm);
+        }
         else if (child.rule() == "(" || child.rule() == ")")
         {
             // ignore symbols
         }
-        else if (child.rule() == "stmt" || child.rule() == "compStmt")
+        else if (child.rule() == "stmt")
         {
-            dfsStmt(child);
+            //dfsStmt(child);
+            dfsIterStmt(child, varIter);
+        }
+        else if (child.rule() == "compStmt")
+        {
+            Statement cmp = CompoundStatement(child, m_symbolTable, WHILECMP);
+            cmp.m_startLabel = this->m_startLabel;
+            m_statements.push_back(cmp);
         }
     }
 }
@@ -293,7 +315,10 @@ void Statement::parseCmpStmt(pnode &root, Statement &cmpStmt, stmt_type selStmt)
         break;
         case ELIFCMP:
         break;
-        case ITERCMP:
+        case WHILECMP:
+            jmp.op = "CJMP";
+            jmp.res = this->m_endLabel;
+            m_curTerms.push_back(jmp);
         break;
         case OTHER:
             break;
@@ -985,11 +1010,22 @@ void Statement::setInstructions(vector<irInstruction> &instructions, int &numBlo
     for(int i = 0; i < m_statements.size(); i++)
     {
         m_statements[i].setInstructions(instructions, numBlocks, funcName);
-        if (is_If(m_statements[i]) && m_statements[i+1].m_type == ELSECMP) {
+        if (is_If(m_statements[i]) && m_statements[i+1].m_type == ELSECMP)
+        {
             irInstruction jmp;
             jmp.op = "JMP";
             jmp.res = m_statements[i+1].m_endLabel;
             instructions.push_back(jmp);
+        }
+        if (m_statements[i].m_type == WHILECMP)
+        {
+            irInstruction jmp;
+            jmp.op = "JMP";
+            jmp.res = m_statements[i].m_startLabel;
+            instructions.push_back(jmp);
+            irInstruction b_end;
+            b_end.block = m_statements[i].m_endLabel;
+            instructions.push_back(b_end);
         }
         if (is_If(m_statements[i]) || m_statements[i].m_type == ELSECMP)
         {
