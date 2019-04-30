@@ -11,17 +11,17 @@ int main ()
 
     int b = 3 - 1;
 
+    int c = 4 / 2;
+
     if (b < 10 && 5 < 6 && 9 < 10)
     {
-        if (5 <= 6 && 10 >= 11)
+        if (2 < c)
         {
             return 5;
         }
-        else
-        {
-            return 6;
+        else {
+            return c;
         }
-        return 10;
     }
 
     return z;
