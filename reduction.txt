@@ -90,6 +90,7 @@ constant -> true
 constant -> false
 varDecl -> typeSpec varDeclList ;
 varDecl -> typeSpec varDeclInit ;
+varDecl -> typeSpec ID ;
 varDeclList -> varDeclList varDeclInit
 varDeclList -> ID ,
 varDeclList -> ID = simpleExpr ,
