@@ -332,7 +332,7 @@ void ir::readGlobals() //todo: use symbol table to turn all variable values into
                if (instructions.back().op != "RET") {
                    irInstruction ret_inst;
                    ret_inst.op = "RET";
-                   ret_inst.res = "0";
+                   ret_inst.arg1 = "0";
                    instructions.push_back(ret_inst);
                }
            }

@@ -373,18 +373,8 @@ void Assembly::chooseInstruction(irInstruction ins) {
     }
     else if (ins.op == "RET")
     {
-        int tmp = this->assemblyContext.getOffset(ins.arg1);
-
-        if (tmp != -1)
-        {
-            writeInstruction("movl\t\t" + to_string(tmp) + "(%rbp), %eax"); // move the return value in to the return register
-            writeFunctionEpilogue();
-        }
-        else
-        {
-            cout << "return value not found" << endl;
-            exit(1);
-        }
+        writeInstruction("movl\t\t" + createString(ins.arg1) + ", %eax");// move the return value in to the return register
+        writeFunctionEpilogue();
     }
     else if (ins.op == "FUNC") // generate a label
     {
