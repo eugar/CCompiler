@@ -115,7 +115,7 @@ The echoed value will be the return value of your program.
 
 ## Limitations:
 * The compiler cannot handle for loops
-* The compiler can only handle ints (no chars or floats)
+* The compiler can only handle ints and chars (no floats)
 
 ## Code Standards:
 

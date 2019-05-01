@@ -60,7 +60,7 @@ void Assembly::generateCode(vector<irInstruction> instructions)
 
 void Assembly::insertBB(irInstruction ins)
 {
-    if (ins.op == "FUNC" || ins.op == "LABEL")
+    if (ins.op == "FUNC" || ins.op == "LABEL" || !(ins.block.empty()))
     {
         out << "#.bb" << this->bbcount << ":" << endl;
         bbcount++;
@@ -70,7 +70,7 @@ void Assembly::insertBB(irInstruction ins)
 }
 
 int Assembly::getNextOffset(string argument, int type) {
-    if (argument.find_first_not_of("0123456789") != std::string::npos) // a char was found, it is an id
+    if (!(argument[0] == '\'') && argument.find_first_not_of("0123456789") != std::string::npos) // a char was found, it is an id
     {
         //lookup in the table
         int offset = this->assemblyContext.getOffset(argument);
@@ -144,7 +144,7 @@ void Assembly::getGotoString()
 
 string Assembly::createString(string argument)
 {
-    if (argument.find_first_not_of("0123456789") != std::string::npos) // a char was found, it is an id
+    if (!(argument[0] == '\'') && argument.find_first_not_of("0123456789") != std::string::npos) // a char was found, it is an id
     {
         //lookup in the table
         int offset = this->assemblyContext.getOffset(argument);
@@ -158,6 +158,7 @@ string Assembly::createString(string argument)
             exit(1);
         }
     }
+
     return "$" + argument;
 }
 
@@ -232,7 +233,7 @@ void Assembly::chooseInstruction(irInstruction ins) {
             }
             else
             {
-                writeInstruction("jne\t\t" + this->gotoString);
+                writeInstruction("jne \t\t" + this->gotoString);
             }
         }
         else if (ins.op == "NOTEQ")
@@ -249,7 +250,7 @@ void Assembly::chooseInstruction(irInstruction ins) {
             }
             else
             {
-                writeInstruction("je\t\t" + this->gotoString);
+                writeInstruction("je  \t\t" + this->gotoString);
             }
 
         }
@@ -267,7 +268,7 @@ void Assembly::chooseInstruction(irInstruction ins) {
             }
             else
             {
-                writeInstruction("jge\t\t" + this->gotoString);
+                writeInstruction("jge \t\t" + this->gotoString);
             }
         }
         else if (ins.op == "GRTH")
@@ -284,7 +285,7 @@ void Assembly::chooseInstruction(irInstruction ins) {
             }
             else
             {
-                writeInstruction("jle\t\t" + this->gotoString);
+                writeInstruction("jle \t\t" + this->gotoString);
             }
         }
         else if (ins.op == "GREQ")
@@ -301,7 +302,7 @@ void Assembly::chooseInstruction(irInstruction ins) {
             }
             else
             {
-                writeInstruction("jl\t\t" + this->gotoString);
+                writeInstruction("jl  \t\t" + this->gotoString);
             }
 
         }
@@ -319,7 +320,7 @@ void Assembly::chooseInstruction(irInstruction ins) {
             }
             else
             {
-                writeInstruction("jg\t\t" + this->gotoString);
+                writeInstruction("jg  \t\t" + this->gotoString);
             }
 
         }
@@ -342,7 +343,7 @@ void Assembly::chooseInstruction(irInstruction ins) {
         }
         else
         {
-            writeInstruction("je\t\t" + gotoString);
+            writeInstruction("je  \t\t" + gotoString);
         }
     }
     else if (ins.op == "OR")
@@ -351,7 +352,7 @@ void Assembly::chooseInstruction(irInstruction ins) {
 
         writeInstruction("movb\t\t" + createString(ins.arg1) + ", %bl");
         writeInstruction("movb\t\t" + createString(ins.arg2) + ", %bh");
-        writeInstruction("or\t\t%bh, %bl");
+        writeInstruction("or  \t\t%bh, %bl");
 
         if (this->orFlag || this->andFlag)
         {
@@ -397,7 +398,7 @@ void Assembly::chooseInstruction(irInstruction ins) {
     }
     else if (ins.op == "JMP")
     {
-        writeInstruction("jmp\t\t" + ins.res);
+        writeInstruction("jmp \t\t" + ins.res);
     }
     else if (ins.op == "LABEL")
     {
