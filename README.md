@@ -60,27 +60,62 @@ ccompiler - compile a C file
 Optional arguments:
 -h displays this help menu
 -s displays list of tokens
+-t displays the simple symbol table
 -p displays parse tree
+-r display the IR generated
+-i [file] populate the IR from a file
+-o [file] write the IR to a file
+-w [file] write the assembly code out to a specified file. If this argument is not used, the compiler will automatically write to out.s
 ```
 
+## Example Usage:
+(assuming the file is test.c)
+
+To print out a list of tokens:
+```
+./CCompiler -s test.c
+```
+
+To print out the internal symbol table:
+```
+./CCompiler -t test.c
+```
+
+To print out the parse tree:
+```
+./CCompiler -p test.c 
+```
+
+To print out the internal intermediate representation:
+```
+./CCompiler -r test.c
+```
+
+These arguments can be used in combination. For example,
+to print out the parse tree and IR, a user could use:
+```
+./CCompiler -rp test.c
+```
+
+###Testing and executing your C file:
+After running ``CCompiler`` on your C file, the compiler
+will output the corresponding assembly. By default, the
+compiler will write this assembly to ``out.s``. In order to
+execute it do the following:
+
+```
+➜  CCompiler git:(master) ✗ ./CCompiler test.c
+accepted!
+➜  CCompiler git:(master) ✗ gcc out.s
+➜  CCompiler git:(master) ✗ ./a.out
+➜  CCompiler git:(master) ✗ echo $?
+```
+
+The echoed value will be the return value of your program.
+
 ## Limitations:
-* Functions must have arguments, i.e., main(args)
-* Our group ran into some issues with our grammar so our compiler only accepts a very limited subset of C shown in simple.c
-
-
-## Keywords:
-* break
-* char
-* double
-* else
-* float
-* for
-* goto
-* if
-* int
-* return
-* short
-* while
+* The compiler cannot handle for loops
+* The compiler can only handle ints (no chars or floats)
 
 ## Code Standards:
 
