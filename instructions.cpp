@@ -40,6 +40,10 @@ void Function::extractStatements(pnode root)
 void Statement::parseBreakStmt(pnode &root, Statement &breakStmt)
 {
     // this could be tricky?
+    irInstruction brk;
+    brk.op = "BREAK";
+    brk.res = m_endLabel;
+    m_curTerms.push_back(brk);
 }
 
 void Statement::parseSelStmt(pnode &root, Statement &selStmt)
@@ -83,7 +87,7 @@ void Statement::dfsStmt(pnode node)
     }
     else if (node.children()[0].rule() == "breakStmt")
     {
-        m_statements.push_back(BreakStatement(node.children()[0], m_symbolTable));
+        m_statements.push_back(BreakStatement(node.children()[0], m_symbolTable, this->m_endLabel));
     }
     else if (node.children()[0].rule() == "varDecl")
     {
@@ -419,12 +423,14 @@ void Statement::processMutUnaryOp(pnode &node, std::pair<std::string, int> &varI
             // postfix
             if (node.parent()->children()[0].rule() == "mutable")
             {
-
+                term.op = "INC";
+                m_curTerms.push_back(term);
             }
             // prefix
             else
             {
-
+                term.op = "INC";
+                m_curTerms.push_back(term);
             }
         }
         else if (child.rule() == "--")
@@ -432,12 +438,14 @@ void Statement::processMutUnaryOp(pnode &node, std::pair<std::string, int> &varI
             // postfix
             if (node.parent()->children()[0].rule() == "mutable")
             {
-
+                term.op = "DEC";
+                m_curTerms.push_back(term);
             }
             // prefix
             else
             {
-
+                term.op = "DEC";
+                m_curTerms.push_back(term);
             }
         }
     }
@@ -1040,6 +1048,12 @@ void Statement::setInstructions(vector<irInstruction> &instructions, int &numBlo
 {
     for(auto term : m_curTerms)
     {
+        if (term.op == "BREAK")
+        {
+            term.op = "JMP";
+            term.res = this->m_endLabel;
+            //continue;
+        }
         instructions.push_back(term);
     }
     for(int i = 0; i < m_statements.size(); i++)
