@@ -384,6 +384,7 @@ void Statement::dfsExpr(pnode &node, std::pair<std::string, int> &varIter)
         else // simpleExpr
         {
             dfsSimpleExpr(child, varIter, expr);
+
             irInstruction var;
             var.op   = "COPY";
 
@@ -397,7 +398,7 @@ void Statement::dfsExpr(pnode &node, std::pair<std::string, int> &varIter)
             {
                 var.arg1 = m_curTerms.back().res;
                 var.res = varIter.first;
-                if (m_curTerms.back().res != var.res)
+                if (m_curTerms.back().res != var.res && m_curTerms.back().op != "CALL")
                 {
                     m_curTerms.push_back(var);
                 }
@@ -923,6 +924,7 @@ void Statement::dfsVarDeclInit(pnode &node, std::pair<string, int> &varIter, irI
         {
             dfsSimpleExpr(child, varIter, term);
             irInstruction var;
+
             term.op = var.op = "COPY";
             if (term.complete())
             {
