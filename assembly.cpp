@@ -113,7 +113,7 @@ int Assembly::countLocalVars() {
             if (it == localVars.end())
             {
                 localVars.push_back(this->instructions.at(tmp));
-                if (this->instructions.at(tmp).op == "ADD" || this->instructions.at(tmp).op == "SUB" || this->instructions.at(tmp).op == "MUL" || this->instructions.at(tmp).op == "COPY" || this->instructions.at(tmp).op == "DIV")
+                if (this->instructions.at(tmp).op == "ADD" || this->instructions.at(tmp).op == "SUB" || this->instructions.at(tmp).op == "MUL" || this->instructions.at(tmp).op == "COPY" || this->instructions.at(tmp).op == "CALL" || this->instructions.at(tmp).op == "DIV")
                 {
                     size += 4;
                 }
@@ -368,7 +368,7 @@ void Assembly::chooseInstruction(irInstruction ins) {
     {
         int offset = getNextOffset(ins.res, 4);
         writeInstruction("movl\t\t" + createString(ins.arg1) + ", %eax");
-        writeInstruction("movl\t\t%eax," + to_string(offset) + "(%rbp)");
+        writeInstruction("movl\t\t%eax, " + to_string(offset) + "(%rbp)");
         this->assemblyContext.setOffset(ins.res, offset);
     }
     else if (ins.op == "RET")
@@ -388,7 +388,14 @@ void Assembly::chooseInstruction(irInstruction ins) {
         writeInstruction("subq\t\t$" + to_string(countLocalVars()) + ", %rsp"); // make room for local vars in this stack frame
         this->assemblyContext.newScope();
     }
-    else if(ins.op == "JMP")
+    else if (ins.op == "CALL")
+    {
+        int offset = getNextOffset(ins.res, 4);
+        writeInstruction("call\t\t" + ins.res);
+        writeInstruction("movl\t\t%eax, " + to_string(offset) + "(%rbp)");
+        this->assemblyContext.setOffset(ins.res, offset);
+    }
+    else if (ins.op == "JMP")
     {
         writeInstruction("jmp\t\t" + ins.res);
     }
