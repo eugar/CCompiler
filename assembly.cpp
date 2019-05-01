@@ -70,7 +70,7 @@ void Assembly::insertBB(irInstruction ins)
 }
 
 int Assembly::getNextOffset(string argument, int type) {
-    if (argument.find_first_not_of("0123456789") != std::string::npos) // a char was found, it is an id
+    if (!(argument[0] == '\'') && argument.find_first_not_of("0123456789") != std::string::npos) // a char was found, it is an id
     {
         //lookup in the table
         int offset = this->assemblyContext.getOffset(argument);
@@ -144,7 +144,7 @@ void Assembly::getGotoString()
 
 string Assembly::createString(string argument)
 {
-    if (argument.find_first_not_of("0123456789") != std::string::npos) // a char was found, it is an id
+    if (!(argument[0] == '\'') && argument.find_first_not_of("0123456789") != std::string::npos) // a char was found, it is an id
     {
         //lookup in the table
         int offset = this->assemblyContext.getOffset(argument);
@@ -158,6 +158,7 @@ string Assembly::createString(string argument)
             exit(1);
         }
     }
+
     return "$" + argument;
 }
 
