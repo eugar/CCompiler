@@ -40,11 +40,11 @@ public:
 
     string ins()
     {
-        if (rule() == "-")
+        if (rule() == "-" || rule() == "--")
         {
             return "SUB";
         }
-        else if (m_rule == "+")
+        else if (m_rule == "+" || rule() == "++")
         {
             return "ADD";
         }

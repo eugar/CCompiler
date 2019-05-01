@@ -379,7 +379,22 @@ void Statement::dfsExpr(pnode &node, std::pair<std::string, int> &varIter)
             // not supported
         else if (child.rule() == "mutUnaryOp")
         {
+            // the op is prefix
+            if (node.children()[0].rule() == child.rule())
+            {
+                // Insert an instruction to increment by 1 now, then continue.
+                irInstruction expr;
+                expr.op = child.children()[0].ins();
+                getLeftMostLeaf(node.children()[1], expr.res);
+                getLeftMostLeaf(node.children()[1], expr.arg1);
+                expr.arg2 = "1";
+                m_curTerms.push_back(expr);
+            }
+            // the op is postfix
+            else if (node.children()[1].rule() == child.rule())
+            {
 
+            }
         }
         else if (child.rule() == "mutBinOp")
         {
