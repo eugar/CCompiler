@@ -328,6 +328,14 @@ void ir::readGlobals() //todo: use symbol table to turn all variable values into
                    st.setInstructions(instructions, numBlocks, function.funcHeader().res);
                }
            }
+           if (instructions.size() > 1) {
+               if (instructions.back().op != "RET") {
+                   irInstruction ret_inst;
+                   ret_inst.op = "RET";
+                   ret_inst.res = "0";
+                   instructions.push_back(ret_inst);
+               }
+           }
        }
        else if (global.rule() == "varDecl")
        {
