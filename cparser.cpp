@@ -54,7 +54,6 @@ size_t Parser::buildParseTree(ParseTree &parseTree, vector<Token> &tokenList)
 // iterates through the parse tree and creates the symbol table
 bool Parser::buildSymbolTable(SymbolTable &symbolTable, pnode parent)
 {
-
     /* The loop finds all of the scopes in the tree*/
     for(auto child : parent.children())
     {
@@ -87,8 +86,9 @@ void Parser::findVarDecls(SymbolTable &symbolTable, pnode parent)
         }
         if (child.rule() == "varDecl")
         {
-            symbolTable.insert(findVarName(child), findType(child), "0");
+            //symbolTable.insert(findVarName(child), findType(child), "0");
             //symbolTable.insert(findVarName(child), findType(child), findData(child));
+            findVarDeclList(symbolTable, parent, findType(child));
             continue;
         }
         if (child.rule() == "selStmt")
@@ -97,6 +97,7 @@ void Parser::findVarDecls(SymbolTable &symbolTable, pnode parent)
             SymbolTable st;
             st.scopeName(child.children()[0].rule()+to_string(m_ifCount));
             findVarDecls(st, child);
+            //findVarDecls(symbolTable, child);
             symbolTable.addChild(st.scope(), st);
             continue;
         }
@@ -105,10 +106,23 @@ void Parser::findVarDecls(SymbolTable &symbolTable, pnode parent)
             SymbolTable st;
             st.scopeName(child.children()[0].rule()+to_string(m_loopCount));
             findVarDecls(st, child);
+            //findVarDecls(symbolTable, child);
             symbolTable.addChild(st.scope(), st);
             continue;
         }
         findVarDecls(symbolTable, child);
+    }
+}
+
+void Parser::findVarDeclList(SymbolTable &symbolTable, pnode parent, string type)
+{
+    for(auto child : parent.children())
+    {
+        if (child.rule() == "ID")
+        {
+            symbolTable.insert(findVarName(parent), type , findData(parent));
+        }
+        findVarDeclList(symbolTable, child, type);
     }
 }
 

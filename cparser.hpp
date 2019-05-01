@@ -36,6 +36,7 @@ private:
     void convertTokenList(vector<Token> tokenList);
 
     void findVarDecls(SymbolTable &symbolTable, pnode parent);
+    void findVarDeclList(SymbolTable &symbolTable, pnode parent, string type);
     void findParams(SymbolTable &symbolTable, pnode parent);
 
     // Gets the action from current state and rule.
