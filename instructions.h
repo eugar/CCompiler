@@ -21,7 +21,7 @@
 // determines what type of compound statement
 // used for parsetree -> IR generation
 typedef enum {
-    IFCMP, ELSECMP, ELIFCMP, ITERCMP, OTHER
+    IFCMP, ELSECMP, ELIFCMP, WHILECMP, OTHER
 } stmt_type;
 
 typedef struct irInstruction
@@ -191,6 +191,7 @@ private:
     void dfsConstant(pnode &node, std::pair<string, int> &varIter, irInstruction &term);
     void dfsCall(pnode &node, std::pair<string, int> &varIter);
     void dfsIfStmt(pnode &node, std::pair<string, int> &varIter);
+    void dfsIterStmt(pnode &node, std::pair<string, int> &varIter);
     void dfsElifStmt(pnode &node, std::pair<string, int> &varIter);
     void dfsElseStmt(pnode &node, std::pair<string, int> &varIter);
     void dfsArgs(pnode &node, std::pair<string, int> &varIter);
@@ -214,6 +215,7 @@ protected:
     std::vector<irInstruction> m_curTerms;
     stmt_type m_type;
     string m_endLabel;
+    string m_startLabel;
 };
 
 class ExpressionStatement : public Statement
@@ -248,8 +250,9 @@ public:
     IterationStatement(pnode &node, SymbolTable symbolTable)
     : Statement(node, symbolTable)
     {
+        m_type = WHILECMP;
+        m_startLabel = "_strt" + to_string(rand()%1000) +"iter" + to_string(rand()%1000);
         parseIterStmt(node, *this);
-        m_type = ITERCMP;
     }
     ~IterationStatement() = default;
 };
