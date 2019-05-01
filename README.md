@@ -114,8 +114,17 @@ accepted!
 The echoed value will be the return value of your program.
 
 ## Limitations:
-* The compiler cannot handle for loops
-* The compiler can only handle ints and chars (no floats)
+* Cannot handle global variables
+* Cannot handle functions with arguments.
+* Cannot handle for loops
+* Can only handle ints and chars (no floats)
+* Postfix unary ops do not work (x++, x--, etc.)
+* Variable declaration lists require that the first variable in the list is initialized
+* Spaces are required after expressions (in lists only?) before the comma
+* "Else if" statements do not work. They are are tokenized and parsed but not generated
+in the IR. If statements and else statements do work
+* Goto statements do not work (not generated in IR stage)
+* Switch statements fail at IR stage.
 
 ## Code Standards:
 
