@@ -97,7 +97,7 @@ to print out the parse tree and IR, a user could use:
 ./CCompiler -rp test.c
 ```
 
-###Testing and executing your C file:
+### Testing and executing your C file:
 After running ``CCompiler`` on your C file, the compiler
 will output the corresponding assembly. By default, the
 compiler will write this assembly to ``out.s``. In order to
