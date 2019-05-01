@@ -180,10 +180,11 @@ void Assembly::chooseInstruction(irInstruction ins) {
     }
     if (ins.op == "NOT") // unary instructions
     {
-        writeInstruction(createString(ins.arg1));
-        writeInstruction("not\t%eax"); // need to change logic here
-        //todo: update this
-        writeInstruction("movl\t%eax, %r" + to_string(getNextOffset(ins.res, 4)));
+        int tmp = getNextOffset(ins.res, 4);
+        writeInstruction("movl\t\t" + createString(ins.arg1) + ", %eax");
+        writeInstruction("not \t\t%eax");
+        writeInstruction("movl\t\t%eax, " + to_string(tmp) + "(%rbp)");
+        this->assemblyContext.setOffset(ins.res, tmp);
     }
     else if (ins.op == "ADD" || ins.op == "SUB" || ins.op == "MUL" || ins.op == "DIV")
     {
