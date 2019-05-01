@@ -805,12 +805,17 @@ void Statement::dfsConstant(pnode &node, std::pair<string, int> &varIter, irInst
 
 void Statement::dfsCall(pnode &node, std::pair<string, int> &varIter)
 {
+    irInstruction call;
+    call.op = "CALL";
     for (auto child : node.children())
     {
         if (child.rule() == "ID")
         {
             // manage variable name
-            m_curTerms.back().op = child.children()[0].ins();
+            call.res = child.children()[0].rule();
+            m_curTerms.push_back(call);
+            //m_curTerms.back().op = child.children()[0].ins();
+
         }
         else if (child.rule() == "args")
         {
@@ -826,7 +831,7 @@ void Statement::dfsArgs(pnode &node, std::pair<string, int> &varIter)
         if (child.rule() == "EMPTY")
         {
             // done here
-            m_curTerms.back().params = nullptr;
+            //m_curTerms.back().params = nullptr;
         }
         else
         {
@@ -850,7 +855,7 @@ void Statement::dfsArgList(pnode &node, std::pair<string, int> &varIter)
         else if (child.rule() == "expr")
         {
 
-            m_curTerms.back().op = "push";
+            //m_curTerms.back().op = "push";
             dfsExpr(node, varIter);
         }
         else
