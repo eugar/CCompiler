@@ -280,7 +280,10 @@ void Statement::parseVarDecl(pnode &root, Statement &varDecl)
         }
         else if (child.rule() == ";")
         {
-            m_curTerms.back().res = lastVar;
+            if (!m_curTerms.empty() && !lastVar.empty())
+            {
+                m_curTerms.back().res = lastVar;
+            }
         }
         else if (child.rule() == "varDeclList")
         {
@@ -296,6 +299,13 @@ void Statement::parseVarDecl(pnode &root, Statement &varDecl)
             irInstruction newTerm;
             dfsVarDeclInit(child, varIter, newTerm);
             lastVar = varIter.first;
+        }
+        else if (child.rule() == "ID")
+        {
+            irInstruction expr;
+            expr.op = "COPY";
+            expr.arg1 = "0";
+            expr.res = lastVar = child.children()[0].rule();
         }
     }
 }
@@ -861,7 +871,10 @@ void Statement::dfsVarDeclList(pnode &node, std::pair<string, int> &varIter)
         }
         else if (child.rule() == ",")
         {
-            m_curTerms.back().res = varIter.first;
+            if (!m_curTerms.empty() && !varIter.first.empty())
+            {
+                m_curTerms.back().res = varIter.first;
+            }
         }
         else if (child.rule() == "ID")
         {
@@ -884,6 +897,10 @@ void Statement::dfsVarDeclList(pnode &node, std::pair<string, int> &varIter)
             pair<string, int> varIter;
             dfsVarDeclList(child, varIter);
         }
+    }
+    if (!m_curTerms.empty() && !varIter.first.empty())
+    {
+        m_curTerms.back().res = varIter.first;
     }
 }
 
@@ -924,6 +941,15 @@ void Statement::dfsVarDeclInit(pnode &node, std::pair<string, int> &varIter, irI
             }
 
         }
+    }
+    // we have found an uninitialized declaration.
+    if (!varIter.first.empty() && varIter.first != m_curTerms.back().res && term.isNew())
+    {
+        term.op = "COPY";
+        term.res = varIter.first;
+        term.arg1 = "0"; // uninitialized
+        m_curTerms.push_back(term);
+        varIter.first.clear();
     }
 }
 
