@@ -109,7 +109,6 @@ HELP:
         return -1;
     }
     parser.buildSymbolTable(symbolTable, parseTree.root());
-    ir ir(parseTree, symbolTable);
     if (pTokens)
     {
         Token::printTokens(m_tokenList);
@@ -126,6 +125,8 @@ HELP:
         symbolTable.printRecords(1);
         cout << endl;
     }
+    
+    ir ir(parseTree, symbolTable);
 
     if (irRead)
     {

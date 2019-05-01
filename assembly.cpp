@@ -209,6 +209,7 @@ void Assembly::chooseInstruction(irInstruction ins) {
             writeInstruction("movl\t\t" + createString(ins.arg1) + ", %eax");
             writeInstruction("movl\t\t" + createString(ins.arg2) + ", %ecx");
             writeInstruction("movl\t\t$0, %edx");
+            writeInstruction("cdq");
             writeInstruction("divl\t\t%ecx");
         }
         int tmp = getNextOffset(ins.res, 4);

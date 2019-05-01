@@ -696,7 +696,7 @@ void Statement::dfsUnaryExpr(pnode &node, std::pair<string, int> &varIter, irIns
         {
            string check = child.children()[0].children()[0].rule();
            if (m_symbolTable.lookup(check) == NULL) {
-               cerr << "Symbol: " << check << " not found in scope: " << m_symbolTable.scope() << endl;
+               cerr << "warning symbol: " << check << " not found in scope " << m_symbolTable.scope() << endl;
                //exit(1);
            }
 
