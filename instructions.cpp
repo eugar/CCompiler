@@ -773,10 +773,12 @@ void Statement::dfsConstant(pnode &node, std::pair<string, int> &varIter, irInst
             if (term.arg1.empty())
             {
                 getLeftMostLeaf(child, term.arg1);
+                term.arg1 = "\'" + term.arg1 + "\'";
             }
             else
             {
                 getLeftMostLeaf(child, term.arg2);
+                term.arg2 = "\'" + term.arg2 + "\'";
             }
         }
         else if (child.rule() == "true")
