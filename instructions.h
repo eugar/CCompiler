@@ -272,9 +272,10 @@ public:
 class BreakStatement : public Statement
 {
 public:
-    BreakStatement(pnode &node, SymbolTable symbolTable)
+    BreakStatement(pnode &node, SymbolTable symbolTable, string endLabel)
     : Statement(node, symbolTable)
     {
+        m_endLabel = endLabel;
         parseBreakStmt(node, *this);
         m_type = OTHER;
     }
