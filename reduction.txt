@@ -71,6 +71,7 @@ mulOp -> *
 mulOp -> /
 mulOp -> %
 unaryExpr -> unaryOp mutable
+unaryExpr -> unaryOp immutable
 unaryExpr -> immutable
 unaryExpr -> mutable
 unaryOp -> -
