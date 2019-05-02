@@ -37,7 +37,7 @@ int main ()
 
     while(a < t)
     {
-        if (a > 8 && a < 1)
+        if (a > f && a < 10)
         {
             f = f - 1;
         }
