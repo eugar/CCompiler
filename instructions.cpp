@@ -725,7 +725,7 @@ void Statement::dfsUnaryExpr(pnode &node, std::pair<string, int> &varIter, irIns
            }
 
            //term.res = term.arg1 + to_string(++(varIter.second));
-            if (term.arg1.empty())
+           /* if (term.arg1.empty())
             {
                 getLeftMostLeaf(child, term.arg1);
                 term.arg1 = unaryOp + term.arg1;
@@ -736,10 +736,12 @@ void Statement::dfsUnaryExpr(pnode &node, std::pair<string, int> &varIter, irIns
                 term.arg2 = unaryOp + term.arg2;
             }
             unaryOp = "";
+            */
         }
         else if (child.rule() == "immutable")
         {
             dfsImmutable(child, varIter, term);
+            /*
             if (!term.arg1.empty())
             {
                 getLeftMostLeaf(child, term.arg1);
@@ -751,6 +753,7 @@ void Statement::dfsUnaryExpr(pnode &node, std::pair<string, int> &varIter, irIns
                 term.arg2 = unaryOp + term.arg2;
             }
             unaryOp = "";
+            /*
 
         }
         else if (child.rule() == "unaryOp")
