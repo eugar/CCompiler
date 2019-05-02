@@ -266,7 +266,6 @@ void Assembly::chooseInstruction(irInstruction ins) {
         }
         else if (ins.op == "LSTH")
         {
-            cout << andFlag << endl;
             writeInstruction("movl\t\t" + createString(ins.arg2) + ", %eax");
             writeInstruction("movl\t\t" + createString(ins.arg1) + ", %edx");
             writeInstruction("cmpl\t\t%edx, %eax");
