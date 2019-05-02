@@ -1,41 +1,20 @@
-
-// Not so simple any more ¯\_(ツ)_/¯
-
-int func()
+/*int func()
 {
-    int a = 5;
-    int c = 0;
+    int a = 10;
 
-    while (c < 5)
-    {
-        if (c > 0) {
-            a = a * c;
-        }
-        c = c + 1;
+    if (8 < 9) {
+        a = 0;
     }
-
+    b = a;
     return a;
-}
-
-int square()
-{
-    int a = 5;
-    a = a * a;
-    return a;
-}
-
-int five()
-{
-    return 5;
-}
+}*/
 
 int main ()
 {
     int a = 5;
-    int t = 1 + (a + 7);
-    int f = square();
+    int t = 0;
 
-    while(a < t)
+    if (a < t)
     {
         if (a > f && a < 10)
         {
@@ -44,14 +23,14 @@ int main ()
         a = a + 1;
     }
 
-    if(f < 5)
-    {
-        a = func();
+    if (t > a) {
+        a =10;
     }
     else
     {
-        a = (f + 27) * t;
+        a = 10;
     }
+    int b = 10;
 
-    return a;
+    return 5;
 }
