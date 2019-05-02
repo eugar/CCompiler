@@ -83,7 +83,7 @@ To print out the internal symbol table:
 
 To print out the parse tree:
 ```
-./CCompiler -p test.c 
+./CCompiler -p test.c
 ```
 
 To print out the internal intermediate representation:
@@ -125,6 +125,7 @@ The echoed value will be the return value of your program.
 in the IR. If statements and else statements do work
 * Goto statements do not work (not generated in IR stage)
 * Switch statements fail at IR stage.
+* Embedded while loops may cause an infinite loop ¯\_(ツ)_/¯
 
 ## Code Standards:
 
