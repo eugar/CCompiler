@@ -25,6 +25,7 @@ public:
     void writeFunctionPrologue();
     void writeFunctionEpilogue();
     void getGotoString();
+    void countConds();
     int getNextOffset(string argument, int type);
     int countLocalVars();
     string createString(string argument);

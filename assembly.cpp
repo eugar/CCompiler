@@ -52,6 +52,7 @@ void Assembly::generateCode(vector<irInstruction> instructions)
         || instruction.op == "EQ" || instruction.op == "NOTEQ")
         {
             getGotoString();
+            countConds();
         }
         insertBB(instruction);
         this->insCount++;
@@ -86,6 +87,23 @@ int Assembly::getNextOffset(string argument, int type) {
     return this->assemblyContext.context.stackOffset;
 }
 
+void Assembly::countConds() {
+    int tmp = this->insCount + 1;
+
+    while ((this->instructions.at(tmp).op != "FUNC") && (tmp < (this->instructions.size() - 1)) && (this->instructions.at(tmp).block.empty()) && (this->instructions.at(tmp).op != "JMP") && (this->instructions.at(tmp).op != "CJMP"))
+    {
+        if (this->instructions.at(tmp).op == "AND")
+        {
+            this->andFlag++;
+        }
+        else if (this->instructions.at(tmp).op == "OR")
+        {
+            this->orFlag++;
+        }
+        tmp++;
+    }
+}
+
 int Assembly::countLocalVars() {
     int tmp = this->insCount + 1;
     int size = 0;
@@ -96,15 +114,6 @@ int Assembly::countLocalVars() {
         string result = this->instructions.at(tmp).res;
         if (!result.empty())
         {
-            if (this->instructions.at(tmp).op == "AND")
-            {
-                this->andFlag++;
-            }
-            else if (this->instructions.at(tmp).op == "OR")
-            {
-                this->orFlag++;
-            }
-
             auto it = find_if(localVars.begin(), localVars.end(), [&result](const irInstruction & ins)
             {
                 return ins.res == result;
@@ -257,6 +266,7 @@ void Assembly::chooseInstruction(irInstruction ins) {
         }
         else if (ins.op == "LSTH")
         {
+            cout << andFlag << endl;
             writeInstruction("movl\t\t" + createString(ins.arg2) + ", %eax");
             writeInstruction("movl\t\t" + createString(ins.arg1) + ", %edx");
             writeInstruction("cmpl\t\t%edx, %eax");
@@ -346,11 +356,11 @@ void Assembly::chooseInstruction(irInstruction ins) {
         {
             writeInstruction("je  \t\t" + gotoString);
         }
+
     }
     else if (ins.op == "OR")
     {
         this->orFlag--;
-
         writeInstruction("movb\t\t" + createString(ins.arg1) + ", %bl");
         writeInstruction("movb\t\t" + createString(ins.arg2) + ", %bh");
         writeInstruction("or  \t\t%bh, %bl");
@@ -365,6 +375,7 @@ void Assembly::chooseInstruction(irInstruction ins) {
         {
             writeInstruction("je\t\t" + gotoString);
         }
+
     }
     else if (ins.op == "COPY")
     {
