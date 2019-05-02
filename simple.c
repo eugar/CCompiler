@@ -1,32 +1,57 @@
-/*int func()
-{
-    int a = 10;
 
-    if (8 < 9) {
-        a = 0;
+// Not so simple any more ¯\_(ツ)_/¯
+
+int func()
+{
+    int a = 5;
+    int c = 0;
+
+    while (c < 5)
+    {
+        if (c > 0) {
+            a = a * c;
+        }
+        c = c + 1;
     }
-    b = a;
+
     return a;
-}*/
+}
+
+int square()
+{
+    int a = 5;
+    a = a * a;
+    return a;
+}
+
+int five()
+{
+    return 5;
+}
 
 int main ()
 {
     int a = 5;
-    int t = 0;
+    int t = 1 + (a + 7);
+    int f = square();
 
-    if (a < t)
+    while(a < t)
     {
-        a = 0;
+        if (a > 8)
+        {
+            f = f - 1;
+        }
+        a = a + 1;
     }
 
-    if (t > a) {
-        a =10;
+    if(f < 5)
+    {
+        a = func();
     }
     else
     {
-        a = 10;
+        a = (f + 27) * t;
     }
-    int b = 10;
 
-    return 5;
+    return a;
 }
