@@ -753,7 +753,7 @@ void Statement::dfsUnaryExpr(pnode &node, std::pair<string, int> &varIter, irIns
                 term.arg2 = unaryOp + term.arg2;
             }
             unaryOp = "";
-            /*
+            */
 
         }
         else if (child.rule() == "unaryOp")
