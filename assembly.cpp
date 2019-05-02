@@ -24,6 +24,7 @@ Assembly::Assembly(vector<irInstruction> instructions, string filename) {
     gotoString = "";
     andFlag = 0;
     orFlag = 0;
+    foundConds = 0;
 }
 
 void Assembly::writeFunctionPrologue() {
@@ -51,8 +52,12 @@ void Assembly::generateCode(vector<irInstruction> instructions)
         if (instruction.op == "GRTH" || instruction.op == "LSTH" || instruction.op == "GREQ" || instruction.op == "LSEQ"
         || instruction.op == "EQ" || instruction.op == "NOTEQ")
         {
-            getGotoString();
-            countConds();
+            if (!foundConds)
+            {
+                findConds();
+                getGotoString();
+                countConds();
+            }
         }
         insertBB(instruction);
         this->insCount++;
@@ -99,6 +104,18 @@ void Assembly::countConds() {
         else if (this->instructions.at(tmp).op == "OR")
         {
             this->orFlag++;
+        }
+        tmp++;
+    }
+}
+
+void Assembly::findConds() {
+    int tmp = this->insCount + 1;
+
+    while ((this->instructions.at(tmp).op != "FUNC") && (tmp < (this->instructions.size() - 1)) && (this->instructions.at(tmp).block.empty()) && (this->instructions.at(tmp).op != "JMP") && (this->instructions.at(tmp).op != "CJMP")) {
+        if (this->instructions.at(tmp).op == "LSTH" || this->instructions.at(tmp).op == "GRTH" || this->instructions.at(tmp).op == "GREQ" || this->instructions.at(tmp).op == "LSEQ" || this->instructions.at(tmp).op == "EQ" || this->instructions.at(tmp).op == "NOTEQ") {
+            this->foundConds = 1;
+            return;
         }
         tmp++;
     }
@@ -341,9 +358,14 @@ void Assembly::chooseInstruction(irInstruction ins) {
     {
         this->andFlag--;
 
+        if (this->andFlag == 0 && this->orFlag == 0)
+        {
+            this->foundConds = 0;
+        }
+
         writeInstruction("movb\t\t" + createString(ins.arg1) + ", %bl");
         writeInstruction("movb\t\t" + createString(ins.arg2) + ", %bh");
-        writeInstruction("and\t\t%bh, %bl");
+        writeInstruction("and \t\t%bh, %bl");
 
         if (this->andFlag || this->orFlag)
         {
@@ -360,6 +382,11 @@ void Assembly::chooseInstruction(irInstruction ins) {
     else if (ins.op == "OR")
     {
         this->orFlag--;
+
+        if (this->andFlag == 0 && this->orFlag == 0)
+        {
+            this->foundConds = 0;
+        }
         writeInstruction("movb\t\t" + createString(ins.arg1) + ", %bl");
         writeInstruction("movb\t\t" + createString(ins.arg2) + ", %bh");
         writeInstruction("or  \t\t%bh, %bl");

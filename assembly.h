@@ -26,6 +26,7 @@ public:
     void writeFunctionEpilogue();
     void getGotoString();
     void countConds();
+    void findConds();
     int getNextOffset(string argument, int type);
     int countLocalVars();
     string createString(string argument);
@@ -36,6 +37,7 @@ private:
     int insCount;
     int andFlag;
     int orFlag;
+    int foundConds;
     vector<irInstruction> localVars;
     string gotoString;
     AssemblyContext assemblyContext;
